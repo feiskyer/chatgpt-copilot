@@ -1,13 +1,13 @@
 {
-  "name": "vscode-chatgpt",
-  "publisher": "YOUR_PUBLISHER_NAME",
-  "displayName": "vscode-chatgpt",
+  "name": "chatgpt-copilot",
+  "publisher": "feiskyer",
+  "displayName": "chatgpt-copilot",
   "icon": "images/ai-logo.jpg",
-  "description": "vscode-chatgpt",
-  "version": "3.9.7-0",
+  "description": "chatgpt-copilot",
+  "version": "4.0.0",
   "aiKey": "",
   "repository": {
-    "url": "https://github.com/YOUR_PUBLISHER_NAME/vscode-chatgpt"
+    "url": "https://github.com/feiskyer/chatgpt-copilot"
   },
   "engines": {
     "vscode": "^1.73.0"
@@ -42,52 +42,52 @@
     "menus": {
       "editor/context": [
         {
-          "command": "vscode-chatgpt.generateCode",
+          "command": "chatgpt-copilot.generateCode",
           "group": "chatGpt@1",
           "when": "editorHasSelection && generateCode-enabled"
         },
         {
-          "command": "vscode-chatgpt.addTests",
+          "command": "chatgpt-copilot.addTests",
           "group": "chatGpt@2",
           "when": "editorHasSelection && addTests-enabled"
         },
         {
-          "command": "vscode-chatgpt.findProblems",
+          "command": "chatgpt-copilot.findProblems",
           "group": "chatGpt@3",
           "when": "editorHasSelection && findProblems-enabled"
         },
         {
-          "command": "vscode-chatgpt.optimize",
+          "command": "chatgpt-copilot.optimize",
           "group": "chatGpt@4",
           "when": "editorHasSelection && optimize-enabled"
         },
         {
-          "command": "vscode-chatgpt.explain",
+          "command": "chatgpt-copilot.explain",
           "group": "chatGpt@5",
           "when": "editorHasSelection && explain-enabled"
         },
         {
-          "command": "vscode-chatgpt.addComments",
+          "command": "chatgpt-copilot.addComments",
           "group": "chatGpt@6",
           "when": "editorHasSelection && addComments-enabled"
         },
         {
-          "command": "vscode-chatgpt.completeCode",
+          "command": "chatgpt-copilot.completeCode",
           "group": "chatGpt@7",
           "when": "editorHasSelection && completeCode-enabled"
         },
         {
-          "command": "vscode-chatgpt.adhoc",
+          "command": "chatgpt-copilot.adhoc",
           "group": "chatGpt@8",
           "when": "editorHasSelection && adhoc-enabled"
         },
         {
-          "command": "vscode-chatgpt.customPrompt1",
+          "command": "chatgpt-copilot.customPrompt1",
           "group": "chatGpt@9",
           "when": "editorHasSelection && customPrompt1-enabled"
         },
         {
-          "command": "vscode-chatgpt.customPrompt2",
+          "command": "chatgpt-copilot.customPrompt2",
           "group": "chatGpt@10",
           "when": "editorHasSelection && customPrompt2-enabled"
         }
@@ -95,61 +95,61 @@
     },
     "keybindings": [
       {
-        "command": "vscode-chatgpt.generateCode",
+        "command": "chatgpt-copilot.generateCode",
         "key": "ctrl+shift+a",
         "mac": "cmd+shift+a",
         "when": "editorHasSelection"
       },
       {
-        "command": "vscode-chatgpt.addTests",
+        "command": "chatgpt-copilot.addTests",
         "key": "ctrl+k ctrl+shift+1",
         "mac": "cmd+k cmd+shift+1",
         "when": "editorHasSelection"
       },
       {
-        "command": "vscode-chatgpt.findProblems",
+        "command": "chatgpt-copilot.findProblems",
         "key": "ctrl+k ctrl+shift+2",
         "mac": "cmd+k cmd+shift+2",
         "when": "editorHasSelection"
       },
       {
-        "command": "vscode-chatgpt.optimize",
+        "command": "chatgpt-copilot.optimize",
         "key": "ctrl+k ctrl+shift+3",
         "mac": "cmd+k cmd+shift+3",
         "when": "editorHasSelection"
       },
       {
-        "command": "vscode-chatgpt.explain",
+        "command": "chatgpt-copilot.explain",
         "key": "ctrl+k ctrl+shift+4",
         "mac": "cmd+k cmd+shift+4",
         "when": "editorHasSelection"
       },
       {
-        "command": "vscode-chatgpt.addComments",
+        "command": "chatgpt-copilot.addComments",
         "key": "ctrl+k ctrl+shift+5",
         "mac": "cmd+k cmd+shift+5",
         "when": "editorHasSelection"
       },
       {
-        "command": "vscode-chatgpt.completeCode",
+        "command": "chatgpt-copilot.completeCode",
         "key": "ctrl+k ctrl+shift+6",
         "mac": "cmd+k cmd+shift+6",
         "when": "editorHasSelection"
       },
       {
-        "command": "vscode-chatgpt.adhoc",
+        "command": "chatgpt-copilot.adhoc",
         "key": "ctrl+k ctrl+shift+7",
         "mac": "cmd+k cmd+shift+7",
         "when": "editorHasSelection"
       },
       {
-        "command": "vscode-chatgpt.customPrompt1",
+        "command": "chatgpt-copilot.customPrompt1",
         "key": "ctrl+k ctrl+shift+8",
         "mac": "cmd+k cmd+shift+8",
         "when": "editorHasSelection"
       },
       {
-        "command": "vscode-chatgpt.customPrompt2",
+        "command": "chatgpt-copilot.customPrompt2",
         "key": "ctrl+k ctrl+shift+9",
         "mac": "cmd+k cmd+shift+9",
         "when": "editorHasSelection"
@@ -157,86 +157,86 @@
     ],
     "commands": [
       {
-        "command": "vscode-chatgpt.freeText",
+        "command": "chatgpt-copilot.freeText",
         "title": "ChatGPT: Ask anything"
       },
       {
-        "command": "vscode-chatgpt.clearSession",
+        "command": "chatgpt-copilot.clearSession",
         "title": "ChatGPT: Reset session"
       },
       {
-        "command": "vscode-chatgpt.generateCode",
+        "command": "chatgpt-copilot.generateCode",
         "title": "ChatGPT-Codex: Generate code",
         "enablement": "editorHasSelection"
       },
       {
-        "command": "vscode-chatgpt.addTests",
+        "command": "chatgpt-copilot.addTests",
         "title": "ChatGPT: Add tests",
         "enablement": "editorHasSelection"
       },
       {
-        "command": "vscode-chatgpt.findProblems",
+        "command": "chatgpt-copilot.findProblems",
         "title": "ChatGPT: Find bugs",
         "enablement": "editorHasSelection"
       },
       {
-        "command": "vscode-chatgpt.optimize",
+        "command": "chatgpt-copilot.optimize",
         "title": "ChatGPT: Optimize",
         "enablement": "editorHasSelection"
       },
       {
-        "command": "vscode-chatgpt.explain",
+        "command": "chatgpt-copilot.explain",
         "title": "ChatGPT: Explain",
         "enablement": "editorHasSelection"
       },
       {
-        "command": "vscode-chatgpt.addComments",
+        "command": "chatgpt-copilot.addComments",
         "title": "ChatGPT: Add comments",
         "enablement": "editorHasSelection"
       },
       {
-        "command": "vscode-chatgpt.completeCode",
+        "command": "chatgpt-copilot.completeCode",
         "title": "ChatGPT: Complete code",
         "enablement": "editorHasSelection"
       },
       {
-        "command": "vscode-chatgpt.adhoc",
+        "command": "chatgpt-copilot.adhoc",
         "title": "ChatGPT: Ad-hoc prompt",
         "enablement": "editorHasSelection"
       },
       {
-        "command": "vscode-chatgpt.customPrompt1",
+        "command": "chatgpt-copilot.customPrompt1",
         "title": "ChatGPT: Custom prompt 1",
         "enablement": "editorHasSelection"
       },
       {
-        "command": "vscode-chatgpt.customPrompt2",
+        "command": "chatgpt-copilot.customPrompt2",
         "title": "ChatGPT: Custom prompt 2",
         "enablement": "editorHasSelection"
       },
       {
-        "command": "vscode-chatgpt.clearConversation",
+        "command": "chatgpt-copilot.clearConversation",
         "title": "ChatGPT: Clear conversation"
       },
       {
-        "command": "vscode-chatgpt.exportConversation",
+        "command": "chatgpt-copilot.exportConversation",
         "title": "ChatGPT: Export conversation"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "vscode-chatgpt-view-container",
+          "id": "chatgpt-copilot-view-container",
           "title": "ChatGPT",
           "icon": "images/openai-logo.svg"
         }
       ]
     },
     "views": {
-      "vscode-chatgpt-view-container": [
+      "chatgpt-copilot-view-container": [
         {
           "type": "webview",
-          "id": "vscode-chatgpt.view",
+          "id": "chatgpt-copilot.view",
           "name": "Conversation window"
         }
       ]
@@ -420,12 +420,10 @@
         "chatgpt.gpt3.model": {
           "type": "string",
           "enum": [
-            "text-davinci-002-render",
-            "gpt-4",
-            "text-davinci-002-render-paid",
-            "text-davinci-002-render-sha",
             "gpt-3.5-turbo",
             "gpt-3.5-turbo-0301",
+            "gpt-4",
+            "gpt-4-32k",
             "text-davinci-003",
             "text-curie-001",
             "text-babbage-001",
@@ -437,12 +435,10 @@
           "markdownDescription": "OpenAI models to use for your prompts. [Documentation](https://beta.openai.com/docs/models/models). \n\n**If you face 400 Bad Request please make sure you are using the right model for your integration method.**",
           "order": 33,
           "enumItemLabels": [
-            "Browser autologin - default ChatGPT model",
-            "Browser autologin - ChatGPT Plus GPT-4",
-            "Browser autologin - ChatGPT Plus default model",
-            "Browser autologin - ChatGPT Plus legacy model",
             "OpenAI API Key - gpt-3.5-turbo",
             "OpenAI API Key - gpt-3.5-turbo-0301",
+            "OpenAI API Key - gpt-4",
+            "OpenAI API Key - gpt-4-32k",
             "OpenAI API Key - text-davinci-003",
             "OpenAI API Key - text-curie-001",
             "OpenAI API Key - text-babbage-001",

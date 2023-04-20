@@ -1,7 +1,7 @@
 // Adapted from https://github.com/transitive-bullshit/chatgpt-api
 
 /**
- * 
+ *
  * MIT License
 
 Copyright (c) 2023 Travis Fischer
@@ -260,11 +260,19 @@ var ChatGPTAPI = class {
     const responseP = new Promise(
       async (resolve, reject) => {
         var _a, _b;
-        const url = this._apiReverseProxyUrl || `${this._apiBaseUrl}/v1/completions`;
-        const headers = {
+        var url = this._apiReverseProxyUrl || `${this._apiBaseUrl}/v1/completions`;
+
+        var headers = {
           "Content-Type": "application/json",
           Authorization: `Bearer ${this._apiKey}`
         };
+
+        // Azure OpenAI Service is using a different URI
+        if (url.includes("azure")) {
+          headers["api-key"] = this._apiKey;
+          url = `${this._apiBaseUrl}/completions?api-version=2023-03-15-preview`;
+        }
+
         if (this._organization) {
           headers["OpenAI-Organization"] = this._organization;
         }

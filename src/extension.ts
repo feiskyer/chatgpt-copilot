@@ -1,3 +1,16 @@
+/**
+ * @author Ali Gençay
+ * https://github.com/gencay/vscode-chatgpt
+ *
+ * @license
+ * Copyright (c) 2022 - Present, Ali Gençay
+ *
+ * All rights reserved. Code licensed under the ISC license
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ */
+
 import * as vscode from "vscode";
 import ChatGptViewProvider from './chatgpt-view-provider';
 
@@ -9,7 +22,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	const provider = new ChatGptViewProvider(context);
 
 	const view = vscode.window.registerWebviewViewProvider(
-		"vscode-chatgpt.view",
+		"chatgpt-copilot.view",
 		provider,
 		{
 			webviewOptions: {
@@ -18,7 +31,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		}
 	);
 
-	const freeText = vscode.commands.registerCommand("vscode-chatgpt.freeText", async () => {
+	const freeText = vscode.commands.registerCommand("chatgpt-copilot.freeText", async () => {
 		const value = await vscode.window.showInputBox({
 			prompt: "Ask anything...",
 		});
@@ -28,15 +41,15 @@ export async function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	const resetThread = vscode.commands.registerCommand("vscode-chatgpt.clearConversation", async () => {
+	const resetThread = vscode.commands.registerCommand("chatgpt-copilot.clearConversation", async () => {
 		provider?.sendMessage({ type: 'clearConversation' }, true);
 	});
 
-	const exportConversation = vscode.commands.registerCommand("vscode-chatgpt.exportConversation", async () => {
+	const exportConversation = vscode.commands.registerCommand("chatgpt-copilot.exportConversation", async () => {
 		provider?.sendMessage({ type: 'exportConversation' }, true);
 	});
 
-	const clearSession = vscode.commands.registerCommand("vscode-chatgpt.clearSession", () => {
+	const clearSession = vscode.commands.registerCommand("chatgpt-copilot.clearSession", () => {
 		context.globalState.update("chatgpt-session-token", null);
 		context.globalState.update("chatgpt-clearance-token", null);
 		context.globalState.update("chatgpt-user-agent", null);
@@ -99,7 +112,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	const adhocCommand = vscode.commands.registerCommand("vscode-chatgpt.adhoc", async () => {
+	const adhocCommand = vscode.commands.registerCommand("chatgpt-copilot.adhoc", async () => {
 		const editor = vscode.window.activeTextEditor;
 
 		if (!editor) {
@@ -133,7 +146,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	const generateCodeCommand = vscode.commands.registerCommand(`vscode-chatgpt.generateCode`, () => {
+	const generateCodeCommand = vscode.commands.registerCommand(`chatgpt-copilot.generateCode`, () => {
 		const editor = vscode.window.activeTextEditor;
 
 		if (!editor) {
@@ -147,7 +160,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	});
 
 	// Skip AdHoc - as it was registered earlier
-	const registeredCommands = menuCommands.filter(command => command !== "adhoc" && command !== "generateCode").map((command) => vscode.commands.registerCommand(`vscode-chatgpt.${command}`, () => {
+	const registeredCommands = menuCommands.filter(command => command !== "adhoc" && command !== "generateCode").map((command) => vscode.commands.registerCommand(`chatgpt-copilot.${command}`, () => {
 		const prompt = vscode.workspace.getConfiguration("chatgpt").get<string>(`promptPrefix.${command}`);
 		const editor = vscode.window.activeTextEditor;
 
