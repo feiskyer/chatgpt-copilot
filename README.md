@@ -30,6 +30,13 @@ But unfortunately, the original author has decided to stop maintaining the proje
 - Edit and resend a previous prompt
 - Copy, insert or create new file from the code, ChatGPT is suggesting right into your editor.
 
+## Configurations
+
+- `chatgpt.gpt3.apiKey` is required to access OpenAI, please get one from OpenAI [here].
+- `chatgpt.gpt3.apiBaseUrl` is optional, default to `https://api.openai.com`.
+  - For Azure OpenAI Service, it should be set to `https://<YOUR-ENDPOINT-NAME>.openai.azure.com/openai/deployments/<YOUR-DEPLOYMENT-NAME>`.
+- `chatgpt.gpt3.model` is optional, default to `gpt-3.5-turbo`.
+
 ## How to install locally
 
 - Install `vsce` if you don't have it on your machine (The Visual Studio Code Extension Manager)
