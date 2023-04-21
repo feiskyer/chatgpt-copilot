@@ -1,4 +1,4 @@
-<h3 align="center"><img src="https://raw.githubusercontent.com/feiskyer/chatgpt-copilot/main/images/ai-logo.png" height="64"><br>An Unofficial VS Code - ChatGPT Extension</h3>
+<h3 align="center"><img src="https://raw.githubusercontent.com/feiskyer/chatgpt-copilot/main/images/ai-logo.png" height="64"><br>An VS Code ChatGPT Copilot Extension</h3>
 
 <p align="center">
     <a href="https://marketplace.visualstudio.com/items?itemName=feiskyer.chatgpt-copilot" alt="Marketplace version">
@@ -12,7 +12,7 @@
     </a>
 </p>
 
-## The most loved\* ChatGPT extension in VS Code open-sourced
+## The most loved opensourced ChatGPT extension for VS Code
 
 The project is built on the most loved ChatGPT extension [gencay/vscode-chatgpt](https://github.com/gencay/vscode-chatgpt), which has downloaded by ~500,000 developers.
 
@@ -46,6 +46,4 @@ But unfortunately, the original author has decided to stop maintaining the proje
 
 ## License
 
-> If you are developing completely another extension and release it to the public, make sure you follow this.
-
-This project is released under ISC License - See root License for details. Copyright notice and the respective permission notices must appear in all copies.
+This project is released under ISC License - See [LICENSE](LICENSE) for details. Copyright notice and the respective permission notices must appear in all copies.

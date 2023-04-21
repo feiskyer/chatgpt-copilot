@@ -4,7 +4,7 @@
   "displayName": "chatgpt-copilot",
   "icon": "images/ai-logo.jpg",
   "description": "chatgpt-copilot",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "aiKey": "",
   "repository": {
     "url": "https://github.com/feiskyer/chatgpt-copilot"
