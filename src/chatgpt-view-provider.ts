@@ -13,8 +13,6 @@
 
 import delay from "delay";
 import fetch from "isomorphic-fetch";
-import * as fs from "node:fs";
-import * as os from "node:os";
 import * as vscode from "vscode";
 import { ChatGPTAPI as ChatGPTAPI3 } from "../chatgpt-4.7.2/index";
 import { ChatGPTAPI as ChatGPTAPI35 } from "../chatgpt-5.1.1/index";
@@ -27,7 +25,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public autoScroll: boolean;
   public useAutoLogin?: boolean;
   public useGpt3?: boolean;
-  public chromiumPath?: string;
   public profilePath?: string;
   public model?: string;
   private apiBaseUrl?: string;
@@ -36,7 +33,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private apiGpt35?: ChatGPTAPI35;
   private conversationId?: string;
   private messageId?: string;
-  private proxyServer?: string;
   private loginMethod?: LoginMethod;
   private authType?: AuthType;
 
@@ -72,9 +68,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     }
 
     this.setMethod();
-    this.setChromeExecutablePath();
     this.setProfilePath();
-    this.setProxyServer();
     this.setAuthType();
   }
 
@@ -177,7 +171,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       }
     });
 
-    if (this.leftOverMessage != null) {
+    if (this.leftOverMessage !== null) {
       // If there were any messages that wasn't delivered, render after resolveWebView is called.
       this.sendMessage(this.leftOverMessage);
       this.leftOverMessage = null;
@@ -208,12 +202,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.logEvent("cleared-session");
   }
 
-  public setProxyServer(): void {
-    this.proxyServer = vscode.workspace
-      .getConfiguration("chatgpt")
-      .get("proxyServer");
-  }
-
   public setMethod(): void {
     this.loginMethod = vscode.workspace
       .getConfiguration("chatgpt")
@@ -228,35 +216,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.authType = vscode.workspace
       .getConfiguration("chatgpt")
       .get("authenticationType");
-    this.clearSession();
-  }
-
-  public setChromeExecutablePath(): void {
-    let path = "";
-    switch (os.platform()) {
-      case "win32":
-        path = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-        break;
-
-      case "darwin":
-        path = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-        break;
-
-      default:
-        /**
-         * Since two (2) separate chrome releases exists on linux
-         * we first do a check to ensure we're executing the right one.
-         */
-        const chromeExists = fs.existsSync("/usr/bin/google-chrome");
-
-        path = chromeExists
-          ? "/usr/bin/google-chrome"
-          : "/usr/bin/google-chrome-stable";
-        break;
-    }
-
-    this.chromiumPath =
-      vscode.workspace.getConfiguration("chatgpt").get("chromiumPath") || path;
     this.clearSession();
   }
 

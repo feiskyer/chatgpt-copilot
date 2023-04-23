@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 // Adapted from https://github.com/transitive-bullshit/chatgpt-api/blob/v3/license
 
 /**
- * 
+ *
  * MIT License
 
 Copyright (c) 2023 Travis Fischer
