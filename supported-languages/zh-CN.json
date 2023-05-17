@@ -14,7 +14,6 @@
     "chatgpt-copilot.clearConversation.title": "ChatGPT: 清除对话",
     "chatgpt-copilot.exportConversation.title": "ChatGPT: 导出对话",
     "chatgpt-copilot-view-container.name": "对话窗口",
-    "chatgpt.authenticationType.markdownDescription": "选择您的账号类型。 \n\n - `OpenAI Authentication` 标准身份验证方法，使用电子邮件地址登录。 \n\n - `Google Authentication` 使用 Google 账号登录。 \n\n - `Microsoft Authentication` 使用 Microsoft 账号登录",
     "chatgpt.emailAddress.description": "[可选] 您的 openai.com 邮件账号。如果您希望扩展为你自动登录，请提供此信息。此扩展不会收集你的信息，但您的配置将以明文形式储存在 Vscode 配置文件中，依然存在泄漏风险。如果您想手动填写密码以保护隐私安全，请不要在此填写信息。",
     "chatgpt.password.description": "[可选] 您的 openai.com 登录密码。如果您希望扩展为你自动登录，请提供此信息。此扩展不会收集你的信息，但您的配置将以明文形式储存在 Vscode 配置文件中，依然存在泄漏风险。如果您想手动填写密码以保护隐私安全，请不要在此填写信息。",
     "chatgpt.gpt3.generateCode-enabled.description": "选中代码后，在上下文菜单选项显示[生成代码或注释]。仅适用于 code-* 语言模型。",

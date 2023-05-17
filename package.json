@@ -259,29 +259,6 @@
             "Various text & code completion models are supported including ChatGPT Turbo models. \n\n- GPT3.5 -> i.e. `'chatgpt.gpt3.model': 'gpt-3.5-turbo'`\n\n- GPT3 -> i.e. `'chatgpt.gpt3.model': 'text-davinci-003'`\n\n- Codex -> i.e.`'chatgpt.gpt3.model': 'code-davinci-002'`"
           ]
         },
-        "chatgpt.authenticationType": {
-          "type": "string",
-          "enum": [
-            "OpenAI Authentication",
-            "Google Authentication",
-            "Microsoft Authentication"
-          ],
-          "default": "OpenAI Authentication",
-          "markdownDescription": "Choose your login type to autofill the provided email/password in the authentication flow. \n\n - `OpenAI Authentication` Standard authentication method. Use this if you signed up using your email address instead of Google/Microsoft authentication. \n\n - `Google Authentication` Use Google Authentication to login to OpenAI \n\n - `Microsoft Authentication` Use Microsoft Authentication to login to OpenAI",
-          "order": 2
-        },
-        "chatgpt.emailAddress": {
-          "type": "string",
-          "default": null,
-          "description": "[Optional] Your openai.com login email address. Provide this if you want to auto-fill your email address during autologin. You don't have to provide this if you want to fill it during login.",
-          "order": 3
-        },
-        "chatgpt.password": {
-          "type": "string",
-          "default": null,
-          "description": "[Optional] Your openai.com login password. Provide this if you want to auto-fill your password during autologin. You don't have to provide this if you want to fill it during login.",
-          "order": 4
-        },
         "chatgpt.gpt3.generateCode-enabled": {
           "type": "boolean",
           "default": true,
@@ -509,8 +486,8 @@
     "mocha": "^10.1.0",
     "prettier": "^2.8.7",
     "ts-loader": "^9.4.2",
-    "webpack": "^5.0.0",
-    "typescript": "^4.9.3"
+    "typescript": "^4.9.3",
+    "webpack": "^5.0.0"
   },
   "dependencies": {
     "delay": "^5.0.0",
@@ -518,6 +495,7 @@
     "gpt3-tokenizer": "^1.1.5",
     "isomorphic-fetch": "^3.0.0",
     "keyv": "^4.5.2",
+    "langchain": "^0.0.75",
     "openai": "^3.1.0",
     "p-timeout": "^6.1.1",
     "puppeteer": "^19.10.1",

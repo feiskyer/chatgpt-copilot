@@ -95,28 +95,6 @@ export async function activate(context: vscode.ExtensionContext) {
         .get("response.autoScroll");
     }
 
-    if (e.affectsConfiguration("chatgpt.useAutoLogin")) {
-      provider.useAutoLogin =
-        vscode.workspace.getConfiguration("chatgpt").get("useAutoLogin") ||
-        false;
-
-      context.globalState.update("chatgpt-session-token", null);
-      context.globalState.update("chatgpt-clearance-token", null);
-      context.globalState.update("chatgpt-user-agent", null);
-    }
-
-    if (e.affectsConfiguration("chatgpt.profilePath")) {
-      provider.setProfilePath();
-    }
-
-    if (e.affectsConfiguration("chatgpt.method")) {
-      provider.setMethod();
-    }
-
-    if (e.affectsConfiguration("chatgpt.authenticationType")) {
-      provider.setAuthType();
-    }
-
     if (e.affectsConfiguration("chatgpt.gpt3.model")) {
       provider.model = vscode.workspace
         .getConfiguration("chatgpt")
@@ -281,4 +259,4 @@ export async function activate(context: vscode.ExtensionContext) {
   setContext();
 }
 
-export function deactivate() {}
+export function deactivate() { }

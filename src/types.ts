@@ -334,7 +334,7 @@ export class ChatGPTError extends Error {
 }
 
 export type ChatError = {
-  error: { message: string; statusCode?: number; statusText?: string };
+  error: { message: string; statusCode?: number; statusText?: string; };
   conversationId?: string;
   messageId?: string;
 };
@@ -373,10 +373,3 @@ export type ConversationResponse = {
   moderation_results: any[];
   current_node: string;
 };
-
-export type LoginMethod = "GPT3 OpenAI API Key";
-
-export type AuthType =
-  | "OpenAI Authentication"
-  | "Google Authentication"
-  | "Microsoft Authentication";

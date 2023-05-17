@@ -201,9 +201,6 @@
                 break;
             case "loginSuccessful":
                 document.getElementById("login-button")?.classList?.add("hidden");
-                if (message.showConversations) {
-                    document.getElementById("list-conversations-link")?.classList?.remove("hidden");
-                }
                 break;
             case "listConversations":
                 list.classList.add("hidden");
