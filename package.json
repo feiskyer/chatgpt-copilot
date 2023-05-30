@@ -1,10 +1,10 @@
 {
   "name": "chatgpt-copilot",
   "publisher": "feiskyer",
-  "displayName": "chatgpt-copilot",
+  "displayName": "ChatGPT Copilot",
   "icon": "images/ai-logo.jpg",
-  "description": "chatgpt-copilot",
-  "version": "4.1.1",
+  "description": "An VS Code ChatGPT Copilot Extension",
+  "version": "4.1.2",
   "aiKey": "",
   "repository": {
     "url": "https://github.com/feiskyer/chatgpt-copilot"
