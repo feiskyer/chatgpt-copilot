@@ -494,7 +494,7 @@
     "eventsource-parser": "^0.1.0",
     "gpt3-tokenizer": "^1.1.5",
     "isomorphic-fetch": "^3.0.0",
-    "keyv": "^4.5.2",
+    "keyv": "^4.5.3",
     "langchain": "^0.0.75",
     "openai": "^3.1.0",
     "p-timeout": "^6.1.1",
