@@ -505,7 +505,7 @@
     "puppeteer-extra-plugin-user-preferences": "^2.4.1",
     "quick-lru": "^6.1.1",
     "remark": "^14.0.2",
-    "strip-markdown": "^5.0.0",
+    "strip-markdown": "^5.0.1",
     "uuid": "^9.0.0"
   },
   "resolutions": {

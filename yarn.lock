@@ -2850,10 +2850,10 @@ strip-json-comments@3.1.1, strip-json-comments@^3.1.0, strip-json-comments@^3.1.
   resolved "https://registry.npmjs.org/strip-json-comments/-/strip-json-comments-3.1.1.tgz"
   integrity sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==
 
-strip-markdown@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.npmjs.org/strip-markdown/-/strip-markdown-5.0.0.tgz"
-  integrity sha512-PXSts6Ta9A/TwGxVVSRlQs1ukJTAwwtbip2OheJEjPyfykaQ4sJSTnQWjLTI2vYWNts/R/91/csagp15W8n9gA==
+strip-markdown@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/strip-markdown/-/strip-markdown-5.0.1.tgz#01e9689f292652ae0a383ac362779f721031bc48"
+  integrity sha512-IvoKZrXtWAnlEjRfDlT3yRtGRvpX3RSg+nwAHONmshpSCoxgjZV2xX9ZYvEmwupmYobJtws9oDdTwLUu/5PoMQ==
   dependencies:
     "@types/mdast" "^3.0.0"
     "@types/unist" "^2.0.6"
