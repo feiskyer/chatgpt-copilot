@@ -13,4 +13,4 @@ images/**
 temp/**
 !images/ai-logo.jpg
 !images/openai-logo.svg
-chatgpt-4.7.2
+.vsix

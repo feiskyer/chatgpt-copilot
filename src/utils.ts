@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 // Adapted from https://github.com/transitive-bullshit/chatgpt-api/blob/v3/license
 
 /**
@@ -40,7 +41,7 @@ import * as types from "./types";
 
 declare global {
   function ChatGPTAPIBrowserOnProgress(
-    partialChatResponse: types.ChatResponse
+    partialChatResponse: types.ChatResponse,
   ): Promise<void>;
 }
 
@@ -109,7 +110,7 @@ export async function browserPostEventStream(
   url: string,
   accessToken: string,
   body: types.ConversationJSONBody,
-  timeoutMs?: number
+  timeoutMs?: number,
 ): Promise<types.ChatError | types.ChatResponse> {
   // Workaround for https://github.com/esbuild-kit/tsx/issues/113
   globalThis.__name = () => undefined;
@@ -194,7 +195,7 @@ export async function browserPostEventStream(
             console.warn(
               "warning: chatgpt even stream parse error",
               err.toString(),
-              data
+              data,
             );
             return;
           }
@@ -244,7 +245,7 @@ export async function browserPostEventStream(
           const str = new TextDecoder().decode(chunk);
           parser.feed(str);
         }
-      }
+      },
     );
 
     if (timeoutMs) {
@@ -414,7 +415,7 @@ export async function browserPostEventStream(
       lineBuffer: string,
       index: number,
       fieldLength: number,
-      lineLength: number
+      lineLength: number,
     ) {
       if (lineLength === 0) {
         // We reached the last line of this event
@@ -436,7 +437,7 @@ export async function browserPostEventStream(
       const noValue = fieldLength < 0;
       const field = lineBuffer.slice(
         index,
-        index + (noValue ? lineLength : fieldLength)
+        index + (noValue ? lineLength : fieldLength),
       );
       let step = 0;
 
@@ -471,7 +472,8 @@ export async function browserPostEventStream(
 
   function hasBom(buffer: string) {
     return BOM.every(
-      (charCode: number, index: number) => buffer.charCodeAt(index) === charCode
+      (charCode: number, index: number) =>
+        buffer.charCodeAt(index) === charCode,
     );
   }
 
@@ -499,7 +501,7 @@ export async function browserPostEventStream(
   // @see https://github.com/sindresorhus/p-timeout
   function pTimeout<ValueType, ReturnType = ValueType>(
     promise: PromiseLike<ValueType>,
-    options: PTimeoutTypes.Options<ReturnType>
+    options: PTimeoutTypes.Options<ReturnType>,
   ): PTimeoutTypes.ClearablePromise<ValueType | ReturnType> {
     const {
       milliseconds,
@@ -513,7 +515,7 @@ export async function browserPostEventStream(
     const cancelablePromise = new Promise((resolve, reject) => {
       if (typeof milliseconds !== "number" || Math.sign(milliseconds) !== 1) {
         throw new TypeError(
-          `Expected \`milliseconds\` to be a positive number, got \`${milliseconds}\``
+          `Expected \`milliseconds\` to be a positive number, got \`${milliseconds}\``,
         );
       }
 
@@ -559,7 +561,7 @@ export async function browserPostEventStream(
 
           reject(timeoutError);
         },
-        milliseconds
+        milliseconds,
       );
       (async () => {
         try {
@@ -583,7 +585,7 @@ export async function browserPostEventStream(
 
 export async function browserGetResponse<T>(
   url: string,
-  accessToken: string
+  accessToken: string,
 ): Promise<T> {
   try {
     const res = await fetch(url, {

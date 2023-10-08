@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable eqeqeq */
 /**
  * @author Ali Gençay
@@ -13,9 +14,9 @@
  */
 
 import delay from "delay";
-import { LLMChain, OpenAI } from "langchain";
-import { ConversationChain } from "langchain/chains";
+import { ConversationChain, LLMChain } from "langchain/chains";
 import { ChatOpenAI } from "langchain/chat_models/openai";
+import { OpenAI } from "langchain/llms/openai";
 import { BufferMemory } from "langchain/memory";
 import {
   ChatPromptTemplate,
@@ -75,7 +76,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public resolveWebviewView(
     webviewView: vscode.WebviewView,
     _context: vscode.WebviewViewResolveContext,
-    _token: vscode.CancellationToken
+    _token: vscode.CancellationToken,
   ) {
     this.webView = webviewView;
 
@@ -96,7 +97,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         case "editCode":
           const escapedString = (data.value as string).replace(/\$/g, "\\$");
           vscode.window.activeTextEditor?.insertSnippet(
-            new vscode.SnippetString(escapedString)
+            new vscode.SnippetString(escapedString),
           );
 
           this.logEvent("code-inserted");
@@ -109,14 +110,17 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           vscode.window.showTextDocument(document);
 
           this.logEvent(
-            data.language === "markdown" ? "code-exported" : "code-opened"
+            data.language === "markdown" ? "code-exported" : "code-opened",
           );
           break;
         case "clearConversation":
           this.messageId = undefined;
           this.conversationId = undefined;
           if (this.chain != null) {
-            this.chain.memory = new BufferMemory({ returnMessages: true, memoryKey: "history" });
+            this.chain.memory = new BufferMemory({
+              returnMessages: true,
+              memoryKey: "history",
+            });
           }
           this.logEvent("conversation-cleared");
           break;
@@ -135,7 +139,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
                   type: "loginSuccessful",
                   showConversations: false,
                 },
-                true
+                true,
               );
               this.logEvent("logged-in");
             }
@@ -144,7 +148,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         case "openSettings":
           vscode.commands.executeCommand(
             "workbench.action.openSettings",
-            "@ext:feiskyer.chatgpt-copilot chatgpt."
+            "@ext:feiskyer.chatgpt-copilot chatgpt.",
           );
 
           this.logEvent("settings-opened");
@@ -152,7 +156,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         case "openSettingsPrompt":
           vscode.commands.executeCommand(
             "workbench.action.openSettings",
-            "@ext:feiskyer.chatgpt-copilot promptPrefix"
+            "@ext:feiskyer.chatgpt-copilot promptPrefix",
           );
 
           this.logEvent("settings-prompt-opened");
@@ -235,13 +239,13 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           .showErrorMessage(
             "Please add your API Key to use OpenAI official APIs. Storing the API Key in Settings is discouraged due to security reasons, though you can still opt-in to use it to persist it in settings. Instead you can also temporarily set the API Key one-time: You will need to re-enter after restarting the vs-code.",
             "Store in session (Recommended)",
-            "Open settings"
+            "Open settings",
           )
           .then(async (choice) => {
             if (choice === "Open settings") {
               vscode.commands.executeCommand(
                 "workbench.action.openSettings",
-                "chatgpt.gpt3.apiKey"
+                "chatgpt.gpt3.apiKey",
               );
               return false;
             } else if (choice === "Store in session (Recommended)") {
@@ -262,7 +266,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
                       {
                         type: "loginSuccessful",
                       },
-                      true
+                      true,
                     );
                   }
                 });
@@ -277,12 +281,16 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         new MessagesPlaceholder("history"),
         HumanMessagePromptTemplate.fromTemplate("{input}"),
       ]);
-      var chatMemory = new BufferMemory({ returnMessages: true, memoryKey: "history" });
+      var chatMemory = new BufferMemory({
+        returnMessages: true,
+        memoryKey: "history",
+      });
       if (this.isGpt35Model) {
         if (apiBaseUrl?.includes("azure")) {
           // AzureOpenAI
           const instanceName = apiBaseUrl.split(".")[0].split("//")[1];
-          const deployName = apiBaseUrl.split("/")[apiBaseUrl.split("/").length - 1];
+          const deployName =
+            apiBaseUrl.split("/")[apiBaseUrl.split("/").length - 1];
           this.apiChat = new ChatOpenAI({
             modelName: this.model,
             azureOpenAIApiKey: apiKey,
@@ -314,7 +322,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         if (apiBaseUrl?.includes("azure")) {
           // AzureOpenAI
           const instanceName = apiBaseUrl.split(".")[0].split("//")[1];
-          const deployName = apiBaseUrl.split("/")[apiBaseUrl.split("/").length - 1];
+          const deployName =
+            apiBaseUrl.split("/")[apiBaseUrl.split("/").length - 1];
           this.apiCompletion = new OpenAI({
             modelName: this.model,
             azureOpenAIApiKey: apiKey,
@@ -345,10 +354,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       }
     }
 
-    this.sendMessage(
-      { type: "loginSuccessful" },
-      true
-    );
+    this.sendMessage({ type: "loginSuccessful" }, true);
 
     return true;
   }
@@ -363,10 +369,11 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private processQuestion(question: string, code?: string, language?: string) {
     if (code != null) {
       // Add prompt prefix to the code if there was a code block selected
-      question = `${question}${language
-        ? ` (The following code is in ${language} programming language)`
-        : ""
-        }: ${code}`;
+      question = `${question}${
+        language
+          ? ` (The following code is in ${language} programming language)`
+          : ""
+      }: ${code}`;
     }
     return question + "\r\n";
   }
@@ -378,7 +385,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       code?: string;
       previousAnswer?: string;
       language?: string;
-    }
+    },
   ) {
     if (this.inProgress) {
       // The AI is still thinking... Do not accept more questions.
@@ -435,10 +442,11 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       });
     };
     try {
-      const gptResponse = await this.chain?.call({
-        input: question,
-        // signal: this.abortController.signal,
-      },
+      const gptResponse = await this.chain?.call(
+        {
+          input: question,
+          // signal: this.abortController.signal,
+        },
         [
           {
             handleLLMNewToken(token: string) {
@@ -447,7 +455,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
             handleLLMError(err, runId, parentRunId) {
               logger.appendLine(`Error in LLM: ${err.message}`);
             },
-          }
+          },
         ],
       );
       this.response = gptResponse?.response;
@@ -471,7 +479,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         vscode.window
           .showInformationMessage(
             "It looks like ChatGPT didn't complete their answer for your coding question. You can ask it to continue and combine the answers.",
-            "Continue and combine answers"
+            "Continue and combine answers",
           )
           .then(async (choice) => {
             if (choice === "Continue and combine answers") {
@@ -497,7 +505,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         vscode.window
           .showInformationMessage(
             "ChatGPT responded to your question.",
-            "Open conversation"
+            "Open conversation",
           )
           .then(async () => {
             await vscode.commands.executeCommand("chatgpt-copilot.view.focus");
@@ -514,18 +522,19 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       this.logError("api-request-failed");
 
       if (error?.response?.status || error?.response?.statusText) {
-        message = `${error?.response?.status || ""} ${error?.response?.statusText || ""
-          }`;
+        message = `${error?.response?.status || ""} ${
+          error?.response?.statusText || ""
+        }`;
 
         vscode.window
           .showErrorMessage(
             "An error occured. If this is due to max_token you could try `ChatGPT: Clear Conversation` command and retry sending your prompt.",
-            "Clear conversation and retry"
+            "Clear conversation and retry",
           )
           .then(async (choice) => {
             if (choice === "Clear conversation and retry") {
               await vscode.commands.executeCommand(
-                "chatgpt-copilot.clearConversation"
+                "chatgpt-copilot.clearConversation",
               );
               await delay(250);
               this.sendApiRequest(prompt, {
@@ -588,21 +597,27 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private logEvent(eventName: string, properties?: {}): void {
     // You can initialize your telemetry reporter and consume it here - *replaced with console.debug to prevent unwanted telemetry logs
     // this.reporter?.sendTelemetryEvent(eventName, { "chatgpt.loginMethod": this.loginMethod!, "chatgpt.authType": this.authType!, "chatgpt.model": this.model || "unknown", ...properties }, { "chatgpt.questionCounter": this.questionCounter });
-    logger.appendLine(`INFO ${eventName} chatgpt.model:${this.model} chatgpt.questionCounter:${this.questionCounter} ${JSON.stringify(properties)}`);
+    logger.appendLine(
+      `INFO ${eventName} chatgpt.model:${this.model} chatgpt.questionCounter:${
+        this.questionCounter
+      } ${JSON.stringify(properties)}`,
+    );
   }
 
   private logError(eventName: string): void {
     // You can initialize your telemetry reporter and consume it here - *replaced with console.error to prevent unwanted telemetry logs
     // this.reporter?.sendTelemetryErrorEvent(eventName, { "chatgpt.loginMethod": this.loginMethod!, "chatgpt.authType": this.authType!, "chatgpt.model": this.model || "unknown" }, { "chatgpt.questionCounter": this.questionCounter });
-    logger.appendLine(`ERR ${eventName} chatgpt.model:${this.model} chatgpt.questionCounter:${this.questionCounter}}`);
+    logger.appendLine(
+      `ERR ${eventName} chatgpt.model:${this.model} chatgpt.questionCounter:${this.questionCounter}}`,
+    );
   }
 
   private getWebviewHtml(webview: vscode.Webview) {
     const scriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this.context.extensionUri, "media", "main.js")
+      vscode.Uri.joinPath(this.context.extensionUri, "media", "main.js"),
     );
     const stylesMainUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this.context.extensionUri, "media", "main.css")
+      vscode.Uri.joinPath(this.context.extensionUri, "media", "main.css"),
     );
 
     const vendorHighlightCss = webview.asWebviewUri(
@@ -610,40 +625,40 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         this.context.extensionUri,
         "media",
         "vendor",
-        "highlight.min.css"
-      )
+        "highlight.min.css",
+      ),
     );
     const vendorHighlightJs = webview.asWebviewUri(
       vscode.Uri.joinPath(
         this.context.extensionUri,
         "media",
         "vendor",
-        "highlight.min.js"
-      )
+        "highlight.min.js",
+      ),
     );
     const vendorMarkedJs = webview.asWebviewUri(
       vscode.Uri.joinPath(
         this.context.extensionUri,
         "media",
         "vendor",
-        "marked.min.js"
-      )
+        "marked.min.js",
+      ),
     );
     const vendorTailwindJs = webview.asWebviewUri(
       vscode.Uri.joinPath(
         this.context.extensionUri,
         "media",
         "vendor",
-        "tailwindcss.3.2.4.min.js"
-      )
+        "tailwindcss.3.2.4.min.js",
+      ),
     );
     const vendorTurndownJs = webview.asWebviewUri(
       vscode.Uri.joinPath(
         this.context.extensionUri,
         "media",
         "vendor",
-        "turndown.js"
-      )
+        "turndown.js",
+      ),
     );
 
     const nonce = this.getRandomId();

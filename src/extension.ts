@@ -40,7 +40,7 @@ export async function activate(context: vscode.ExtensionContext) {
       webviewOptions: {
         retainContextWhenHidden: true,
       },
-    }
+    },
   );
 
   const freeText = vscode.commands.registerCommand(
@@ -53,21 +53,21 @@ export async function activate(context: vscode.ExtensionContext) {
       if (value) {
         provider?.sendApiRequest(value, { command: "freeText" });
       }
-    }
+    },
   );
 
   const resetThread = vscode.commands.registerCommand(
     "chatgpt-copilot.clearConversation",
     async () => {
       provider?.sendMessage({ type: "clearConversation" }, true);
-    }
+    },
   );
 
   const exportConversation = vscode.commands.registerCommand(
     "chatgpt-copilot.exportConversation",
     async () => {
       provider?.sendMessage({ type: "exportConversation" }, true);
-    }
+    },
   );
 
   const clearSession = vscode.commands.registerCommand(
@@ -78,7 +78,7 @@ export async function activate(context: vscode.ExtensionContext) {
       context.globalState.update("chatgpt-user-agent", null);
       context.globalState.update("chatgpt-gpt3-apiKey", null);
       provider?.clearSession();
-    }
+    },
   );
 
   const configChanged = vscode.workspace.onDidChangeConfiguration((e) => {
@@ -152,7 +152,7 @@ export async function activate(context: vscode.ExtensionContext) {
             adhocCommandPrefix = value.trim() || "";
             context.globalState.update(
               "chatgpt-adhoc-prompt",
-              adhocCommandPrefix
+              adhocCommandPrefix,
             );
           });
 
@@ -163,7 +163,7 @@ export async function activate(context: vscode.ExtensionContext) {
           });
         }
       }
-    }
+    },
   );
 
   const generateCodeCommand = vscode.commands.registerCommand(
@@ -182,7 +182,7 @@ export async function activate(context: vscode.ExtensionContext) {
           language: editor.document.languageId,
         });
       }
-    }
+    },
   );
 
   // Skip AdHoc - as it was registered earlier
@@ -207,7 +207,7 @@ export async function activate(context: vscode.ExtensionContext) {
             language: editor.document.languageId,
           });
         }
-      })
+      }),
     );
 
   context.subscriptions.push(
@@ -219,7 +219,7 @@ export async function activate(context: vscode.ExtensionContext) {
     configChanged,
     adhocCommand,
     generateCodeCommand,
-    ...registeredCommands
+    ...registeredCommands,
   );
 
   const setContext = () => {
@@ -241,7 +241,7 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.executeCommand(
           "setContext",
           "generateCode-enabled",
-          generateCodeEnabled
+          generateCodeEnabled,
         );
       } else {
         const enabled = !!vscode.workspace
@@ -250,7 +250,7 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.executeCommand(
           "setContext",
           `${command}-enabled`,
-          enabled
+          enabled,
         );
       }
     });
@@ -259,4 +259,4 @@ export async function activate(context: vscode.ExtensionContext) {
   setContext();
 }
 
-export function deactivate() { }
+export function deactivate() {}

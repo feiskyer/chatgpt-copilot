@@ -334,7 +334,7 @@ export class ChatGPTError extends Error {
 }
 
 export type ChatError = {
-  error: { message: string; statusCode?: number; statusText?: string; };
+  error: { message: string; statusCode?: number; statusText?: string };
   conversationId?: string;
   messageId?: string;
 };

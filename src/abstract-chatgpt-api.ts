@@ -55,7 +55,7 @@ export abstract class AChatGPTAPI {
    */
   abstract sendMessage(
     message: string,
-    opts?: types.SendMessageOptions
+    opts?: types.SendMessageOptions,
   ): Promise<types.ChatResponse>;
 
   /**
@@ -96,9 +96,9 @@ export abstract class AChatGPTAPI {
 
   abstract getConversations(
     offset?: number,
-    limit?: number
+    limit?: number,
   ): Promise<types.ConversationsResponse | undefined>;
   abstract getConversation(
-    id: string
+    id: string,
   ): Promise<types.ConversationResponse | undefined>;
 }
