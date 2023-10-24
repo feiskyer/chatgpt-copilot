@@ -299,6 +299,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
             azureOpenAIApiCompletionsDeploymentName: deployName,
             azureOpenAIApiVersion: "2023-05-15",
             maxTokens: maxTokens,
+            streaming: true,
             temperature: temperature,
             topP: topP,
           });
@@ -308,6 +309,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
             openAIApiKey: apiKey,
             modelName: this.model,
             maxTokens: maxTokens,
+            streaming: true,
             temperature: temperature,
             topP: topP,
           });
@@ -332,6 +334,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
             azureOpenAIApiCompletionsDeploymentName: deployName,
             azureOpenAIApiVersion: "2023-05-15",
             maxTokens: maxTokens,
+            streaming: true,
             temperature: temperature,
             topP: topP,
           });
@@ -341,6 +344,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
             openAIApiKey: apiKey,
             modelName: this.model,
             maxTokens: maxTokens,
+            streaming: true,
             temperature: temperature,
             topP: topP,
           });
@@ -369,11 +373,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private processQuestion(question: string, code?: string, language?: string) {
     if (code != null) {
       // Add prompt prefix to the code if there was a code block selected
-      question = `${question}${
-        language
-          ? ` (The following code is in ${language} programming language)`
-          : ""
-      }: ${code}`;
+      question = `${question}${language
+        ? ` (The following code is in ${language} programming language)`
+        : ""
+        }: ${code}`;
     }
     return question + "\r\n";
   }
@@ -431,12 +434,14 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     });
 
     const responseInMarkdown = !this.isCodexModel;
-    const updateConsole = (message: string) => {
+
+    const updateResponse = (message: string) => {
+      this.response += message;
       this.sendMessage({
         type: "addResponse",
-        value: message,
-        messageId: this.conversationId,
-        parentMessageId: this.messageId,
+        value: this.response,
+        id: this.currentMessageId,
+        messageId: this.currentMessageId,
         autoScroll: this.autoScroll,
         responseInMarkdown,
       });
@@ -445,12 +450,12 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       const gptResponse = await this.chain?.call(
         {
           input: question,
-          // signal: this.abortController.signal,
+          signal: this.abortController.signal,
         },
         [
           {
             handleLLMNewToken(token: string) {
-              updateConsole(token);
+              updateResponse(token);
             },
             handleLLMError(err, runId, parentRunId) {
               logger.appendLine(`Error in LLM: ${err.message}`);
@@ -459,21 +464,12 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         ],
       );
       this.response = gptResponse?.response;
-      // this.sendMessage({
-      //   type: "addResponse",
-      //   value: this.response,
-      //   autoScroll: this.autoScroll,
-      //   messageId: this.conversationId,
-      //   parentMessageId: this.messageId,
-      //   responseInMarkdown,
-      // });
 
       if (options.previousAnswer != null) {
         this.response = options.previousAnswer + this.response;
       }
 
       const hasContinuation = this.response.split("```").length % 2 === 0;
-
       if (hasContinuation) {
         this.response = this.response + " \r\n ```\r\n";
         vscode.window
@@ -522,9 +518,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       this.logError("api-request-failed");
 
       if (error?.response?.status || error?.response?.statusText) {
-        message = `${error?.response?.status || ""} ${
-          error?.response?.statusText || ""
-        }`;
+        message = `${error?.response?.status || ""} ${error?.response?.statusText || ""
+          }`;
 
         vscode.window
           .showErrorMessage(
@@ -562,10 +557,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       }
 
       if (apiMessage) {
-        message = `${message ? message + " " : ""}
-
-	${apiMessage}
-`;
+        message = `${message ? message + " " : ""} ${apiMessage}`;
       }
 
       this.sendMessage({
@@ -598,8 +590,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     // You can initialize your telemetry reporter and consume it here - *replaced with console.debug to prevent unwanted telemetry logs
     // this.reporter?.sendTelemetryEvent(eventName, { "chatgpt.loginMethod": this.loginMethod!, "chatgpt.authType": this.authType!, "chatgpt.model": this.model || "unknown", ...properties }, { "chatgpt.questionCounter": this.questionCounter });
     logger.appendLine(
-      `INFO ${eventName} chatgpt.model:${this.model} chatgpt.questionCounter:${
-        this.questionCounter
+      `INFO ${eventName} chatgpt.model:${this.model} chatgpt.questionCounter:${this.questionCounter
       } ${JSON.stringify(properties)}`,
     );
   }
