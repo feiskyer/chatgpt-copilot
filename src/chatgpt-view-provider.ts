@@ -237,6 +237,11 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         apiBaseUrl = "https://api.openai.com/v1";
       }
 
+      if (!apiKey && process.env.OPENAI_API_KEY != null) {
+        apiKey = process.env.OPENAI_API_KEY;
+        this.logEvent("api key loaded from environment variable");
+      }
+
       if (!apiKey) {
         vscode.window
           .showErrorMessage(
