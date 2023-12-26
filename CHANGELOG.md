@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v4.3.0
+
+* Add support of customized baseURL
+* Bump depdencies and fix CVEs
+* Add support of latest OpenAI models (e.g. GPT-4 Turbo and so on)
+* Add support of reading OpenAI Key from environment variable "OPENAI_API_KEY" when it is not set in vscode configure file
+* Add a few samples for typical configurations
+
 ## v4.2.0
 
 * Switch to a new LOGO
