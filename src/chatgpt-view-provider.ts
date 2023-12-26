@@ -232,7 +232,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       const maxTokens = configuration.get("gpt3.maxTokens") as number;
       const temperature = configuration.get("gpt3.temperature") as number;
       const topP = configuration.get("gpt3.top_p") as number;
-      const apiBaseUrl = configuration.get("gpt3.apiBaseUrl") as string;
+      let apiBaseUrl = configuration.get("gpt3.apiBaseUrl") as string;
+      if (!apiBaseUrl) {
+        apiBaseUrl = "https://api.openai.com/v1";
+      }
 
       if (!apiKey) {
         vscode.window
@@ -286,8 +289,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         memoryKey: "history",
       });
       if (this.isGpt35Model) {
+        // AzureOpenAI
         if (apiBaseUrl?.includes("azure")) {
-          // AzureOpenAI
           const instanceName = apiBaseUrl.split(".")[0].split("//")[1];
           const deployName =
             apiBaseUrl.split("/")[apiBaseUrl.split("/").length - 1];
@@ -312,6 +315,11 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
             streaming: true,
             temperature: temperature,
             topP: topP,
+            configuration: {
+              apiKey: apiKey,
+              baseURL: apiBaseUrl,
+              organization: organization,
+            },
           });
         }
 
@@ -321,8 +329,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           llm: this.apiChat,
         });
       } else {
+        // AzureOpenAI
         if (apiBaseUrl?.includes("azure")) {
-          // AzureOpenAI
           const instanceName = apiBaseUrl.split(".")[0].split("//")[1];
           const deployName =
             apiBaseUrl.split("/")[apiBaseUrl.split("/").length - 1];
@@ -347,6 +355,11 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
             streaming: true,
             temperature: temperature,
             topP: topP,
+            configuration: {
+              apiKey: apiKey,
+              baseURL: apiBaseUrl,
+              organization: organization,
+            },
           });
         }
 
@@ -515,6 +528,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         error?.message ||
         error?.name;
 
+      // this.logError(error.stack);
       this.logError("api-request-failed");
 
       if (error?.response?.status || error?.response?.statusText) {

@@ -227,6 +227,12 @@
     const addFreeTextQuestion = () => {
         const input = document.getElementById("question-input");
         if (input.value?.length > 0) {
+            if (input.value === "/clear") {
+                clearConversation();
+                input.value = "";
+                return;
+            }
+
             vscode.postMessage({
                 type: "addFreeTextQuestion",
                 value: input.value,

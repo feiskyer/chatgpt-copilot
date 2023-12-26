@@ -78,6 +78,7 @@ export async function activate(context: vscode.ExtensionContext) {
       context.globalState.update("chatgpt-user-agent", null);
       context.globalState.update("chatgpt-gpt3-apiKey", null);
       provider?.clearSession();
+      provider?.sendMessage({ type: "clearConversation" }, true);
     },
   );
 
@@ -259,4 +260,4 @@ export async function activate(context: vscode.ExtensionContext) {
   setContext();
 }
 
-export function deactivate() {}
+export function deactivate() { }

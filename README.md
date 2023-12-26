@@ -32,11 +32,34 @@ But unfortunately, the original author has decided to stop maintaining the proje
 
 ## Configurations
 
-| Configuration             | Description                                                                                                                                                                                   |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `chatgpt.gpt3.apiKey`     | Required to access OpenAI, please get one from OpenAI [here](https://platform.openai.com/account/api-keys).                                                                                   |
-| `chatgpt.gpt3.apiBaseUrl` | Optional, default to `https://api.openai.com/v1`.<br>For Azure OpenAI Service, it should be set to `https://<YOUR-ENDPOINT-NAME>.openai.azure.com/openai/deployments/<YOUR-DEPLOYMENT-NAME>`. |
-| `chatgpt.gpt3.model`      | Optional, default to `gpt-3.5-turbo`.                                                                                                                                                         |
+| Configuration | Description |
+| ------------- | ----------- |
+| `chatgpt.gpt3.apiKey`     | Required to access OpenAI, please get one from OpenAI [here](https://platform.openai.com/account/api-keys). |
+| `chatgpt.gpt3.apiBaseUrl` | Optional, default to "<https://api.openai.com/v1>".<br>For Azure OpenAI Service, it should be set to "https://<YOUR-ENDPOINT-NAME>.openai.azure.com/openai/deployments/<YOUR-DEPLOYMENT-NAME>". |
+| chatgpt.gpt3.model`      | Optional, default to "gpt-3.5-turbo". |
+
+Refer following sections for more details of how to configure various openai services.
+
+### OpenAI
+
+```json
+    "chatgpt.gpt3.apiKey": "<api-key>",
+```
+
+### Azure OpenAI Service
+
+```json
+    "chatgpt.gpt3.apiBaseUrl": "https://<endpoint-name>.openai.azure.com/openai/deployments/<deployment-name>",
+    "chatgpt.gpt3.apiKey": "<api-key>",
+    "chatgpt.gpt3.model": "gpt-3.5-turbo",
+```
+
+### Third Party Service
+
+```json
+    "chatgpt.gpt3.apiKey": "<api-key>",
+    "chatgpt.gpt3.apiBaseUrl": "<base-url>",
+```
 
 ## How to install locally
 
@@ -44,6 +67,13 @@ But unfortunately, the original author has decided to stop maintaining the proje
   - `npm install --global vsce`
 - Run `vsce package`
 - Follow the <a href="https://code.visualstudio.com/docs/editor/extension-marketplace#_install-from-a-vsix">instructions</a> and install manually.
+
+```sh
+npm run build
+npm run package
+code --uninstall-extension feiskyer.chatgpt-copilot
+code --install-extension chatgpt-copilot-*.vsix
+```
 
 ## License
 
