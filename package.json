@@ -4,7 +4,7 @@
   "displayName": "ChatGPT Copilot",
   "icon": "images/ai-logo.png",
   "description": "An VS Code ChatGPT Copilot Extension",
-  "version": "4.2.0",
+  "version": "4.3.0",
   "aiKey": "",
   "repository": {
     "url": "https://github.com/feiskyer/chatgpt-copilot"
