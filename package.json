@@ -509,7 +509,7 @@
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
-    "@types/isomorphic-fetch": "^0.0.36",
+    "@types/isomorphic-fetch": "^0.0.39",
     "@types/mocha": "^10.0.6",
     "@types/node": "^16.18.68",
     "@types/uuid": "^9.0.7",
