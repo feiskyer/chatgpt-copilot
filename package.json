@@ -535,7 +535,7 @@
     "isomorphic-fetch": "^3.0.0",
     "keyv": "^4.5.4",
     "langchain": "^0.0.212",
-    "openai": "^4.24.1",
+    "openai": "^4.26.0",
     "p-timeout": "^6.1.2",
     "puppeteer": "19.7.2",
     "puppeteer-extra": "^3.3.6",
