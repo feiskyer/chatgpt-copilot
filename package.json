@@ -515,7 +515,7 @@
     "@types/uuid": "^9.0.7",
     "@types/vscode": "^1.85.0",
     "@types/vscode-webview": "^1.57.4",
-    "@typescript-eslint/eslint-plugin": "^6.16.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.16.0",
     "@vscode/test-electron": "^2.3.8",
     "@vscode/vsce": "^2.22.0",
