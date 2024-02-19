@@ -534,7 +534,7 @@
     "gpt3-tokenizer": "^1.1.5",
     "isomorphic-fetch": "^3.0.0",
     "keyv": "^4.5.4",
-    "langchain": "^0.0.212",
+    "langchain": "^0.1.20",
     "openai": "^4.24.1",
     "p-timeout": "^6.1.2",
     "puppeteer": "19.7.2",
