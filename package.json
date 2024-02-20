@@ -493,6 +493,16 @@
           "default": false,
           "markdownDescription": "Specify if you want to disable the telemetry. This extension also respects your default vs-code telemetry setting `telemetry.telemetryLevel`. We check both settings for telemetry. **Important**: No user data is tracked, we only use telemetry to see what is used, and what isn't. This allows us to make accurate decisions on what to add or enhance to the extension.",
           "order": 39
+        },
+        "chatgpt.gpt3.googleCSEApiKey": {
+          "type": "string",
+          "markdownDescription": "Google search API key.",
+          "order": 40
+        },
+        "chatgpt.gpt3.googleCSEId": {
+          "type": "string",
+          "markdownDescription": "Google custom search ID.",
+          "order": 40
         }
       }
     }
@@ -503,6 +513,7 @@
     "build": "yarn run -S esbuild-base --sourcemap",
     "watch": "yarn run -S esbuild-base --sourcemap --watch",
     "fmt": "prettier --write \"src/**/*.ts\"&& yarn run test",
+    "update": "npm install -g npm-check-updates && ncu -u && npm install",
     "test": "eslint src --ext ts && tsc --noEmit",
     "package": "vsce package --yarn",
     "publish": "vsce publish --yarn"
@@ -511,40 +522,42 @@
     "@types/glob": "^8.1.0",
     "@types/isomorphic-fetch": "^0.0.39",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^16.18.68",
-    "@types/uuid": "^9.0.7",
+    "@types/node": "^20.11.19",
+    "@types/uuid": "^9.0.8",
     "@types/vscode": "^1.85.0",
-    "@types/vscode-webview": "^1.57.4",
-    "@typescript-eslint/eslint-plugin": "^6.16.0",
-    "@typescript-eslint/parser": "^6.16.0",
-    "@vscode/test-electron": "^2.3.8",
-    "@vscode/vsce": "^2.22.0",
-    "esbuild": "^0.19.12",
+    "@types/vscode-webview": "^1.57.5",
+    "@typescript-eslint/eslint-plugin": "^7.0.2",
+    "@typescript-eslint/parser": "^7.0.2",
+    "@vscode/test-electron": "^2.3.9",
+    "@vscode/vsce": "^2.23.0",
+    "esbuild": "^0.20.1",
     "eslint": "^8.56.0",
     "glob": "^10.3.10",
-    "mocha": "^10.2.0",
-    "prettier": "^3.1.1",
+    "mocha": "^10.3.0",
+    "prettier": "^3.2.5",
     "ts-loader": "^9.5.1",
     "typescript": "^5.3.3",
-    "webpack": "^5.89.0"
+    "webpack": "^5.90.3"
   },
   "dependencies": {
-    "delay": "^5.0.0",
-    "eventsource-parser": "^1.1.1",
+    "axios": "^1.6.7",
+    "cheerio": "^1.0.0-rc.12",
+    "delay": "^6.0.0",
+    "eventsource-parser": "^1.1.2",
     "gpt3-tokenizer": "^1.1.5",
     "isomorphic-fetch": "^3.0.0",
     "keyv": "^4.5.4",
-    "langchain": "^0.0.212",
-    "openai": "^4.24.1",
+    "langchain": "^0.1.20",
+    "openai": "^4.28.0",
     "p-timeout": "^6.1.2",
-    "puppeteer": "19.7.2",
+    "puppeteer": "^19.11.1",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "puppeteer-extra-plugin-user-data-dir": "^2.4.1",
     "puppeteer-extra-plugin-user-preferences": "^2.4.1",
-    "quick-lru": "^6.1.2",
+    "quick-lru": "^7.0.0",
     "remark": "^15.0.1",
-    "strip-markdown": "^5.0.1",
+    "strip-markdown": "^6.0.0",
     "uuid": "^9.0.1"
   },
   "resolutions": {

@@ -1,9 +1,9 @@
 /**
- * @author Ali Gençay
- * https://github.com/gencay/vscode-chatgpt
+ * @author Pengfei Ni
  *
  * @license
- * Copyright (c) 2022 - Present, Ali Gençay
+ * Copyright (c) 2022 - 2023, Ali Gençay
+ * Copyright (c) 2024 - Present, Pengfei Ni
  *
  * All rights reserved. Code licensed under the ISC license
  *
@@ -108,6 +108,8 @@ export async function activate(context: vscode.ExtensionContext) {
       e.affectsConfiguration("chatgpt.gpt3.organization") ||
       e.affectsConfiguration("chatgpt.gpt3.maxTokens") ||
       e.affectsConfiguration("chatgpt.gpt3.temperature") ||
+      e.affectsConfiguration("chatgpt.gpt3.googleCSEId") ||
+      e.affectsConfiguration("chatgpt.gpt3.googleCSEApiKey") ||
       e.affectsConfiguration("chatgpt.gpt3.top_p")
     ) {
       provider.prepareConversation(true);

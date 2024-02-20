@@ -1,11 +1,11 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable eqeqeq */
+/* eslint-disable @typescript-eslint/naming-convention */
 /**
- * @author Ali Gençay
- * https://github.com/gencay/vscode-chatgpt
+ * @author Pengfei Ni
  *
  * @license
- * Copyright (c) 2022 - Present, Ali Gençay
+ * Copyright (c) 2022 - 2023, Ali Gençay
+ * Copyright (c) 2024 - Present, Pengfei Ni
  *
  * All rights reserved. Code licensed under the ISC license
  *
@@ -13,17 +13,28 @@
  * copies or substantial portions of the Software.
  */
 
+import type { ChatPromptTemplate } from "@langchain/core/prompts";
+import { RunnableWithMessageHistory } from "@langchain/core/runnables";
+import { OpenAIEmbeddings } from "@langchain/openai";
 import delay from "delay";
+import { AgentExecutor, createOpenAIFunctionsAgent } from "langchain/agents";
 import { ConversationChain, LLMChain } from "langchain/chains";
 import { ChatOpenAI } from "langchain/chat_models/openai";
+import { pull } from "langchain/hub";
 import { OpenAI } from "langchain/llms/openai";
 import { BufferMemory } from "langchain/memory";
+
 import {
-  ChatPromptTemplate,
+  ChatPromptTemplate as ChatPromptTemplatePackage,
   HumanMessagePromptTemplate,
   MessagesPlaceholder,
-  SystemMessagePromptTemplate,
+  SystemMessagePromptTemplate
 } from "langchain/prompts";
+import { ChainValues } from "langchain/schema";
+import { ChatMessageHistory } from "langchain/stores/message/in_memory";
+import { GoogleCustomSearch } from "langchain/tools";
+import { Calculator } from "langchain/tools/calculator";
+import { WebBrowser } from "langchain/tools/webbrowser";
 import * as vscode from "vscode";
 
 const logger = vscode.window.createOutputChannel("ChatGPT Copilot");
@@ -38,7 +49,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
   private apiCompletion?: OpenAI;
   private apiChat?: ChatOpenAI;
-  private chain?: LLMChain;
+  private chain?: RunnableWithMessageHistory<Record<string, any>, ChainValues>;
+  private llmChain?: LLMChain;
   private conversationId?: string;
   private messageId?: string;
   private questionCounter: number = 0;
@@ -116,8 +128,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         case "clearConversation":
           this.messageId = undefined;
           this.conversationId = undefined;
-          if (this.chain != null) {
-            this.chain.memory = new BufferMemory({
+          if (this.llmChain != null) {
+            this.llmChain.memory = new BufferMemory({
               returnMessages: true,
               memoryKey: "history",
             });
@@ -203,6 +215,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.apiChat = undefined;
     this.apiCompletion = undefined;
     this.chain = undefined;
+    this.llmChain = undefined;
     this.conversationId = undefined;
     this.messageId = undefined;
     this.logEvent("cleared-session");
@@ -217,6 +230,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   }
 
   public async prepareConversation(modelChanged = false): Promise<boolean> {
+    this.conversationId = this.conversationId || this.getRandomId();
     const state = this.context.globalState;
     const configuration = vscode.workspace.getConfiguration("chatgpt");
 
@@ -232,6 +246,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       const maxTokens = configuration.get("gpt3.maxTokens") as number;
       const temperature = configuration.get("gpt3.temperature") as number;
       const topP = configuration.get("gpt3.top_p") as number;
+      const googleCSEApiKey = configuration.get("gpt3.googleCSEApiKey") as string;
+      const googleCSEId = configuration.get("gpt3.googleCSEId") as string;
       let apiBaseUrl = configuration.get("gpt3.apiBaseUrl") as string;
       if (!apiBaseUrl) {
         apiBaseUrl = "https://api.openai.com/v1";
@@ -284,28 +300,41 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         return false;
       }
 
-      const chatPrompt = ChatPromptTemplate.fromPromptMessages([
-        SystemMessagePromptTemplate.fromTemplate(this.systemContext),
-        new MessagesPlaceholder("history"),
-        HumanMessagePromptTemplate.fromTemplate("{input}"),
-      ]);
-      var chatMemory = new BufferMemory({
-        returnMessages: true,
-        memoryKey: "history",
-      });
+
+      const messageHistory = new ChatMessageHistory();
+      let tools = [new Calculator()];
+      if (googleCSEApiKey != "" && googleCSEId != "") {
+        tools.push(new GoogleCustomSearch({
+          apiKey: googleCSEApiKey,
+          googleCSEId: googleCSEId,
+        }));
+      }
+
       if (this.isGpt35Model) {
+        let embeddings = new OpenAIEmbeddings({
+          modelName: "text-embedding-ada-002",
+          openAIApiKey: apiKey,
+        });
         // AzureOpenAI
         if (apiBaseUrl?.includes("azure")) {
           const instanceName = apiBaseUrl.split(".")[0].split("//")[1];
           const deployName =
             apiBaseUrl.split("/")[apiBaseUrl.split("/").length - 1];
+          embeddings = new OpenAIEmbeddings({
+            azureOpenAIApiEmbeddingsDeploymentName: "text-embedding-ada-002",
+            azureOpenAIApiKey: apiKey,
+            azureOpenAIApiInstanceName: instanceName,
+            azureOpenAIApiDeploymentName: deployName,
+            azureOpenAIApiCompletionsDeploymentName: deployName,
+            azureOpenAIApiVersion: "2023-12-01-preview",
+          });
           this.apiChat = new ChatOpenAI({
             modelName: this.model,
             azureOpenAIApiKey: apiKey,
             azureOpenAIApiInstanceName: instanceName,
             azureOpenAIApiDeploymentName: deployName,
             azureOpenAIApiCompletionsDeploymentName: deployName,
-            azureOpenAIApiVersion: "2023-05-15",
+            azureOpenAIApiVersion: "2023-12-01-preview",
             maxTokens: maxTokens,
             streaming: true,
             temperature: temperature,
@@ -328,10 +357,26 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           });
         }
 
-        this.chain = new ConversationChain({
-          memory: chatMemory,
-          prompt: chatPrompt,
+        tools.push(new WebBrowser({
+          model: this.apiChat,
+          embeddings: embeddings,
+        }));
+        const chatPrompt = await pull<ChatPromptTemplate>(
+          "hwchase17/openai-functions-agent"
+        );
+        const agent = await createOpenAIFunctionsAgent({
           llm: this.apiChat,
+          tools: tools,
+          prompt: chatPrompt,
+        });
+
+        const agentExecutor = new AgentExecutor({ agent, tools });
+
+        this.chain = new RunnableWithMessageHistory({
+          runnable: agentExecutor,
+          getMessageHistory: (_sessionId) => messageHistory,
+          inputMessagesKey: "input",
+          historyMessagesKey: "chat_history",
         });
       } else {
         // AzureOpenAI
@@ -368,7 +413,20 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           });
         }
 
-        this.chain = new ConversationChain({
+        const systemContext = `You are ChatGPT helping the User with coding.
+			You are intelligent, helpful and an expert developer, who always gives the correct answer and only does what instructed. You always answer truthfully and don't make things up.
+			(When responding to the following prompt, please make sure to properly style your response using Github Flavored Markdown.
+			Use markdown syntax for things like headings, lists, colored text, code blocks, highlights etc. Make sure not to mention markdown or styling in your actual response.)`;
+        const chatPrompt = ChatPromptTemplatePackage.fromMessages([
+          SystemMessagePromptTemplate.fromTemplate(systemContext),
+          new MessagesPlaceholder("history"),
+          HumanMessagePromptTemplate.fromTemplate("{input}"),
+        ]);
+        const chatMemory = new BufferMemory({
+          returnMessages: true,
+          memoryKey: "history",
+        });
+        this.llmChain = new ConversationChain({
           memory: chatMemory,
           prompt: chatPrompt,
           llm: this.apiCompletion,
@@ -381,11 +439,55 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     return true;
   }
 
-  private get systemContext() {
-    return `You are ChatGPT helping the User with coding.
-			You are intelligent, helpful and an expert developer, who always gives the correct answer and only does what instructed. You always answer truthfully and don't make things up.
-			(When responding to the following prompt, please make sure to properly style your response using Github Flavored Markdown.
-			Use markdown syntax for things like headings, lists, colored text, code blocks, highlights etc. Make sure not to mention markdown or styling in your actual response.)`;
+  private get systemContextWithTools() {
+    return `Assistant is a large language model trained by OpenAI.
+
+Assistant is designed to be able to assist with a wide range of tasks, from answering simple questions to providing in-depth explanations and discussions on a wide range of topics. As a language model, Assistant is able to generate human-like text based on the input it receives, allowing it to engage in natural-sounding conversations and provide responses that are coherent and relevant to the topic at hand.
+
+Assistant is constantly learning and improving, and its capabilities are constantly evolving. It is able to process and understand large amounts of text, and can use this knowledge to provide accurate and informative responses to a wide range of questions. Additionally, Assistant is able to generate its own text based on the input it receives, allowing it to engage in discussions and provide explanations and descriptions on a wide range of topics.
+
+Overall, Assistant is a powerful tool that can help with a wide range of tasks and provide valuable insights and information on a wide range of topics. Whether you need help with a specific question or just want to have a conversation about a particular topic, Assistant is here to assist.
+
+TOOLS:
+------
+
+Assistant has access to the following tools:
+
+{tools}
+
+To use a tool, please use the following format:
+
+\`\`\`
+Thought: Do I need to use a tool? Yes
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+\`\`\`
+
+When you have a response to say to the Human, or if you do not need to use a tool, you MUST use the format:
+
+\`\`\`
+Thought: Do I need to use a tool? No
+Final Answer: [your response here]
+\`\`\`
+
+RULES:
+------
+1. MUST respond in Github Flavored Markdown format, and use markdown syntax for things like headings, lists, colored text, code blocks, highlights etc.
+2. MUST not use tools that are not listed above, and do not involve any tools if the tools list is empty.
+3. MUST not answer questions that you don't know and always be honest about your knowledge. Instead, leverage the tools to find the answer. If no tools are available, you can say "I don't know".
+4. MUST respond the final answer in the same language as the input, unless response language is specified from input.
+
+
+BEGIN CONVERSATION:
+-------------------
+
+Previous conversation history:
+{chat_history}
+
+New input: {input}
+{agent_scratchpad}
+`;
   }
 
   private processQuestion(question: string, code?: string, language?: string) {
@@ -465,23 +567,59 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       });
     };
     try {
-      const gptResponse = await this.chain?.call(
-        {
+      if (this.isGpt35Model) {
+        const stream = await this.chain?.stream({
           input: question,
           signal: this.abortController.signal,
-        },
-        [
+        }, {
+          "configurable": {
+            "sessionId": this.conversationId,
+          }
+        });
+        if (stream) {
+          const chunks = [];
+          for await (const chunk of stream) {
+            logger.appendLine(
+              `INFO: chatgpt.model:${this.model} chatgpt.question:${question} response:${JSON.stringify(chunk, null, 2)}`,
+            );
+
+            if (chunk["intermediateSteps"] != null) {
+              const intermediateSteps = chunk["intermediateSteps"];
+              for (const step of intermediateSteps) {
+                // const stepMessage = `Observation: ${step.observation}, tool: ${step.action.tool}\r\n`;
+                const stepMessage = `Invoking tool ${step.action.tool}...\r\n\r\n`;
+                updateResponse(stepMessage);
+                chunks.push(stepMessage);
+              }
+            }
+
+            if (chunk["output"] != null) {
+              updateResponse(chunk["output"]);
+              chunks.push(chunk["output"]);
+            }
+
+          }
+          this.response = chunks.join("");
+        }
+      } else {
+        const gptResponse = await this.llmChain?.call(
           {
-            handleLLMNewToken(token: string) {
-              updateResponse(token);
-            },
-            handleLLMError(err, runId, parentRunId) {
-              logger.appendLine(`Error in LLM: ${err.message}`);
-            },
+            input: question,
+            signal: this.abortController.signal,
           },
-        ],
-      );
-      this.response = gptResponse?.response;
+          [
+            {
+              handleLLMNewToken(token: string) {
+                updateResponse(token);
+              },
+              handleLLMError(err: any, runId: any, parentRunId: any) {
+                logger.appendLine(`Error in LLM: ${err.message}`);
+              },
+            },
+          ],
+        );
+        this.response = gptResponse?.response;
+      }
 
       if (options.previousAnswer != null) {
         this.response = options.previousAnswer + this.response;
