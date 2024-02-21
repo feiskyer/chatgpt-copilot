@@ -52,7 +52,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private chain?: RunnableWithMessageHistory<Record<string, any>, ChainValues>;
   private llmChain?: LLMChain;
   private conversationId?: string;
-  private messageId?: string;
   private questionCounter: number = 0;
   private inProgress: boolean = false;
   private abortController?: AbortController;
@@ -126,7 +125,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           );
           break;
         case "clearConversation":
-          this.messageId = undefined;
           this.conversationId = undefined;
           if (this.llmChain != null) {
             this.llmChain.memory = new BufferMemory({
@@ -217,7 +215,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.chain = undefined;
     this.llmChain = undefined;
     this.conversationId = undefined;
-    this.messageId = undefined;
     this.logEvent("cleared-session");
   }
 
@@ -437,57 +434,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.sendMessage({ type: "loginSuccessful" }, true);
 
     return true;
-  }
-
-  private get systemContextWithTools() {
-    return `Assistant is a large language model trained by OpenAI.
-
-Assistant is designed to be able to assist with a wide range of tasks, from answering simple questions to providing in-depth explanations and discussions on a wide range of topics. As a language model, Assistant is able to generate human-like text based on the input it receives, allowing it to engage in natural-sounding conversations and provide responses that are coherent and relevant to the topic at hand.
-
-Assistant is constantly learning and improving, and its capabilities are constantly evolving. It is able to process and understand large amounts of text, and can use this knowledge to provide accurate and informative responses to a wide range of questions. Additionally, Assistant is able to generate its own text based on the input it receives, allowing it to engage in discussions and provide explanations and descriptions on a wide range of topics.
-
-Overall, Assistant is a powerful tool that can help with a wide range of tasks and provide valuable insights and information on a wide range of topics. Whether you need help with a specific question or just want to have a conversation about a particular topic, Assistant is here to assist.
-
-TOOLS:
-------
-
-Assistant has access to the following tools:
-
-{tools}
-
-To use a tool, please use the following format:
-
-\`\`\`
-Thought: Do I need to use a tool? Yes
-Action: the action to take, should be one of [{tool_names}]
-Action Input: the input to the action
-Observation: the result of the action
-\`\`\`
-
-When you have a response to say to the Human, or if you do not need to use a tool, you MUST use the format:
-
-\`\`\`
-Thought: Do I need to use a tool? No
-Final Answer: [your response here]
-\`\`\`
-
-RULES:
-------
-1. MUST respond in Github Flavored Markdown format, and use markdown syntax for things like headings, lists, colored text, code blocks, highlights etc.
-2. MUST not use tools that are not listed above, and do not involve any tools if the tools list is empty.
-3. MUST not answer questions that you don't know and always be honest about your knowledge. Instead, leverage the tools to find the answer. If no tools are available, you can say "I don't know".
-4. MUST respond the final answer in the same language as the input, unless response language is specified from input.
-
-
-BEGIN CONVERSATION:
--------------------
-
-Previous conversation history:
-{chat_history}
-
-New input: {input}
-{agent_scratchpad}
-`;
   }
 
   private processQuestion(question: string, code?: string, language?: string) {
