@@ -34,9 +34,10 @@ But unfortunately, the original author has decided to stop maintaining the proje
 
 | Configuration | Description |
 | ------------- | ----------- |
-| `chatgpt.gpt3.apiKey`     | Required to access OpenAI, please get one from OpenAI [here](https://platform.openai.com/account/api-keys). |
-| `chatgpt.gpt3.apiBaseUrl` | Optional, default to "<https://api.openai.com/v1>".<br>For Azure OpenAI Service, it should be set to "https://<YOUR-ENDPOINT-NAME>.openai.azure.com/openai/deployments/<YOUR-DEPLOYMENT-NAME>". |
-| chatgpt.gpt3.model`      | Optional, default to "gpt-3.5-turbo". |
+| chatgpt.gpt3.apiKey     | Required, please get from [OpenAI](https://platform.openai.com/account/api-keys) or [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service). |
+| chatgpt.gpt3.apiBaseUrl | Optional, default to "<https://api.openai.com/v1>".<br>For Azure OpenAI Service, it should be set to "https://<YOUR-ENDPOINT-NAME>.openai.azure.com/openai/deployments/<YOUR-DEPLOYMENT-NAME>". |
+| chatgpt.gpt3.model      | Optional, default to "gpt-3.5-turbo". |
+| chatgpt.gpt3.googleCSEApiKey<br>chatgpt.gpt3.googleCSEId | Optional, to enable Google Custom Search. |
 
 Refer following sections for more details of how to configure various openai services.
 

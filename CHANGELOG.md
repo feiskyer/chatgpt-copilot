@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v4.3.1
+
+* Add support for Google Custom Search
+  * Set "chatgpt.gpt3.googleCSEApiKey" and "chatgpt.gpt3.googleCSEId" to enable this feature
+
 ## v4.3.0
 
 * Add support of customized baseURL
