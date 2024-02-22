@@ -13,14 +13,12 @@
  * copies or substantial portions of the Software.
  */
 
-import type { ChatPromptTemplate } from "@langchain/core/prompts";
 import { RunnableWithMessageHistory } from "@langchain/core/runnables";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import delay from "delay";
 import { AgentExecutor, createOpenAIFunctionsAgent } from "langchain/agents";
 import { ConversationChain, LLMChain } from "langchain/chains";
 import { ChatOpenAI } from "langchain/chat_models/openai";
-import { pull } from "langchain/hub";
 import { OpenAI } from "langchain/llms/openai";
 import { BufferMemory } from "langchain/memory";
 
@@ -358,9 +356,16 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           model: this.apiChat,
           embeddings: embeddings,
         }));
-        const chatPrompt = await pull<ChatPromptTemplate>(
-          "hwchase17/openai-functions-agent"
-        );
+        // const chatPrompt = await pull<ChatPromptTemplate>(
+        //   "hwchase17/openai-functions-agent"
+        // );
+        const systemContext = `Your task is to embody the role of an intelligent, helpful, and expert developer. You MUST provide accurate and truthful answers, adhering strictly to the instructions given. Your responses should be styled using Github Flavored Markdown for elements such as headings, lists, colored text, code blocks, and highlights. However, you MUST NOT mention markdown or styling directly in your response. Utilize available tools to supplement your knowledge where necessary. Respond in the same language as the query, unless otherwise specified by the user.`;
+        const chatPrompt = ChatPromptTemplatePackage.fromMessages([
+          SystemMessagePromptTemplate.fromTemplate(systemContext),
+          new MessagesPlaceholder("chat_history"),
+          HumanMessagePromptTemplate.fromTemplate("{input}"),
+          new MessagesPlaceholder("agent_scratchpad"),
+        ]);
         const agent = await createOpenAIFunctionsAgent({
           llm: this.apiChat,
           tools: tools,
