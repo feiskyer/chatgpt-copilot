@@ -256,7 +256,7 @@
             "Use OpenAI API key integration"
           ],
           "markdownEnumDescriptions": [
-            "Various text & code completion models are supported including ChatGPT Turbo models. \n\n- GPT3.5 -> i.e. `'chatgpt.gpt3.model': 'gpt-3.5-turbo'`\n\n- GPT3 -> i.e. `'chatgpt.gpt3.model': 'text-davinci-003'`\n\n- Codex -> i.e.`'chatgpt.gpt3.model': 'code-davinci-002'`"
+            "Various chat & text completion models are supported including OpenAI and OpenAI API compatible local models."
           ]
         },
         "chatgpt.gpt3.generateCode-enabled": {
@@ -390,6 +390,7 @@
             "gpt-3.5-turbo-0301",
             "gpt-3.5-turbo-0613",
             "gpt-3.5-turbo-1106",
+            "gpt-3.5-turbo-0125",
             "gpt-3.5-turbo-16k",
             "gpt-3.5-turbo-16k-0613",
             "gpt-3.5-turbo-instruct",
@@ -398,6 +399,8 @@
             "gpt-4-0613",
             "gpt-4-1106-preview",
             "gpt-4-vision-preview",
+            "gpt-4-0125-preview",
+            "gpt-4-turbo-preview",
             "gpt-4-32k",
             "gpt-4-32k-0314",
             "gpt-4-32k-0613",
@@ -416,6 +419,7 @@
             "OpenAI API Key - gpt-3.5-turbo-0301",
             "OpenAI API Key - gpt-3.5-turbo-0613",
             "OpenAI API Key - gpt-3.5-turbo-1106",
+            "OpenAI API Key - gpt-3.5-turbo-0125",
             "OpenAI API Key - gpt-3.5-turbo-16k",
             "OpenAI API Key - gpt-3.5-turbo-16k-0613",
             "OpenAI API Key - gpt-3.5-turbo-instruct",
@@ -424,6 +428,8 @@
             "OpenAI API Key - gpt-4-0613",
             "OpenAI API Key - gpt-4-1106-preview",
             "OpenAI API Key - gpt-4-vision-preview",
+            "OpenAI API Key - gpt-4-0125-preview",
+            "OpenAI API Key - gpt-4-turbo-preview",
             "OpenAI API Key - gpt-4-32k",
             "OpenAI API Key - gpt-4-32k-0314",
             "OpenAI API Key - gpt-4-32k-0613",
@@ -439,6 +445,7 @@
             "gpt-3.5-turbo-0301",
             "gpt-3.5-turbo-0613",
             "gpt-3.5-turbo-1106",
+            "gpt-3.5-turbo-0125",
             "gpt-3.5-turbo-16k",
             "gpt-3.5-turbo-16k-0613",
             "gpt-3.5-turbo-instruct",
@@ -447,6 +454,8 @@
             "gpt-4-0613",
             "gpt-4-1106-preview",
             "gpt-4-vision-preview",
+            "gpt-4-0125-preview",
+            "gpt-4-turbo-preview",
             "gpt-4-32k",
             "gpt-4-32k-0314",
             "gpt-4-32k-0613",
@@ -540,6 +549,7 @@
     "webpack": "^5.90.3"
   },
   "dependencies": {
+    "@langchain/anthropic": "^0.1.7",
     "@types/minimatch": "^5.1.2",
     "axios": "^1.6.7",
     "cheerio": "^1.0.0-rc.12",
@@ -548,7 +558,7 @@
     "gpt3-tokenizer": "^1.1.5",
     "isomorphic-fetch": "^3.0.0",
     "keyv": "^4.5.4",
-    "langchain": "^0.1.20",
+    "langchain": "^0.1.28",
     "minimatch": "^5.1.6",
     "openai": "^4.28.0",
     "p-timeout": "^6.1.2",
