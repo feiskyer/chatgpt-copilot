@@ -574,7 +574,7 @@
     "minimatch": "^5.1.6",
     "openai": "^4.28.0",
     "p-timeout": "^6.1.2",
-    "puppeteer": "^19.11.1",
+    "puppeteer": "^21.11.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "puppeteer-extra-plugin-user-data-dir": "^2.4.1",
