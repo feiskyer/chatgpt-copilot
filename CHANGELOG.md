@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v4.4.0
+
+* Add support for Anthropic Claude 3
+
 ## v4.3.1
 
 * Add support for Google Custom Search
