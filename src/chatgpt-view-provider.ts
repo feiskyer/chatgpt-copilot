@@ -306,139 +306,144 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       }
 
       if (this.isGpt35Model) {
-        let embeddings = new OpenAIEmbeddings({
-          modelName: "text-embedding-ada-002",
-          openAIApiKey: apiKey,
-        });
-        // AzureOpenAI
-        if (apiBaseUrl?.includes("azure")) {
-          const instanceName = apiBaseUrl.split(".")[0].split("//")[1];
-          const deployName =
-            apiBaseUrl.split("/")[apiBaseUrl.split("/").length - 1];
-          embeddings = new OpenAIEmbeddings({
-            azureOpenAIApiEmbeddingsDeploymentName: "text-embedding-ada-002",
-            azureOpenAIApiKey: apiKey,
-            azureOpenAIApiInstanceName: instanceName,
-            azureOpenAIApiDeploymentName: deployName,
-            azureOpenAIApiCompletionsDeploymentName: deployName,
-            azureOpenAIApiVersion: "2023-12-01-preview",
-          });
-          this.apiChat = new ChatOpenAI({
-            modelName: this.model,
-            azureOpenAIApiKey: apiKey,
-            azureOpenAIApiInstanceName: instanceName,
-            azureOpenAIApiDeploymentName: deployName,
-            azureOpenAIApiCompletionsDeploymentName: deployName,
-            azureOpenAIApiVersion: "2023-12-01-preview",
-            maxTokens: maxTokens,
-            streaming: true,
-            temperature: temperature,
-            topP: topP,
-          });
-        } else {
-          // OpenAI
-          this.apiChat = new ChatOpenAI({
-            openAIApiKey: apiKey,
-            modelName: this.model,
-            maxTokens: maxTokens,
-            streaming: true,
-            temperature: temperature,
-            topP: topP,
-            configuration: {
-              apiKey: apiKey,
-              baseURL: apiBaseUrl,
-              organization: organization,
-            },
-          });
-        }
-
-        tools.push(new WebBrowser({
-          model: this.apiChat,
-          embeddings: embeddings,
-        }));
-        // const chatPrompt = await pull<ChatPromptTemplate>(
-        //   "hwchase17/openai-functions-agent"
-        // );
-        const systemContext = `Your task is to embody the role of an intelligent, helpful, and expert developer. You MUST provide accurate and truthful answers, adhering strictly to the instructions given. Your responses should be styled using Github Flavored Markdown for elements such as headings, lists, colored text, code blocks, and highlights. However, you MUST NOT mention markdown or styling directly in your response. Utilize available tools to supplement your knowledge where necessary. Respond in the same language as the query, unless otherwise specified by the user.`;
-        const chatPrompt = ChatPromptTemplatePackage.fromMessages([
-          SystemMessagePromptTemplate.fromTemplate(systemContext),
-          new MessagesPlaceholder("chat_history"),
-          HumanMessagePromptTemplate.fromTemplate("{input}"),
-          new MessagesPlaceholder("agent_scratchpad"),
-        ]);
-        const agent = await createOpenAIFunctionsAgent({
-          llm: this.apiChat,
-          tools: tools,
-          prompt: chatPrompt,
-        });
-
-        const agentExecutor = new AgentExecutor({ agent, tools });
-
-        this.chain = new RunnableWithMessageHistory({
-          runnable: agentExecutor,
-          getMessageHistory: (_sessionId) => messageHistory,
-          inputMessagesKey: "input",
-          historyMessagesKey: "chat_history",
-        });
+        await this.setupGpt(apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, tools, messageHistory);
       } else {
-        // AzureOpenAI
-        if (apiBaseUrl?.includes("azure")) {
-          const instanceName = apiBaseUrl.split(".")[0].split("//")[1];
-          const deployName =
-            apiBaseUrl.split("/")[apiBaseUrl.split("/").length - 1];
-          this.apiCompletion = new OpenAI({
-            modelName: this.model,
-            azureOpenAIApiKey: apiKey,
-            azureOpenAIApiInstanceName: instanceName,
-            azureOpenAIApiDeploymentName: deployName,
-            azureOpenAIApiCompletionsDeploymentName: deployName,
-            azureOpenAIApiVersion: "2023-05-15",
-            maxTokens: maxTokens,
-            streaming: true,
-            temperature: temperature,
-            topP: topP,
-          });
-        } else {
-          // OpenAI
-          this.apiCompletion = new OpenAI({
-            openAIApiKey: apiKey,
-            modelName: this.model,
-            maxTokens: maxTokens,
-            streaming: true,
-            temperature: temperature,
-            topP: topP,
-            configuration: {
-              apiKey: apiKey,
-              baseURL: apiBaseUrl,
-              organization: organization,
-            },
-          });
-        }
-
-        const systemContext = `You are ChatGPT helping the User with coding.
-			You are intelligent, helpful and an expert developer, who always gives the correct answer and only does what instructed. You always answer truthfully and don't make things up.
-			(When responding to the following prompt, please make sure to properly style your response using Github Flavored Markdown.
-			Use markdown syntax for things like headings, lists, colored text, code blocks, highlights etc. Make sure not to mention markdown or styling in your actual response.)`;
-        const chatPrompt = ChatPromptTemplatePackage.fromMessages([
-          SystemMessagePromptTemplate.fromTemplate(systemContext),
-          new MessagesPlaceholder("history"),
-          HumanMessagePromptTemplate.fromTemplate("{input}"),
-        ]);
-        const chatMemory = new BufferMemory({
-          returnMessages: true,
-          memoryKey: "history",
-        });
-        this.llmChain = new ConversationChain({
-          memory: chatMemory,
-          prompt: chatPrompt,
-          llm: this.apiCompletion,
-        });
+        this.setupCompletion(apiBaseUrl, apiKey, maxTokens, temperature, topP, organization);
       }
     }
 
     this.sendMessage({ type: "loginSuccessful" }, true);
 
     return true;
+  }
+
+  private setupCompletion(apiBaseUrl: string, apiKey: string, maxTokens: number, temperature: number, topP: number, organization: string) {
+    if (apiBaseUrl?.includes("azure")) {
+      const instanceName = apiBaseUrl.split(".")[0].split("//")[1];
+      const deployName = apiBaseUrl.split("/")[apiBaseUrl.split("/").length - 1];
+      this.apiCompletion = new OpenAI({
+        modelName: this.model,
+        azureOpenAIApiKey: apiKey,
+        azureOpenAIApiInstanceName: instanceName,
+        azureOpenAIApiDeploymentName: deployName,
+        azureOpenAIApiCompletionsDeploymentName: deployName,
+        azureOpenAIApiVersion: "2023-05-15",
+        maxTokens: maxTokens,
+        streaming: true,
+        temperature: temperature,
+        topP: topP,
+      });
+    } else {
+      // OpenAI
+      this.apiCompletion = new OpenAI({
+        openAIApiKey: apiKey,
+        modelName: this.model,
+        maxTokens: maxTokens,
+        streaming: true,
+        temperature: temperature,
+        topP: topP,
+        configuration: {
+          apiKey: apiKey,
+          baseURL: apiBaseUrl,
+          organization: organization,
+        },
+      });
+    }
+
+    const systemContext = `You are ChatGPT helping the User with coding.
+			You are intelligent, helpful and an expert developer, who always gives the correct answer and only does what instructed. You always answer truthfully and don't make things up.
+			(When responding to the following prompt, please make sure to properly style your response using Github Flavored Markdown.
+			Use markdown syntax for things like headings, lists, colored text, code blocks, highlights etc. Make sure not to mention markdown or styling in your actual response.)`;
+    const chatPrompt = ChatPromptTemplatePackage.fromMessages([
+      SystemMessagePromptTemplate.fromTemplate(systemContext),
+      new MessagesPlaceholder("history"),
+      HumanMessagePromptTemplate.fromTemplate("{input}"),
+    ]);
+    const chatMemory = new BufferMemory({
+      returnMessages: true,
+      memoryKey: "history",
+    });
+    this.llmChain = new ConversationChain({
+      memory: chatMemory,
+      prompt: chatPrompt,
+      llm: this.apiCompletion,
+    });
+  }
+
+  private async setupGpt(apiKey: string, apiBaseUrl: string, maxTokens: number, temperature: number, topP: number, organization: string, tools: Calculator[], messageHistory: ChatMessageHistory) {
+    let embeddings = new OpenAIEmbeddings({
+      modelName: "text-embedding-ada-002",
+      openAIApiKey: apiKey,
+    });
+    // AzureOpenAI
+    if (apiBaseUrl?.includes("azure")) {
+      const instanceName = apiBaseUrl.split(".")[0].split("//")[1];
+      const deployName = apiBaseUrl.split("/")[apiBaseUrl.split("/").length - 1];
+      embeddings = new OpenAIEmbeddings({
+        azureOpenAIApiEmbeddingsDeploymentName: "text-embedding-ada-002",
+        azureOpenAIApiKey: apiKey,
+        azureOpenAIApiInstanceName: instanceName,
+        azureOpenAIApiDeploymentName: deployName,
+        azureOpenAIApiCompletionsDeploymentName: deployName,
+        azureOpenAIApiVersion: "2023-12-01-preview",
+      });
+      this.apiChat = new ChatOpenAI({
+        modelName: this.model,
+        azureOpenAIApiKey: apiKey,
+        azureOpenAIApiInstanceName: instanceName,
+        azureOpenAIApiDeploymentName: deployName,
+        azureOpenAIApiCompletionsDeploymentName: deployName,
+        azureOpenAIApiVersion: "2023-12-01-preview",
+        maxTokens: maxTokens,
+        streaming: true,
+        temperature: temperature,
+        topP: topP,
+      });
+    } else {
+      // OpenAI
+      this.apiChat = new ChatOpenAI({
+        openAIApiKey: apiKey,
+        modelName: this.model,
+        maxTokens: maxTokens,
+        streaming: true,
+        temperature: temperature,
+        topP: topP,
+        configuration: {
+          apiKey: apiKey,
+          baseURL: apiBaseUrl,
+          organization: organization,
+        },
+      });
+    }
+
+    tools.push(new WebBrowser({
+      model: this.apiChat,
+      embeddings: embeddings,
+    }));
+    // const chatPrompt = await pull<ChatPromptTemplate>(
+    //   "hwchase17/openai-functions-agent"
+    // );
+    const systemContext = `Your task is to embody the role of an intelligent, helpful, and expert developer. You MUST provide accurate and truthful answers, adhering strictly to the instructions given. Your responses should be styled using Github Flavored Markdown for elements such as headings, lists, colored text, code blocks, and highlights. However, you MUST NOT mention markdown or styling directly in your response. Utilize available tools to supplement your knowledge where necessary. Respond in the same language as the query, unless otherwise specified by the user.`;
+    const chatPrompt = ChatPromptTemplatePackage.fromMessages([
+      SystemMessagePromptTemplate.fromTemplate(systemContext),
+      new MessagesPlaceholder("chat_history"),
+      HumanMessagePromptTemplate.fromTemplate("{input}"),
+      new MessagesPlaceholder("agent_scratchpad"),
+    ]);
+    const agent = await createOpenAIFunctionsAgent({
+      llm: this.apiChat,
+      tools: tools,
+      prompt: chatPrompt,
+    });
+
+    const agentExecutor = new AgentExecutor({ agent, tools });
+
+    this.chain = new RunnableWithMessageHistory({
+      runnable: agentExecutor,
+      getMessageHistory: (_sessionId) => messageHistory,
+      inputMessagesKey: "input",
+      historyMessagesKey: "chat_history",
+    });
   }
 
   private processQuestion(question: string, code?: string, language?: string) {
@@ -538,7 +543,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
               const intermediateSteps = chunk["intermediateSteps"];
               for (const step of intermediateSteps) {
                 // const stepMessage = `Observation: ${step.observation}, tool: ${step.action.tool}\r\n`;
-                const stepMessage = `Invoking tool ${step.action.tool}...\r\n\r\n`;
+                const stepMessage = `${step.action.tool}...\r\n\r\n`;
                 updateResponse(stepMessage);
                 chunks.push(stepMessage);
               }
