@@ -13,6 +13,7 @@
  * copies or substantial portions of the Software.
  */
 
+import { ChatAnthropic } from "@langchain/anthropic";
 import { RunnableWithMessageHistory } from "@langchain/core/runnables";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import delay from "delay";
@@ -30,7 +31,7 @@ import {
 } from "langchain/prompts";
 import { ChainValues } from "langchain/schema";
 import { ChatMessageHistory } from "langchain/stores/message/in_memory";
-import { GoogleCustomSearch } from "langchain/tools";
+import { GoogleCustomSearch, Tool } from "langchain/tools";
 import { Calculator } from "langchain/tools/calculator";
 import { WebBrowser } from "langchain/tools/webbrowser";
 import * as vscode from "vscode";
@@ -224,6 +225,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     return !!this.model?.startsWith("gpt-");
   }
 
+  private get isClaude(): boolean {
+    return !!this.model?.startsWith("claude-");
+  }
+
   public async prepareConversation(modelChanged = false): Promise<boolean> {
     this.conversationId = this.conversationId || this.getRandomId();
     const state = this.context.globalState;
@@ -231,7 +236,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
     if (
       (this.isGpt35Model && !this.apiChat) ||
-      (!this.isGpt35Model && !this.apiCompletion) ||
+      (this.isClaude && !this.apiCompletion) ||
+      (!this.isGpt35Model && !this.isClaude && !this.apiCompletion) ||
       modelChanged
     ) {
       let apiKey =
@@ -245,7 +251,11 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       const googleCSEId = configuration.get("gpt3.googleCSEId") as string;
       let apiBaseUrl = configuration.get("gpt3.apiBaseUrl") as string;
       if (!apiBaseUrl) {
-        apiBaseUrl = "https://api.openai.com/v1";
+        if (this.isGpt35Model) {
+          apiBaseUrl = "https://api.openai.com/v1";
+        } else if (this.isClaude) {
+          apiBaseUrl = "https://api.anthropic.com";
+        }
       }
 
       if (!apiKey && process.env.OPENAI_API_KEY != null) {
@@ -297,16 +307,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
 
       const messageHistory = new ChatMessageHistory();
-      let tools = [new Calculator()];
-      if (googleCSEApiKey != "" && googleCSEId != "") {
-        tools.push(new GoogleCustomSearch({
-          apiKey: googleCSEApiKey,
-          googleCSEId: googleCSEId,
-        }));
-      }
-
       if (this.isGpt35Model) {
-        await this.setupGpt(apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, tools, messageHistory);
+        await this.setupGpt(apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, googleCSEApiKey, googleCSEId, messageHistory);
+      } else if (this.isClaude) {
+        await this.setupClaude(apiKey, apiBaseUrl, maxTokens, temperature, topP, messageHistory);
       } else {
         this.setupCompletion(apiBaseUrl, apiKey, maxTokens, temperature, topP, organization);
       }
@@ -370,7 +374,47 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     });
   }
 
-  private async setupGpt(apiKey: string, apiBaseUrl: string, maxTokens: number, temperature: number, topP: number, organization: string, tools: Calculator[], messageHistory: ChatMessageHistory) {
+  private async setupClaude(apiKey: string, apiBaseUrl: string, maxTokens: number, temperature: number, topP: number, messageHistory: ChatMessageHistory) {
+    const apiClaude = new ChatAnthropic({
+      topP: topP,
+      temperature: temperature,
+      modelName: this.model,
+      anthropicApiKey: apiKey,
+      anthropicApiUrl: apiBaseUrl,
+      streaming: true,
+      maxTokens: maxTokens,
+    });
+
+    const systemContext = `You are ChatGPT helping the User with coding.
+			You are intelligent, helpful and an expert developer, who always gives the correct answer and only does what instructed. You always answer truthfully and don't make things up.
+			(When responding to the following prompt, please make sure to properly style your response using Github Flavored Markdown.
+			Use markdown syntax for things like headings, lists, colored text, code blocks, highlights etc. Make sure not to mention markdown or styling in your actual response.)`;
+    const chatPrompt = ChatPromptTemplatePackage.fromMessages([
+      SystemMessagePromptTemplate.fromTemplate(systemContext),
+      new MessagesPlaceholder("history"),
+      HumanMessagePromptTemplate.fromTemplate("{input}"),
+    ]);
+    const chatMemory = new BufferMemory({
+      returnMessages: true,
+      memoryKey: "history",
+    });
+    this.llmChain = new ConversationChain({
+      memory: chatMemory,
+      prompt: chatPrompt,
+      llm: apiClaude,
+    });
+
+  }
+
+  private async setupGpt(apiKey: string, apiBaseUrl: string, maxTokens: number, temperature: number, topP: number, organization: string, googleCSEApiKey: string, googleCSEId: string, messageHistory: ChatMessageHistory) {
+    let tools: Tool[] = [new Calculator()];
+    if (googleCSEApiKey != "" && googleCSEId != "") {
+      tools.push(new GoogleCustomSearch({
+        apiKey: googleCSEApiKey,
+        googleCSEId: googleCSEId,
+      }));
+    }
+
     let embeddings = new OpenAIEmbeddings({
       modelName: "text-embedding-ada-002",
       openAIApiKey: apiKey,
@@ -524,57 +568,11 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     };
     try {
       if (this.isGpt35Model) {
-        const stream = await this.chain?.stream({
-          input: question,
-          signal: this.abortController.signal,
-        }, {
-          "configurable": {
-            "sessionId": this.conversationId,
-          }
-        });
-        if (stream) {
-          const chunks = [];
-          for await (const chunk of stream) {
-            logger.appendLine(
-              `INFO: chatgpt.model:${this.model} chatgpt.question:${question} response:${JSON.stringify(chunk, null, 2)}`,
-            );
-
-            if (chunk["intermediateSteps"] != null) {
-              const intermediateSteps = chunk["intermediateSteps"];
-              for (const step of intermediateSteps) {
-                // const stepMessage = `Observation: ${step.observation}, tool: ${step.action.tool}\r\n`;
-                const stepMessage = `${step.action.tool}...\r\n\r\n`;
-                updateResponse(stepMessage);
-                chunks.push(stepMessage);
-              }
-            }
-
-            if (chunk["output"] != null) {
-              updateResponse(chunk["output"]);
-              chunks.push(chunk["output"]);
-            }
-
-          }
-          this.response = chunks.join("");
-        }
+        await this.chatGpt(question, updateResponse);
+      } else if (this.isClaude) {
+        await this.chatCompletion(question, updateResponse);
       } else {
-        const gptResponse = await this.llmChain?.call(
-          {
-            input: question,
-            signal: this.abortController.signal,
-          },
-          [
-            {
-              handleLLMNewToken(token: string) {
-                updateResponse(token);
-              },
-              handleLLMError(err: any, runId: any, parentRunId: any) {
-                logger.appendLine(`Error in LLM: ${err.message}`);
-              },
-            },
-          ],
-        );
-        this.response = gptResponse?.response;
+        await this.chatCompletion(question, updateResponse);
       }
 
       if (options.previousAnswer != null) {
@@ -683,6 +681,86 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     } finally {
       this.inProgress = false;
       this.sendMessage({ type: "showInProgress", inProgress: this.inProgress });
+    }
+  }
+
+  private async chatCompletion(question: string, updateResponse: (message: string) => void) {
+    const gptResponse = await this.llmChain?.call(
+      {
+        input: question,
+        signal: this.abortController?.signal,
+      },
+      [
+        {
+          handleLLMNewToken(token: string) {
+            updateResponse(token);
+          },
+          handleLLMError(err: any, runId: any, parentRunId: any) {
+            logger.appendLine(`Error in LLM: ${err.message}`);
+          },
+        },
+      ]
+    );
+    this.response = gptResponse?.response;
+  }
+
+  // private async chatClaude(question: string, updateResponse: (message: string) => void) {
+  //   const stream = await this.apiClaude?.stream(question, {
+  //     signal: this.abortController?.signal,
+  //     "configurable": {
+  //       "sessionId": this.conversationId,
+  //     }
+  //   });
+  //   if (stream) {
+  //     const chunks: string[] = [];
+  //     for await (const chunk of stream) {
+  //       logger.appendLine(
+  //         `INFO: claude.model:${this.model} claude.question:${question} response:${JSON.stringify(chunk.lc_kwargs["content"], null, 2)}`
+  //       );
+
+  //       if (chunk.lc_kwargs["content"] != null) {
+  //         const msg = chunk.lc_kwargs["content"];
+  //         updateResponse(msg);
+  //         chunks.push(msg);
+  //       }
+  //     }
+  //     this.response = chunks.join("");
+  //   }
+  // }
+
+  private async chatGpt(question: string, updateResponse: (message: string) => void) {
+    const stream = await this.chain?.stream({
+      input: question,
+      signal: this.abortController?.signal,
+    }, {
+      "configurable": {
+        "sessionId": this.conversationId,
+      }
+    });
+    if (stream) {
+      const chunks = [];
+      for await (const chunk of stream) {
+        logger.appendLine(
+          `INFO: chatgpt.model:${this.model} chatgpt.question:${question} response:${JSON.stringify(chunk, null, 2)}`
+        );
+
+        if (chunk["intermediateSteps"] != null) {
+          const intermediateSteps = chunk["intermediateSteps"];
+          for (const step of intermediateSteps) {
+            // const stepMessage = `Observation: ${step.observation}, tool: ${step.action.tool}\r\n`;
+            const stepMessage = `${step.action.tool}...\r\n\r\n`;
+            updateResponse(stepMessage);
+            chunks.push(stepMessage);
+          }
+        }
+
+        if (chunk["output"] != null) {
+          updateResponse(chunk["output"]);
+          chunks.push(chunk["output"]);
+        }
+
+      }
+      this.response = chunks.join("");
     }
   }
 

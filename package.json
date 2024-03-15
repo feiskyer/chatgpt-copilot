@@ -4,7 +4,7 @@
   "displayName": "ChatGPT Copilot",
   "icon": "images/ai-logo.png",
   "description": "An VS Code ChatGPT Copilot Extension",
-  "version": "4.3.1",
+  "version": "4.4.0",
   "aiKey": "",
   "repository": {
     "url": "https://github.com/feiskyer/chatgpt-copilot"
@@ -247,16 +247,19 @@
         "chatgpt.method": {
           "type": "string",
           "enum": [
-            "GPT3 OpenAI API Key"
+            "GPT3 OpenAI API Key",
+            "Claude 3"
           ],
           "default": "GPT3 OpenAI API Key",
           "markdownDescription": "Choose your integration preference.",
           "order": 1,
           "enumItemLabels": [
-            "Use OpenAI API key integration"
+            "Use OpenAI API key integration",
+            "Use Claude 3 integration"
           ],
           "markdownEnumDescriptions": [
-            "Various chat & text completion models are supported including OpenAI and OpenAI API compatible local models."
+            "Various chat & text completion models are supported including OpenAI and OpenAI API compatible local models.",
+            "Claude 3 models from Anthropic"
           ]
         },
         "chatgpt.gpt3.generateCode-enabled": {
@@ -409,7 +412,10 @@
             "text-babbage-001",
             "text-ada-001",
             "code-davinci-002",
-            "code-cushman-001"
+            "code-cushman-001",
+            "claude-3-opus-20240229",
+            "claude-3-sonnet-20240229",
+            "claude-3-haiku-20240307"
           ],
           "default": "gpt-3.5-turbo",
           "markdownDescription": "OpenAI models to use for your prompts. [Documentation](https://beta.openai.com/docs/models/models). \n\n**If you face 400 Bad Request please make sure you are using the right model for your integration method.**",
@@ -438,7 +444,10 @@
             "OpenAI API Key - text-babbage-001",
             "OpenAI API Key - text-ada-001",
             "OpenAI API Key - code-davinci-002",
-            "OpenAI API Key - code-cushman-001"
+            "OpenAI API Key - code-cushman-001",
+            "Claude 3 - claude-3-opus-20240229",
+            "Claude 3 - claude-3-sonnet-20240229",
+            "Claude 3 - claude-3-haiku-20240307"
           ],
           "markdownEnumDescriptions": [
             "gpt-3.5-turbo",
@@ -464,7 +473,10 @@
             "text-babbage-001",
             "text-ada-001",
             "code-davinci-002",
-            "code-cushman-001"
+            "code-cushman-001",
+            "claude-3-opus-20240229",
+            "claude-3-sonnet-20240229",
+            "claude-3-haiku-20240307"
           ]
         },
         "chatgpt.gpt3.maxTokens": {

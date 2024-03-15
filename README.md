@@ -20,7 +20,7 @@ But unfortunately, the original author has decided to stop maintaining the proje
 
 ## Features
 
-- ➕ Use GPT-4, GPT-3.5, GPT3 or Codex models using your API Key from OpenAI or Azure OpenAI Service
+- ➕ Use GPT-4, GPT-3.5, Claude 3 or OpenAI compatible local models with your API Key from OpenAI, Azure OpenAI Service or Anthropic.
 - 📃 Get streaming answers to your prompts in sidebar conversation window
 - 🔥 Stop the responses to save your tokens.
 - 📝 Create files or fix your code with one click or with keyboard shortcuts.
@@ -34,10 +34,10 @@ But unfortunately, the original author has decided to stop maintaining the proje
 
 | Configuration | Description |
 | ------------- | ----------- |
-| chatgpt.gpt3.apiKey     | Required, please get from [OpenAI](https://platform.openai.com/account/api-keys) or [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service). |
-| chatgpt.gpt3.apiBaseUrl | Optional, default to "<https://api.openai.com/v1>".<br>For Azure OpenAI Service, it should be set to "https://<YOUR-ENDPOINT-NAME>.openai.azure.com/openai/deployments/<YOUR-DEPLOYMENT-NAME>". |
+| chatgpt.gpt3.apiKey     | Required, please get from [OpenAI](https://platform.openai.com/account/api-keys), [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service) or [Anthropic](https://console.anthropic.com/settings/keys). |
+| chatgpt.gpt3.apiBaseUrl | Optional, default to "<https://api.openai.com/v1>".<br>For Azure OpenAI Service, it should be set to "https://[YOUR-ENDPOINT-NAME].openai.azure.com/openai/deployments/[YOUR-DEPLOYMENT-NAME]". |
 | chatgpt.gpt3.model      | Optional, default to "gpt-3.5-turbo". |
-| chatgpt.gpt3.googleCSEApiKey<br>chatgpt.gpt3.googleCSEId | Optional, to enable Google Custom Search. |
+| chatgpt.gpt3.googleCSEApiKey<br>chatgpt.gpt3.googleCSEId | Optional, to enable Google Custom Search (Only supported for GPT-3.5 and GPT-4). |
 
 Refer following sections for more details of how to configure various openai services.
 
@@ -55,7 +55,14 @@ Refer following sections for more details of how to configure various openai ser
     "chatgpt.gpt3.model": "gpt-3.5-turbo",
 ```
 
-### Third Party Service
+### Anthropic Claude 3
+
+```json
+    "chatgpt.gpt3.model": "claude-3-sonnet-20240229",
+    "chatgpt.gpt3.apiKey": "<api-key>",
+```
+
+### Local or self-hosted LLM compatible with OpenAI
 
 ```json
     "chatgpt.gpt3.apiKey": "<api-key>",
