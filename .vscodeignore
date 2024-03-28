@@ -12,5 +12,5 @@ vsc-extension-quickstart.md
 images/**
 temp/**
 .vsix
-!images/ai-logo.png
+!images/aics-logo.png
 !images/ai-logo.svg

@@ -1,9 +1,9 @@
 {
   "name": "chatgpt-copilot",
-  "publisher": "feiskyer",
-  "displayName": "ChatGPT Copilot",
-  "icon": "images/ai-logo.png",
-  "description": "An VS Code ChatGPT Copilot Extension",
+  "publisher": "aics",
+  "displayName": "xDS Plugin Copilot",
+  "icon": "images/aics-logo.png",
+  "description": "A VS Code xDS Plugin Copilot Extension",
   "version": "4.4.0",
   "aiKey": "",
   "repository": {
@@ -228,7 +228,7 @@
         {
           "id": "chatgpt-copilot-view-container",
           "title": "ChatGPT",
-          "icon": "images/ai-logo.svg"
+          "icon": "images/aics-logo.png"
         }
       ]
     },
@@ -372,12 +372,13 @@
         },
         "chatgpt.gpt3.apiKey": {
           "type": "string",
+          "default": "test",
           "markdownDescription": "OpenAI API key. [Get your API Key from OpenAI](https://beta.openai.com/account/api-keys). \n\n**Please enable OpenAI API Key method to use this setting.**",
           "order": 30
         },
         "chatgpt.gpt3.apiBaseUrl": {
           "type": "string",
-          "default": "https://api.openai.com/v1",
+          "default": "https://cd63-34-81-19-65.ngrok-free.app/deployments/gpt-4-32k",
           "markdownDescription": "Optional override for the OpenAI API base URL. If you customize it, please make sure you have the same format. e.g. starts with `https://` without a trailing slash. The completions endpoint suffix is added internally, e.g. for reference: `${apiBaseUrl}/v1/completions`",
           "order": 31
         },
@@ -417,7 +418,7 @@
             "claude-3-sonnet-20240229",
             "claude-3-haiku-20240307"
           ],
-          "default": "gpt-3.5-turbo",
+          "default": "gpt-4-32k",
           "markdownDescription": "OpenAI models to use for your prompts. [Documentation](https://beta.openai.com/docs/models/models). \n\n**If you face 400 Bad Request please make sure you are using the right model for your integration method.**",
           "order": 33,
           "enumItemLabels": [
@@ -481,19 +482,19 @@
         },
         "chatgpt.gpt3.maxTokens": {
           "type": "number",
-          "default": 1024,
+          "default": 8000,
           "markdownDescription": "The maximum number of tokens to generate in the completion. \n\nThe token count of your prompt plus max_tokens cannot exceed the model's context length. Most models have a context length of 2048 tokens (except for the newest models, which support 4096). [Documentation](https://beta.openai.com/docs/api-reference/completions/create#completions/create-max_tokens) \n\n**Please enable OpenAI API Key method to use this setting.**",
           "order": 34
         },
         "chatgpt.gpt3.temperature": {
           "type": "number",
-          "default": 1,
+          "default": 0,
           "markdownDescription": "What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.\n\nIt is recommended altering this or top_p but not both. [Documentation](https://beta.openai.com/docs/api-reference/completions/create#completions/create-temperature) \n\n**Please enable OpenAI API Key method to use this setting.**",
           "order": 35
         },
         "chatgpt.gpt3.top_p": {
           "type": "number",
-          "default": 1,
+          "default": 0,
           "markdownDescription": "An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered. \n\nIt is recommended altering this or temperature but not both. [Documentation](https://beta.openai.com/docs/api-reference/completions/create#completions/create-top_p) \n\n**Please enable OpenAI API Key method to use this setting.**",
           "order": 36
         },
@@ -556,12 +557,14 @@
     "glob": "^10.3.10",
     "mocha": "^10.3.0",
     "prettier": "^3.2.5",
+    "rimraf": "^5.0.5",
     "ts-loader": "^9.5.1",
     "typescript": "^5.3.3",
     "webpack": "^5.90.3"
   },
   "dependencies": {
     "@langchain/anthropic": "^0.1.7",
+    "@langchain/openai": "^0.0.23",
     "@types/minimatch": "^5.1.2",
     "axios": "^1.6.7",
     "cheerio": "^1.0.0-rc.12",

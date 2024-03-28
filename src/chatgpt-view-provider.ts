@@ -36,7 +36,7 @@ import { Calculator } from "langchain/tools/calculator";
 import { WebBrowser } from "langchain/tools/webbrowser";
 import * as vscode from "vscode";
 
-const logger = vscode.window.createOutputChannel("ChatGPT Copilot");
+const logger = vscode.window.createOutputChannel("xDS Plugin Copilot");
 
 export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private webView?: vscode.WebviewView;
@@ -157,7 +157,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         case "openSettings":
           vscode.commands.executeCommand(
             "workbench.action.openSettings",
-            "@ext:feiskyer.chatgpt-copilot chatgpt.",
+            "@ext:aics.chatgpt-copilot chatgpt.",
           );
 
           this.logEvent("settings-opened");
@@ -165,7 +165,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         case "openSettingsPrompt":
           vscode.commands.executeCommand(
             "workbench.action.openSettings",
-            "@ext:feiskyer.chatgpt-copilot promptPrefix",
+            "@ext:aics.chatgpt-copilot promptPrefix",
           );
 
           this.logEvent("settings-prompt-opened");
@@ -729,7 +729,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   // }
 
   private async chatGpt(question: string, updateResponse: (message: string) => void) {
-    const stream = await this.chain?.stream({
+    const stream = await this.chain?.streamLog({
       input: question,
       signal: this.abortController?.signal,
     }, {
@@ -740,23 +740,30 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     if (stream) {
       const chunks = [];
       for await (const chunk of stream) {
-        logger.appendLine(
-          `INFO: chatgpt.model:${this.model} chatgpt.question:${question} response:${JSON.stringify(chunk, null, 2)}`
-        );
+        // logger.appendLine(
+        //   `INFO: chatgpt.model:${this.model} chatgpt.question:${question} response:${JSON.stringify(chunk, null, 2)}`
+        // );
 
-        if (chunk["intermediateSteps"] != null) {
-          const intermediateSteps = chunk["intermediateSteps"];
-          for (const step of intermediateSteps) {
-            // const stepMessage = `Observation: ${step.observation}, tool: ${step.action.tool}\r\n`;
-            const stepMessage = `${step.action.tool}...\r\n\r\n`;
-            updateResponse(stepMessage);
-            chunks.push(stepMessage);
+        // if (chunk["intermediateSteps"] != null) {
+        //   const intermediateSteps = chunk["intermediateSteps"];
+        //   for (const step of intermediateSteps) {
+        //     // const stepMessage = `Observation: ${step.observation}, tool: ${step.action.tool}\r\n`;
+        //     const stepMessage = `${step.action.tool}...\r\n\r\n`;
+        //     updateResponse(stepMessage);
+        //     chunks.push(stepMessage);
+        //   }
+        // }
+
+        // if (chunk["output"] != null) {
+        //   updateResponse(chunk["output"]);
+        //   chunks.push(chunk["output"]);
+        // }
+        for (const op of chunk.ops) {
+          if (op.op == "add" && op.path == '/logs/ChatOpenAI/streamed_output_str/-') {
+            updateResponse(op.value);
+            chunks.push(op.value);
+            await delay(20);
           }
-        }
-
-        if (chunk["output"] != null) {
-          updateResponse(chunk["output"]);
-          chunks.push(chunk["output"]);
         }
 
       }
@@ -876,9 +883,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 							</div>
 						</div>
 						<div class="flex flex-col gap-4 h-full items-center justify-end text-center">
-							<p class="max-w-sm text-center text-xs text-slate-500">
+							<!--p class="max-w-sm text-center text-xs text-slate-500">
 								<a title="" id="settings-button" href="#">Update settings</a>&nbsp; | &nbsp;<a title="" id="settings-prompt-button" href="#">Update prompts</a>
-							</p>
+							</p-->
 						</div>
 					</div>
 

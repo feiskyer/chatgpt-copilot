@@ -1,4 +1,4 @@
-<h3 align="center"><img src="https://raw.githubusercontent.com/feiskyer/chatgpt-copilot/main/images/ai-logo.png" height="64"><br>An VS Code ChatGPT Copilot Extension</h3>
+<h3 align="center"><img src="https://raw.githubusercontent.com/feiskyer/chatgpt-copilot/main/images/aics-logo.png" height="64"><br>A VS Code xDS Plugin Copilot Extension</h3>
 
 <p align="center">
     <a href="https://marketplace.visualstudio.com/items?itemName=feiskyer.chatgpt-copilot" alt="Marketplace version">
@@ -32,12 +32,12 @@ But unfortunately, the original author has decided to stop maintaining the proje
 
 ## Configurations
 
-| Configuration | Description |
-| ------------- | ----------- |
-| chatgpt.gpt3.apiKey     | Required, please get from [OpenAI](https://platform.openai.com/account/api-keys), [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service) or [Anthropic](https://console.anthropic.com/settings/keys). |
-| chatgpt.gpt3.apiBaseUrl | Optional, default to "<https://api.openai.com/v1>".<br>For Azure OpenAI Service, it should be set to "https://[YOUR-ENDPOINT-NAME].openai.azure.com/openai/deployments/[YOUR-DEPLOYMENT-NAME]". |
-| chatgpt.gpt3.model      | Optional, default to "gpt-3.5-turbo". |
-| chatgpt.gpt3.googleCSEApiKey<br>chatgpt.gpt3.googleCSEId | Optional, to enable Google Custom Search (Only supported for GPT-3.5 and GPT-4). |
+| Configuration                                            | Description                                                                                                                                                                                                                          |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| chatgpt.gpt3.apiKey                                      | Required, please get from [OpenAI](https://platform.openai.com/account/api-keys), [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service) or [Anthropic](https://console.anthropic.com/settings/keys). |
+| chatgpt.gpt3.apiBaseUrl                                  | Optional, default to "<https://api.openai.com/v1>".<br>For Azure OpenAI Service, it should be set to "https://[YOUR-ENDPOINT-NAME].openai.azure.com/openai/deployments/[YOUR-DEPLOYMENT-NAME]".                                      |
+| chatgpt.gpt3.model                                       | Optional, default to "gpt-3.5-turbo".                                                                                                                                                                                                |
+| chatgpt.gpt3.googleCSEApiKey<br>chatgpt.gpt3.googleCSEId | Optional, to enable Google Custom Search (Only supported for GPT-3.5 and GPT-4).                                                                                                                                                     |
 
 Refer following sections for more details of how to configure various openai services.
 

@@ -124,7 +124,7 @@
                 } else {
                     list.innerHTML +=
                         `<div class="p-4 self-end mt-4 pb-8 answer-element-ext">
-                        <h2 class="mb-5 flex">${aiSvg}ChatGPT</h2>
+                        <h2 class="mb-5 flex">${aiSvg}Copilot</h2>
                         <div class="result-streaming" id="${message.id}">${markedResponse}</div>
                     </div>`;
                 }
@@ -185,7 +185,7 @@
 
                 list.innerHTML +=
                     `<div class="p-4 self-end mt-4 pb-8 error-element-ext">
-                        <h2 class="mb-5 flex">${aiSvg}ChatGPT</h2>
+                        <h2 class="mb-5 flex">${aiSvg}Copilot</h2>
                         <div class="text-red-400">${marked.parse(messageValue)}</div>
                     </div>`;
 
