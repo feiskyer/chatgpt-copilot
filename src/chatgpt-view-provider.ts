@@ -14,6 +14,7 @@
  */
 
 import { ChatAnthropic } from "@langchain/anthropic";
+import { AgentAction, AgentFinish } from "@langchain/core/agents";
 import { RunnableWithMessageHistory } from "@langchain/core/runnables";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import delay from "delay";
@@ -23,16 +24,20 @@ import { ChatOpenAI } from "langchain/chat_models/openai";
 import { OpenAI } from "langchain/llms/openai";
 import { BufferMemory } from "langchain/memory";
 
+import { formatXml } from "langchain/agents/format_scratchpad/xml";
+import { XMLAgentOutputParser } from "langchain/agents/xml/output_parser";
 import {
   ChatPromptTemplate as ChatPromptTemplatePackage,
   HumanMessagePromptTemplate,
   MessagesPlaceholder,
   SystemMessagePromptTemplate
 } from "langchain/prompts";
-import { ChainValues } from "langchain/schema";
+import { AgentStep, ChainValues } from "langchain/schema";
+import { RunnableSequence } from "langchain/schema/runnable";
 import { ChatMessageHistory } from "langchain/stores/message/in_memory";
 import { GoogleCustomSearch, Tool } from "langchain/tools";
 import { Calculator } from "langchain/tools/calculator";
+import { renderTextDescription } from "langchain/tools/render";
 import { WebBrowser } from "langchain/tools/webbrowser";
 import * as vscode from "vscode";
 
@@ -50,6 +55,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private apiChat?: ChatOpenAI;
   private chain?: RunnableWithMessageHistory<Record<string, any>, ChainValues>;
   private llmChain?: LLMChain;
+  private tools?: Tool[];
+  private memory?: ChatMessageHistory;
   private conversationId?: string;
   private questionCounter: number = 0;
   private inProgress: boolean = false;
@@ -91,9 +98,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.webView = webviewView;
 
     webviewView.webview.options = {
-      // Allow scripts in the webview
       enableScripts: true,
-
       localResourceRoots: [this.context.extensionUri],
     };
 
@@ -125,6 +130,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           break;
         case "clearConversation":
           this.conversationId = undefined;
+          this.memory?.clear();
           if (this.llmChain != null) {
             this.llmChain.memory = new BufferMemory({
               returnMessages: true,
@@ -214,6 +220,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.chain = undefined;
     this.llmChain = undefined;
     this.conversationId = undefined;
+    this.tools = undefined;
+    this.memory = undefined;
     this.logEvent("cleared-session");
   }
 
@@ -236,7 +244,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
     if (
       (this.isGpt35Model && !this.apiChat) ||
-      (this.isClaude && !this.apiCompletion) ||
+      (this.isClaude && !this.chain) ||
       (!this.isGpt35Model && !this.isClaude && !this.apiCompletion) ||
       modelChanged
     ) {
@@ -306,11 +314,11 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       }
 
 
-      const messageHistory = new ChatMessageHistory();
+      this.memory = new ChatMessageHistory();
       if (this.isGpt35Model) {
-        await this.setupGpt(apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, googleCSEApiKey, googleCSEId, messageHistory);
+        await this.setupGpt(apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, googleCSEApiKey, googleCSEId, this.memory);
       } else if (this.isClaude) {
-        await this.setupClaude(apiKey, apiBaseUrl, maxTokens, temperature, topP, messageHistory);
+        await this.setupClaude(apiKey, apiBaseUrl, maxTokens, temperature, topP, googleCSEApiKey, googleCSEId, this.memory);
       } else {
         this.setupCompletion(apiBaseUrl, apiKey, maxTokens, temperature, topP, organization);
       }
@@ -374,8 +382,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     });
   }
 
-  private async setupClaude(apiKey: string, apiBaseUrl: string, maxTokens: number, temperature: number, topP: number, messageHistory: ChatMessageHistory) {
-    // TODO: add tool calling once it is available in the agent.
+  private async setupClaude(apiKey: string, apiBaseUrl: string, maxTokens: number, temperature: number, topP: number, googleCSEApiKey: string, googleCSEId: string, messageHistory: ChatMessageHistory) {
     const apiClaude = new ChatAnthropic({
       topP: topP,
       temperature: temperature,
@@ -384,27 +391,98 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       anthropicApiUrl: apiBaseUrl,
       streaming: true,
       maxTokens: maxTokens,
+    }).bind({
+      stop: ["</tool_input>", "</final_answer>"],
     });
+
+    let tools: Tool[] = [new Calculator()];
+    if (googleCSEApiKey != "" && googleCSEId != "") {
+      tools.push(new GoogleCustomSearch({
+        apiKey: googleCSEApiKey,
+        googleCSEId: googleCSEId,
+      }));
+    }
 
     const systemContext = `You are ChatGPT helping the User with coding.
-			You are intelligent, helpful and an expert developer, who always gives the correct answer and only does what instructed. You always answer truthfully and don't make things up.
-			(When responding to the following prompt, please make sure to properly style your response using Github Flavored Markdown.
-			Use markdown syntax for things like headings, lists, colored text, code blocks, highlights etc. Make sure not to mention markdown or styling in your actual response.)`;
-    const chatPrompt = ChatPromptTemplatePackage.fromMessages([
-      SystemMessagePromptTemplate.fromTemplate(systemContext),
-      new MessagesPlaceholder("history"),
-      HumanMessagePromptTemplate.fromTemplate("{input}"),
-    ]);
-    const chatMemory = new BufferMemory({
-      returnMessages: true,
-      memoryKey: "history",
-    });
-    this.llmChain = new ConversationChain({
-      memory: chatMemory,
-      prompt: chatPrompt,
-      llm: apiClaude,
-    });
+You are intelligent, helpful and an expert developer, who always gives the correct answer and only does what instructed. You always answer truthfully and don't make things up.
+(When responding to the following prompt, please make sure to properly style your response using Github Flavored Markdown.
+Use markdown syntax for things like headings, lists, colored text, code blocks, highlights etc. Make sure not to mention markdown or styling in your actual response.)
 
+You have access to the following tools:
+
+{tools}
+
+In order to use a tool, you can use <tool></tool> and <tool_input></tool_input> tags. \
+You will then get back a response in the form <observation></observation>
+
+For example, if you have a tool called 'search' that could run a google search, in order to search for the weather in SF you would respond:
+
+<tool>search</tool><tool_input>weather in SF</tool_input>
+<observation>64 degrees</observation>
+
+When you are done, respond with a final answer between <final_answer></final_answer>. For example:
+
+<final_answer>The weather in SF is 64 degrees</final_answer>
+      `;
+
+    const chatPrompt = ChatPromptTemplatePackage.fromMessages([
+      ["human", systemContext],
+      ["ai", "Chat history: {chat_history}"],
+      ["human", "Question: {input}"],
+      ["ai", "agent_scratchpad:{agent_scratchpad}"],
+    ]);
+
+    class CustomXMLAgentOutputParser extends XMLAgentOutputParser {
+      public async parse(text: string): Promise<AgentAction | AgentFinish> {
+        try {
+          const steps = super.parse(text);
+          return steps;
+        } catch (error) {
+          if (error.message.includes("Could not parse LLM output")) {
+            const msg = error.message.replace("Could not parse LLM output:", "");
+            const agentFinish: AgentFinish = {
+              returnValues: {
+                response: msg,
+              },
+              log: msg,
+            };
+            return agentFinish;
+          } else {
+            // Re-throw the error if it's not the one we're looking for
+            throw error;
+          }
+        }
+      }
+    }
+
+    const outputParser = new CustomXMLAgentOutputParser();
+    const runnableAgent = RunnableSequence.from([
+      {
+        input: (i: { input: string; tools: Tool[]; steps: AgentStep[]; }) => i.input,
+        tools: (i: { input: string; tools: Tool[]; steps: AgentStep[]; }) =>
+          renderTextDescription(i.tools),
+        agent_scratchpad: (i: { input: string; tools: Tool[]; steps: AgentStep[]; }) =>
+          formatXml(i.steps),
+        chat_history: async (_: { input: string; tools: Tool[]; steps: AgentStep[]; }) => {
+          const histories = await this.memory?.getMessages();
+          return histories?.map((message) => `${message._getType()}: ${message.content}`).join("\n");
+        },
+      },
+      chatPrompt,
+      apiClaude,
+      outputParser,
+    ]);
+    const agentExecutor = AgentExecutor.fromAgentAndTools({
+      agent: runnableAgent,
+      tools,
+    });
+    this.tools = tools;
+    this.chain = new RunnableWithMessageHistory({
+      runnable: agentExecutor,
+      getMessageHistory: (_sessionId) => messageHistory,
+      inputMessagesKey: "input",
+      historyMessagesKey: "chat_history",
+    });
   }
 
   private async setupGpt(apiKey: string, apiBaseUrl: string, maxTokens: number, temperature: number, topP: number, organization: string, googleCSEApiKey: string, googleCSEId: string, messageHistory: ChatMessageHistory) {
@@ -465,9 +543,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       model: this.apiChat,
       embeddings: embeddings,
     }));
-    // const chatPrompt = await pull<ChatPromptTemplate>(
-    //   "hwchase17/openai-functions-agent"
-    // );
+
     const systemContext = `Your task is to embody the role of an intelligent, helpful, and expert developer. You MUST provide accurate and truthful answers, adhering strictly to the instructions given. Your responses should be styled using Github Flavored Markdown for elements such as headings, lists, colored text, code blocks, and highlights. However, you MUST NOT mention markdown or styling directly in your response. Utilize available tools to supplement your knowledge where necessary. Respond in the same language as the query, unless otherwise specified by the user.`;
     const chatPrompt = ChatPromptTemplatePackage.fromMessages([
       SystemMessagePromptTemplate.fromTemplate(systemContext),
@@ -482,7 +558,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     });
 
     const agentExecutor = new AgentExecutor({ agent, tools });
-
+    this.tools = tools;
     this.chain = new RunnableWithMessageHistory({
       runnable: agentExecutor,
       getMessageHistory: (_sessionId) => messageHistory,
@@ -571,7 +647,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       if (this.isGpt35Model) {
         await this.chatGpt(question, updateResponse);
       } else if (this.isClaude) {
-        await this.chatCompletion(question, updateResponse);
+        await this.chatGpt(question, updateResponse);
       } else {
         await this.chatCompletion(question, updateResponse);
       }
@@ -705,33 +781,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.response = gptResponse?.response;
   }
 
-  // private async chatClaude(question: string, updateResponse: (message: string) => void) {
-  //   const stream = await this.apiClaude?.stream(question, {
-  //     signal: this.abortController?.signal,
-  //     "configurable": {
-  //       "sessionId": this.conversationId,
-  //     }
-  //   });
-  //   if (stream) {
-  //     const chunks: string[] = [];
-  //     for await (const chunk of stream) {
-  //       logger.appendLine(
-  //         `INFO: claude.model:${this.model} claude.question:${question} response:${JSON.stringify(chunk.lc_kwargs["content"], null, 2)}`
-  //       );
-
-  //       if (chunk.lc_kwargs["content"] != null) {
-  //         const msg = chunk.lc_kwargs["content"];
-  //         updateResponse(msg);
-  //         chunks.push(msg);
-  //       }
-  //     }
-  //     this.response = chunks.join("");
-  //   }
-  // }
-
-  private async chatGpt(question: string, updateResponse: (message: string) => void) {
+  private async chatGpt(question: string, updateResponse: (message: string) => void, tools: Tool[] = []) {
     const stream = await this.chain?.stream({
       input: question,
+      tools: this.tools,
       signal: this.abortController?.signal,
     }, {
       "configurable": {
