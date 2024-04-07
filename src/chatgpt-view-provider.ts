@@ -375,6 +375,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   }
 
   private async setupClaude(apiKey: string, apiBaseUrl: string, maxTokens: number, temperature: number, topP: number, messageHistory: ChatMessageHistory) {
+    // TODO: add tool calling once it is available in the agent.
     const apiClaude = new ChatAnthropic({
       topP: topP,
       temperature: temperature,

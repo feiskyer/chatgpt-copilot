@@ -277,13 +277,13 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@langchain/anthropic@^0.1.7":
-  version "0.1.7"
-  resolved "https://registry.npmjs.org/@langchain/anthropic/-/anthropic-0.1.7.tgz"
-  integrity sha512-MOd6AE42T53yBfIEZQbmpJDdPp8G3U/m+/jAoJOMudrAq4VhdILPzgwK9emwMTpqE2MPu3lc+MxruXDqPjlczw==
+"@langchain/anthropic@^0.1.10":
+  version "0.1.10"
+  resolved "https://registry.yarnpkg.com/@langchain/anthropic/-/anthropic-0.1.10.tgz#dc1d69da8c394621fa30866dc13a73c18548be6b"
+  integrity sha512-5JxH5NhmogrkOpvqvHNfo+kWW0X2Q7aGR4yoPBG9noQTz/w0PcONvAe50NPl8zRlw0PC2SMb0Ulknd4NF2Q4+w==
   dependencies:
     "@anthropic-ai/sdk" "^0.17.2"
-    "@langchain/core" "~0.1.44"
+    "@langchain/core" "~0.1.54"
     fast-xml-parser "^4.3.5"
     zod "^3.22.4"
     zod-to-json-schema "^3.22.4"
@@ -302,7 +302,7 @@
     zod "^3.22.3"
     zod-to-json-schema "^3.22.5"
 
-"@langchain/core@~0.1.44", "@langchain/core@~0.1.45":
+"@langchain/core@~0.1.44", "@langchain/core@~0.1.45", "@langchain/core@~0.1.54":
   version "0.1.54"
   resolved "https://registry.yarnpkg.com/@langchain/core/-/core-0.1.54.tgz#63dfbd5c116798f6d080fbe675a68a87d84a1be4"
   integrity sha512-87pQ8dnWY8P1Kgnu/SgnRijLRNSEzTzkjBK6O/Z1klXf/eQTXAG5O5cKwe3lwM6Afn+4U2byzSMYjwViAYuR4g==

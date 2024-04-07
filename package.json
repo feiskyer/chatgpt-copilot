@@ -561,7 +561,7 @@
     "webpack": "^5.90.3"
   },
   "dependencies": {
-    "@langchain/anthropic": "^0.1.7",
+    "@langchain/anthropic": "^0.1.10",
     "@types/minimatch": "^5.1.2",
     "axios": "^1.6.7",
     "cheerio": "^1.0.0-rc.12",
