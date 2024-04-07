@@ -570,7 +570,7 @@
     "gpt3-tokenizer": "^1.1.5",
     "isomorphic-fetch": "^3.0.0",
     "keyv": "^4.5.4",
-    "langchain": "^0.1.28",
+    "langchain": "^0.1.31",
     "minimatch": "^5.1.6",
     "openai": "^4.28.0",
     "p-timeout": "^6.1.2",

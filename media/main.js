@@ -227,11 +227,15 @@
     const addFreeTextQuestion = () => {
         const input = document.getElementById("question-input");
         if (input.value?.length > 0) {
-            if (input.value === "/clear") {
-                clearConversation();
-                input.value = "";
+            if (input.value.startsWith("/")) {
                 return;
             }
+
+            // if (input.value === "/clear") {
+            //     clearConversation();
+            //     input.value = "";
+            //     return;
+            // }
 
             vscode.postMessage({
                 type: "addFreeTextQuestion",
@@ -453,6 +457,34 @@
 
             return;
         }
+    });
+
+    $(function () {
+        var availableCommands = ["/clear"];
+
+        $("#question-input").autocomplete({
+            source: function (request, response) {
+                if (request.term.startsWith("/")) {
+                    var filteredCommands = availableCommands.filter(function (command) {
+                        return command.startsWith(request.term);
+                    });
+                    response(filteredCommands);
+                } else {
+                    response([]);
+                }
+            },
+            position: { my: "right bottom", at: "right top" },
+            open: function () {
+                $(this).data("ui-autocomplete").menu.focus(null, $(".ui-menu-item").first());
+            },
+            select: function (event, ui) {
+                if (ui.item.value === "/clear") {
+                    clearConversation();
+                }
+                $('#question-input').val("");
+                return false;
+            }
+        });
     });
 
 })();

@@ -331,7 +331,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         azureOpenAIApiInstanceName: instanceName,
         azureOpenAIApiDeploymentName: deployName,
         azureOpenAIApiCompletionsDeploymentName: deployName,
-        azureOpenAIApiVersion: "2023-05-15",
+        azureOpenAIApiVersion: "2024-02-01",
         maxTokens: maxTokens,
         streaming: true,
         temperature: temperature,
@@ -429,7 +429,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         azureOpenAIApiInstanceName: instanceName,
         azureOpenAIApiDeploymentName: deployName,
         azureOpenAIApiCompletionsDeploymentName: deployName,
-        azureOpenAIApiVersion: "2023-12-01-preview",
+        azureOpenAIApiVersion: "2024-02-01",
       });
       this.apiChat = new ChatOpenAI({
         modelName: this.model,
@@ -437,7 +437,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         azureOpenAIApiInstanceName: instanceName,
         azureOpenAIApiDeploymentName: deployName,
         azureOpenAIApiCompletionsDeploymentName: deployName,
-        azureOpenAIApiVersion: "2023-12-01-preview",
+        azureOpenAIApiVersion: "2024-02-01",
         maxTokens: maxTokens,
         streaming: true,
         temperature: temperature,
@@ -780,17 +780,23 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private logEvent(eventName: string, properties?: {}): void {
     // You can initialize your telemetry reporter and consume it here - *replaced with console.debug to prevent unwanted telemetry logs
     // this.reporter?.sendTelemetryEvent(eventName, { "chatgpt.loginMethod": this.loginMethod!, "chatgpt.authType": this.authType!, "chatgpt.model": this.model || "unknown", ...properties }, { "chatgpt.questionCounter": this.questionCounter });
-    logger.appendLine(
-      `INFO ${eventName} chatgpt.model:${this.model} chatgpt.questionCounter:${this.questionCounter
-      } ${JSON.stringify(properties)}`,
-    );
+    if (properties != null) {
+      logger.appendLine(
+        `INFO ${eventName} chatgpt.model:${this.model} chatgpt.questionCounter:${this.questionCounter
+        } ${JSON.stringify(properties)}`,
+      );
+    } else {
+      logger.appendLine(
+        `INFO ${eventName} chatgpt.model:${this.model}`,
+      );
+    }
   }
 
   private logError(eventName: string): void {
     // You can initialize your telemetry reporter and consume it here - *replaced with console.error to prevent unwanted telemetry logs
     // this.reporter?.sendTelemetryErrorEvent(eventName, { "chatgpt.loginMethod": this.loginMethod!, "chatgpt.authType": this.authType!, "chatgpt.model": this.model || "unknown" }, { "chatgpt.questionCounter": this.questionCounter });
     logger.appendLine(
-      `ERR ${eventName} chatgpt.model:${this.model} chatgpt.questionCounter:${this.questionCounter}}`,
+      `ERR ${eventName} chatgpt.model:${this.model}`,
     );
   }
 
@@ -810,12 +816,36 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         "highlight.min.css",
       ),
     );
+    const vendorJqueryUICss = webview.asWebviewUri(
+      vscode.Uri.joinPath(
+        this.context.extensionUri,
+        "media",
+        "vendor",
+        "hjquery-ui.css",
+      ),
+    );
     const vendorHighlightJs = webview.asWebviewUri(
       vscode.Uri.joinPath(
         this.context.extensionUri,
         "media",
         "vendor",
         "highlight.min.js",
+      ),
+    );
+    const vendorJqueryUIMinJs = webview.asWebviewUri(
+      vscode.Uri.joinPath(
+        this.context.extensionUri,
+        "media",
+        "vendor",
+        "jquery-ui.min.js",
+      ),
+    );
+    const vendorJqueryJs = webview.asWebviewUri(
+      vscode.Uri.joinPath(
+        this.context.extensionUri,
+        "media",
+        "vendor",
+        "jquery-3.5.1.min.js",
       ),
     );
     const vendorMarkedJs = webview.asWebviewUri(
@@ -853,10 +883,13 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
 				<link href="${stylesMainUri}" rel="stylesheet">
 				<link href="${vendorHighlightCss}" rel="stylesheet">
+        <link href="${vendorJqueryUICss}" rel="stylesheet">
 				<script src="${vendorHighlightJs}"></script>
 				<script src="${vendorMarkedJs}"></script>
 				<script src="${vendorTailwindJs}"></script>
 				<script src="${vendorTurndownJs}"></script>
+        <script src="${vendorJqueryJs}"></script>
+        <script src="${vendorJqueryUIMinJs}"></script>
 			</head>
 			<body class="overflow-hidden">
 				<div class="flex flex-col h-screen">
@@ -881,6 +914,27 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 							</p>
 						</div>
 					</div>
+
+          <style>
+            /* Customize the dropdown menu */
+            .ui-autocomplete {
+                background-color: #484a44;
+                color: #ffffff;
+                border: 1px solid #1f241f;
+                padding: 10px;
+                width: 200px;
+            }
+
+            /* Customize each item in the menu */
+            .ui-menu-item {
+                padding: 5px 10px;
+            }
+
+            /* Customize the item that is currently selected or being hovered over */
+            .ui-menu-item.ui-state-focus {
+                background-color: #808080;
+            }
+          </style>
 
 					<div class="flex-1 overflow-y-auto" id="qa-list"></div>
 
