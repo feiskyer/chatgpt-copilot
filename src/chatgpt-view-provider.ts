@@ -13,35 +13,22 @@
  * copies or substantial portions of the Software.
  */
 
-import { ChatAnthropic } from "@langchain/anthropic";
-import { AgentAction, AgentFinish } from "@langchain/core/agents";
 import { RunnableWithMessageHistory } from "@langchain/core/runnables";
-import { OpenAIEmbeddings } from "@langchain/openai";
 import delay from "delay";
-import { AgentExecutor, createOpenAIFunctionsAgent } from "langchain/agents";
-import { ConversationChain, LLMChain } from "langchain/chains";
+import { LLMChain } from "langchain/chains";
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { OpenAI } from "langchain/llms/openai";
 import { BufferMemory } from "langchain/memory";
 
-import { formatXml } from "langchain/agents/format_scratchpad/xml";
-import { XMLAgentOutputParser } from "langchain/agents/xml/output_parser";
-import {
-  ChatPromptTemplate as ChatPromptTemplatePackage,
-  HumanMessagePromptTemplate,
-  MessagesPlaceholder,
-  SystemMessagePromptTemplate
-} from "langchain/prompts";
-import { AgentStep, ChainValues } from "langchain/schema";
-import { RunnableSequence } from "langchain/schema/runnable";
+import { ChainValues } from "langchain/schema";
 import { ChatMessageHistory } from "langchain/stores/message/in_memory";
-import { GoogleCustomSearch, Tool } from "langchain/tools";
-import { Calculator } from "langchain/tools/calculator";
-import { renderTextDescription } from "langchain/tools/render";
-import { WebBrowser } from "langchain/tools/webbrowser";
+import { Tool } from "langchain/tools";
 import * as vscode from "vscode";
+import { initClaudeModel } from "./anthropic";
+import { chatGpt, initGptModel } from "./openai";
+import { chatCompletion, initGptLegacyModel } from "./openai-legacy";
 
-const logger = vscode.window.createOutputChannel("ChatGPT Copilot");
+export const logger = vscode.window.createOutputChannel("ChatGPT Copilot");
 
 export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private webView?: vscode.WebviewView;
@@ -51,18 +38,18 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public model?: string;
   private apiBaseUrl?: string;
 
-  private apiCompletion?: OpenAI;
-  private apiChat?: ChatOpenAI;
-  private chain?: RunnableWithMessageHistory<Record<string, any>, ChainValues>;
-  private llmChain?: LLMChain;
-  private tools?: Tool[];
-  private memory?: ChatMessageHistory;
-  private conversationId?: string;
-  private questionCounter: number = 0;
-  private inProgress: boolean = false;
-  private abortController?: AbortController;
-  private currentMessageId: string = "";
-  private response: string = "";
+  public apiCompletion?: OpenAI;
+  public apiChat?: ChatOpenAI;
+  public chain?: RunnableWithMessageHistory<Record<string, any>, ChainValues>;
+  public llmChain?: LLMChain;
+  public tools?: Tool[];
+  public memory?: ChatMessageHistory;
+  public conversationId?: string;
+  public questionCounter: number = 0;
+  public inProgress: boolean = false;
+  public abortController?: AbortController;
+  public currentMessageId: string = "";
+  public response: string = "";
 
   /**
    * Message to be rendered lazily if they haven't been rendered
@@ -313,258 +300,19 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         return false;
       }
 
-
       this.memory = new ChatMessageHistory();
       if (this.isGpt35Model) {
-        await this.setupGpt(apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, googleCSEApiKey, googleCSEId, this.memory);
+        await initGptModel(this, apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, googleCSEApiKey, googleCSEId, this.memory);
       } else if (this.isClaude) {
-        await this.setupClaude(apiKey, apiBaseUrl, maxTokens, temperature, topP, googleCSEApiKey, googleCSEId, this.memory);
+        await initClaudeModel(this, apiKey, apiBaseUrl, maxTokens, temperature, topP, googleCSEApiKey, googleCSEId, this.memory);
       } else {
-        this.setupCompletion(apiBaseUrl, apiKey, maxTokens, temperature, topP, organization);
+        initGptLegacyModel(this, apiBaseUrl, apiKey, maxTokens, temperature, topP, organization);
       }
     }
 
     this.sendMessage({ type: "loginSuccessful" }, true);
 
     return true;
-  }
-
-  private setupCompletion(apiBaseUrl: string, apiKey: string, maxTokens: number, temperature: number, topP: number, organization: string) {
-    if (apiBaseUrl?.includes("azure")) {
-      const instanceName = apiBaseUrl.split(".")[0].split("//")[1];
-      const deployName = apiBaseUrl.split("/")[apiBaseUrl.split("/").length - 1];
-      this.apiCompletion = new OpenAI({
-        modelName: this.model,
-        azureOpenAIApiKey: apiKey,
-        azureOpenAIApiInstanceName: instanceName,
-        azureOpenAIApiDeploymentName: deployName,
-        azureOpenAIApiCompletionsDeploymentName: deployName,
-        azureOpenAIApiVersion: "2024-02-01",
-        maxTokens: maxTokens,
-        streaming: true,
-        temperature: temperature,
-        topP: topP,
-      });
-    } else {
-      // OpenAI
-      this.apiCompletion = new OpenAI({
-        openAIApiKey: apiKey,
-        modelName: this.model,
-        maxTokens: maxTokens,
-        streaming: true,
-        temperature: temperature,
-        topP: topP,
-        configuration: {
-          apiKey: apiKey,
-          baseURL: apiBaseUrl,
-          organization: organization,
-        },
-      });
-    }
-
-    const systemContext = `You are ChatGPT helping the User with coding.
-			You are intelligent, helpful and an expert developer, who always gives the correct answer and only does what instructed. You always answer truthfully and don't make things up.
-			(When responding to the following prompt, please make sure to properly style your response using Github Flavored Markdown.
-			Use markdown syntax for things like headings, lists, colored text, code blocks, highlights etc. Make sure not to mention markdown or styling in your actual response.)`;
-    const chatPrompt = ChatPromptTemplatePackage.fromMessages([
-      SystemMessagePromptTemplate.fromTemplate(systemContext),
-      new MessagesPlaceholder("history"),
-      HumanMessagePromptTemplate.fromTemplate("{input}"),
-    ]);
-    const chatMemory = new BufferMemory({
-      returnMessages: true,
-      memoryKey: "history",
-    });
-    this.llmChain = new ConversationChain({
-      memory: chatMemory,
-      prompt: chatPrompt,
-      llm: this.apiCompletion,
-    });
-  }
-
-  private async setupClaude(apiKey: string, apiBaseUrl: string, maxTokens: number, temperature: number, topP: number, googleCSEApiKey: string, googleCSEId: string, messageHistory: ChatMessageHistory) {
-    const apiClaude = new ChatAnthropic({
-      topP: topP,
-      temperature: temperature,
-      modelName: this.model,
-      anthropicApiKey: apiKey,
-      anthropicApiUrl: apiBaseUrl,
-      streaming: true,
-      maxTokens: maxTokens,
-    }).bind({
-      stop: ["</tool_input>", "</final_answer>"],
-    });
-
-    let tools: Tool[] = [new Calculator()];
-    if (googleCSEApiKey != "" && googleCSEId != "") {
-      tools.push(new GoogleCustomSearch({
-        apiKey: googleCSEApiKey,
-        googleCSEId: googleCSEId,
-      }));
-    }
-
-    const systemContext = `You are ChatGPT helping the User with coding.
-You are intelligent, helpful and an expert developer, who always gives the correct answer and only does what instructed. You always answer truthfully and don't make things up.
-(When responding to the following prompt, please make sure to properly style your response using Github Flavored Markdown.
-Use markdown syntax for things like headings, lists, colored text, code blocks, highlights etc. Make sure not to mention markdown or styling in your actual response.)
-
-You have access to the following tools:
-
-{tools}
-
-In order to use a tool, you can use <tool></tool> and <tool_input></tool_input> tags. \
-You will then get back a response in the form <observation></observation>
-
-For example, if you have a tool called 'search' that could run a google search, in order to search for the weather in SF you would respond:
-
-<tool>search</tool><tool_input>weather in SF</tool_input>
-<observation>64 degrees</observation>
-
-When you are done, respond with a final answer between <final_answer></final_answer>. For example:
-
-<final_answer>The weather in SF is 64 degrees</final_answer>
-      `;
-
-    const chatPrompt = ChatPromptTemplatePackage.fromMessages([
-      ["human", systemContext],
-      ["ai", "Chat history: {chat_history}"],
-      ["human", "Question: {input}"],
-      ["ai", "agent_scratchpad:{agent_scratchpad}"],
-    ]);
-
-    class CustomXMLAgentOutputParser extends XMLAgentOutputParser {
-      public async parse(text: string): Promise<AgentAction | AgentFinish> {
-        try {
-          const steps = super.parse(text);
-          return steps;
-        } catch (error) {
-          if (error.message.includes("Could not parse LLM output")) {
-            const msg = error.message.replace("Could not parse LLM output:", "");
-            const agentFinish: AgentFinish = {
-              returnValues: {
-                response: msg,
-              },
-              log: msg,
-            };
-            return agentFinish;
-          } else {
-            // Re-throw the error if it's not the one we're looking for
-            throw error;
-          }
-        }
-      }
-    }
-
-    const outputParser = new CustomXMLAgentOutputParser();
-    const runnableAgent = RunnableSequence.from([
-      {
-        input: (i: { input: string; tools: Tool[]; steps: AgentStep[]; }) => i.input,
-        tools: (i: { input: string; tools: Tool[]; steps: AgentStep[]; }) =>
-          renderTextDescription(i.tools),
-        agent_scratchpad: (i: { input: string; tools: Tool[]; steps: AgentStep[]; }) =>
-          formatXml(i.steps),
-        chat_history: async (_: { input: string; tools: Tool[]; steps: AgentStep[]; }) => {
-          const histories = await this.memory?.getMessages();
-          return histories?.map((message) => `${message._getType()}: ${message.content}`).join("\n");
-        },
-      },
-      chatPrompt,
-      apiClaude,
-      outputParser,
-    ]);
-    const agentExecutor = AgentExecutor.fromAgentAndTools({
-      agent: runnableAgent,
-      tools,
-    });
-    this.tools = tools;
-    this.chain = new RunnableWithMessageHistory({
-      runnable: agentExecutor,
-      getMessageHistory: (_sessionId) => messageHistory,
-      inputMessagesKey: "input",
-      historyMessagesKey: "chat_history",
-    });
-  }
-
-  private async setupGpt(apiKey: string, apiBaseUrl: string, maxTokens: number, temperature: number, topP: number, organization: string, googleCSEApiKey: string, googleCSEId: string, messageHistory: ChatMessageHistory) {
-    let tools: Tool[] = [new Calculator()];
-    if (googleCSEApiKey != "" && googleCSEId != "") {
-      tools.push(new GoogleCustomSearch({
-        apiKey: googleCSEApiKey,
-        googleCSEId: googleCSEId,
-      }));
-    }
-
-    let embeddings = new OpenAIEmbeddings({
-      modelName: "text-embedding-ada-002",
-      openAIApiKey: apiKey,
-    });
-    // AzureOpenAI
-    if (apiBaseUrl?.includes("azure")) {
-      const instanceName = apiBaseUrl.split(".")[0].split("//")[1];
-      const deployName = apiBaseUrl.split("/")[apiBaseUrl.split("/").length - 1];
-      embeddings = new OpenAIEmbeddings({
-        azureOpenAIApiEmbeddingsDeploymentName: "text-embedding-ada-002",
-        azureOpenAIApiKey: apiKey,
-        azureOpenAIApiInstanceName: instanceName,
-        azureOpenAIApiDeploymentName: deployName,
-        azureOpenAIApiCompletionsDeploymentName: deployName,
-        azureOpenAIApiVersion: "2024-02-01",
-      });
-      this.apiChat = new ChatOpenAI({
-        modelName: this.model,
-        azureOpenAIApiKey: apiKey,
-        azureOpenAIApiInstanceName: instanceName,
-        azureOpenAIApiDeploymentName: deployName,
-        azureOpenAIApiCompletionsDeploymentName: deployName,
-        azureOpenAIApiVersion: "2024-02-01",
-        maxTokens: maxTokens,
-        streaming: true,
-        temperature: temperature,
-        topP: topP,
-      });
-    } else {
-      // OpenAI
-      this.apiChat = new ChatOpenAI({
-        openAIApiKey: apiKey,
-        modelName: this.model,
-        maxTokens: maxTokens,
-        streaming: true,
-        temperature: temperature,
-        topP: topP,
-        configuration: {
-          apiKey: apiKey,
-          baseURL: apiBaseUrl,
-          organization: organization,
-        },
-      });
-    }
-
-    tools.push(new WebBrowser({
-      model: this.apiChat,
-      embeddings: embeddings,
-    }));
-
-    const systemContext = `Your task is to embody the role of an intelligent, helpful, and expert developer. You MUST provide accurate and truthful answers, adhering strictly to the instructions given. Your responses should be styled using Github Flavored Markdown for elements such as headings, lists, colored text, code blocks, and highlights. However, you MUST NOT mention markdown or styling directly in your response. Utilize available tools to supplement your knowledge where necessary. Respond in the same language as the query, unless otherwise specified by the user.`;
-    const chatPrompt = ChatPromptTemplatePackage.fromMessages([
-      SystemMessagePromptTemplate.fromTemplate(systemContext),
-      new MessagesPlaceholder("chat_history"),
-      HumanMessagePromptTemplate.fromTemplate("{input}"),
-      new MessagesPlaceholder("agent_scratchpad"),
-    ]);
-    const agent = await createOpenAIFunctionsAgent({
-      llm: this.apiChat,
-      tools: tools,
-      prompt: chatPrompt,
-    });
-
-    const agentExecutor = new AgentExecutor({ agent, tools });
-    this.tools = tools;
-    this.chain = new RunnableWithMessageHistory({
-      runnable: agentExecutor,
-      getMessageHistory: (_sessionId) => messageHistory,
-      inputMessagesKey: "input",
-      historyMessagesKey: "chat_history",
-    });
   }
 
   private processQuestion(question: string, code?: string, language?: string) {
@@ -631,7 +379,6 @@ When you are done, respond with a final answer between <final_answer></final_ans
     });
 
     const responseInMarkdown = !this.isCodexModel;
-
     const updateResponse = (message: string) => {
       this.response += message;
       this.sendMessage({
@@ -645,11 +392,11 @@ When you are done, respond with a final answer between <final_answer></final_ans
     };
     try {
       if (this.isGpt35Model) {
-        await this.chatGpt(question, updateResponse);
+        await chatGpt(this, question, updateResponse);
       } else if (this.isClaude) {
-        await this.chatGpt(question, updateResponse);
+        await chatGpt(this, question, updateResponse);
       } else {
-        await this.chatCompletion(question, updateResponse);
+        await chatCompletion(this, question, updateResponse);
       }
 
       if (options.previousAnswer != null) {
@@ -758,63 +505,6 @@ When you are done, respond with a final answer between <final_answer></final_ans
     } finally {
       this.inProgress = false;
       this.sendMessage({ type: "showInProgress", inProgress: this.inProgress });
-    }
-  }
-
-  private async chatCompletion(question: string, updateResponse: (message: string) => void) {
-    const gptResponse = await this.llmChain?.call(
-      {
-        input: question,
-        signal: this.abortController?.signal,
-      },
-      [
-        {
-          handleLLMNewToken(token: string) {
-            updateResponse(token);
-          },
-          handleLLMError(err: any, runId: any, parentRunId: any) {
-            logger.appendLine(`Error in LLM: ${err.message}`);
-          },
-        },
-      ]
-    );
-    this.response = gptResponse?.response;
-  }
-
-  private async chatGpt(question: string, updateResponse: (message: string) => void, tools: Tool[] = []) {
-    const stream = await this.chain?.stream({
-      input: question,
-      tools: this.tools,
-      signal: this.abortController?.signal,
-    }, {
-      "configurable": {
-        "sessionId": this.conversationId,
-      }
-    });
-    if (stream) {
-      const chunks = [];
-      for await (const chunk of stream) {
-        logger.appendLine(
-          `INFO: chatgpt.model:${this.model} chatgpt.question:${question} response:${JSON.stringify(chunk, null, 2)}`
-        );
-
-        if (chunk["intermediateSteps"] != null) {
-          const intermediateSteps = chunk["intermediateSteps"];
-          for (const step of intermediateSteps) {
-            // const stepMessage = `Observation: ${step.observation}, tool: ${step.action.tool}\r\n`;
-            const stepMessage = `${step.action.tool}...\r\n\r\n`;
-            updateResponse(stepMessage);
-            chunks.push(stepMessage);
-          }
-        }
-
-        if (chunk["output"] != null) {
-          updateResponse(chunk["output"]);
-          chunks.push(chunk["output"]);
-        }
-
-      }
-      this.response = chunks.join("");
     }
   }
 
