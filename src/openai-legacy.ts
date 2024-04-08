@@ -21,37 +21,38 @@ import {
     SystemMessagePromptTemplate
 } from "langchain/prompts";
 import ChatGptViewProvider, { logger } from "./chatgpt-view-provider";
+import { ModelConfig } from "./model-config";
 
 // initGptLegacyModel initializes the GPT legacy model.
-export function initGptLegacyModel(viewProvider: ChatGptViewProvider, apiBaseUrl: string, apiKey: string, maxTokens: number, temperature: number, topP: number, organization: string) {
-    if (apiBaseUrl?.includes("azure")) {
-        const instanceName = apiBaseUrl.split(".")[0].split("//")[1];
-        const deployName = apiBaseUrl.split("/")[apiBaseUrl.split("/").length - 1];
+export function initGptLegacyModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {
+    if (config.apiBaseUrl?.includes("azure")) {
+        const instanceName = config.apiBaseUrl.split(".")[0].split("//")[1];
+        const deployName = config.apiBaseUrl.split("/")[config.apiBaseUrl.split("/").length - 1];
         viewProvider.apiCompletion = new OpenAI({
             modelName: viewProvider.model,
-            azureOpenAIApiKey: apiKey,
+            azureOpenAIApiKey: config.apiKey,
             azureOpenAIApiInstanceName: instanceName,
             azureOpenAIApiDeploymentName: deployName,
             azureOpenAIApiCompletionsDeploymentName: deployName,
             azureOpenAIApiVersion: "2024-02-01",
-            maxTokens: maxTokens,
+            maxTokens: config.maxTokens,
             streaming: true,
-            temperature: temperature,
-            topP: topP,
+            temperature: config.temperature,
+            topP: config.topP,
         });
     } else {
         // OpenAI
         viewProvider.apiCompletion = new OpenAI({
-            openAIApiKey: apiKey,
+            openAIApiKey: config.apiKey,
             modelName: viewProvider.model,
-            maxTokens: maxTokens,
+            maxTokens: config.maxTokens,
             streaming: true,
-            temperature: temperature,
-            topP: topP,
+            temperature: config.temperature,
+            topP: config.topP,
             configuration: {
-                apiKey: apiKey,
-                baseURL: apiBaseUrl,
-                organization: organization,
+                apiKey: config.apiKey,
+                baseURL: config.apiBaseUrl,
+                organization: config.organization,
             },
         });
     }

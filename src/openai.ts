@@ -21,33 +21,39 @@ import {
     MessagesPlaceholder,
     SystemMessagePromptTemplate
 } from "langchain/prompts";
-import { ChatMessageHistory } from "langchain/stores/message/in_memory";
-import { GoogleCustomSearch, Tool } from "langchain/tools";
+import { BingSerpAPI, GoogleCustomSearch, Serper, Tool } from "langchain/tools";
 import { Calculator } from "langchain/tools/calculator";
 import { WebBrowser } from "langchain/tools/webbrowser";
 import ChatGptViewProvider, { logger } from "./chatgpt-view-provider";
+import { ModelConfig } from "./model-config";
 
 // initGptModel initializes the GPT model.
-export async function initGptModel(viewProvider: ChatGptViewProvider, apiKey: string, apiBaseUrl: string, maxTokens: number, temperature: number, topP: number, organization: string, googleCSEApiKey: string, googleCSEId: string, messageHistory: ChatMessageHistory) {
+export async function initGptModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {
     let tools: Tool[] = [new Calculator()];
-    if (googleCSEApiKey != "" && googleCSEId != "") {
+    if (config.googleCSEApiKey != "" && config.googleCSEId != "") {
         tools.push(new GoogleCustomSearch({
-            apiKey: googleCSEApiKey,
-            googleCSEId: googleCSEId,
+            apiKey: config.googleCSEApiKey,
+            googleCSEId: config.googleCSEId,
         }));
+    }
+    if (config.serperKey != "") {
+        tools.push(new Serper(config.serperKey));
+    }
+    if (config.bingKey != "") {
+        tools.push(new BingSerpAPI(config.bingKey));
     }
 
     let embeddings = new OpenAIEmbeddings({
         modelName: "text-embedding-ada-002",
-        openAIApiKey: apiKey,
+        openAIApiKey: config.apiKey,
     });
     // AzureOpenAI
-    if (apiBaseUrl?.includes("azure")) {
-        const instanceName = apiBaseUrl.split(".")[0].split("//")[1];
-        const deployName = apiBaseUrl.split("/")[apiBaseUrl.split("/").length - 1];
+    if (config.apiBaseUrl?.includes("azure")) {
+        const instanceName = config.apiBaseUrl.split(".")[0].split("//")[1];
+        const deployName = config.apiBaseUrl.split("/")[config.apiBaseUrl.split("/").length - 1];
         embeddings = new OpenAIEmbeddings({
             azureOpenAIApiEmbeddingsDeploymentName: "text-embedding-ada-002",
-            azureOpenAIApiKey: apiKey,
+            azureOpenAIApiKey: config.apiKey,
             azureOpenAIApiInstanceName: instanceName,
             azureOpenAIApiDeploymentName: deployName,
             azureOpenAIApiCompletionsDeploymentName: deployName,
@@ -55,29 +61,29 @@ export async function initGptModel(viewProvider: ChatGptViewProvider, apiKey: st
         });
         viewProvider.apiChat = new ChatOpenAI({
             modelName: viewProvider.model,
-            azureOpenAIApiKey: apiKey,
+            azureOpenAIApiKey: config.apiKey,
             azureOpenAIApiInstanceName: instanceName,
             azureOpenAIApiDeploymentName: deployName,
             azureOpenAIApiCompletionsDeploymentName: deployName,
             azureOpenAIApiVersion: "2024-02-01",
-            maxTokens: maxTokens,
+            maxTokens: config.maxTokens,
             streaming: true,
-            temperature: temperature,
-            topP: topP,
+            temperature: config.temperature,
+            topP: config.topP,
         });
     } else {
         // OpenAI
         viewProvider.apiChat = new ChatOpenAI({
-            openAIApiKey: apiKey,
+            openAIApiKey: config.apiKey,
             modelName: viewProvider.model,
-            maxTokens: maxTokens,
+            maxTokens: config.maxTokens,
             streaming: true,
-            temperature: temperature,
-            topP: topP,
+            temperature: config.temperature,
+            topP: config.topP,
             configuration: {
-                apiKey: apiKey,
-                baseURL: apiBaseUrl,
-                organization: organization,
+                apiKey: config.apiKey,
+                baseURL: config.apiBaseUrl,
+                organization: config.organization,
             },
         });
     }
@@ -109,7 +115,7 @@ where necessary. Respond in the same language as the query, unless otherwise spe
     viewProvider.tools = tools;
     viewProvider.chain = new RunnableWithMessageHistory({
         runnable: agentExecutor,
-        getMessageHistory: (_sessionId) => messageHistory,
+        getMessageHistory: (_sessionId) => config.messageHistory,
         inputMessagesKey: "input",
         historyMessagesKey: "chat_history",
     });

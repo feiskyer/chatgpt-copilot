@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v4.4.1
+
+* Add support of Serper and Bing search
+* Add searching support for Claude models
+
 ## v4.4.0
 
 * Add support for Anthropic Claude 3

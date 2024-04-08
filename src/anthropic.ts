@@ -20,32 +20,38 @@ import { XMLAgentOutputParser } from "langchain/agents/xml/output_parser";
 import { ChatPromptTemplate as ChatPromptTemplatePackage } from "langchain/prompts";
 import { AgentStep } from "langchain/schema";
 import { RunnableSequence } from "langchain/schema/runnable";
-import { ChatMessageHistory } from "langchain/stores/message/in_memory";
-import { GoogleCustomSearch, Tool } from "langchain/tools";
+import { BingSerpAPI, GoogleCustomSearch, Serper, Tool } from "langchain/tools";
 import { Calculator } from "langchain/tools/calculator";
 import { renderTextDescription } from "langchain/tools/render";
 import ChatGptViewProvider from "./chatgpt-view-provider";
+import { ModelConfig } from "./model-config";
 
 // initClaudeModel initializes the Claude model with the given parameters.
-export async function initClaudeModel(viewProvider: ChatGptViewProvider, apiKey: string, apiBaseUrl: string, maxTokens: number, temperature: number, topP: number, googleCSEApiKey: string, googleCSEId: string, messageHistory: ChatMessageHistory) {
+export async function initClaudeModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {
     const apiClaude = new ChatAnthropic({
-        topP: topP,
-        temperature: temperature,
+        topP: config.topP,
+        temperature: config.temperature,
         modelName: viewProvider.model,
-        anthropicApiKey: apiKey,
-        anthropicApiUrl: apiBaseUrl,
+        anthropicApiKey: config.apiKey,
+        anthropicApiUrl: config.apiBaseUrl,
         streaming: true,
-        maxTokens: maxTokens,
+        maxTokens: config.maxTokens,
     }).bind({
         stop: ["</tool_input>", "</final_answer>"],
     });
 
     let tools: Tool[] = [new Calculator()];
-    if (googleCSEApiKey != "" && googleCSEId != "") {
+    if (config.googleCSEApiKey != "" && config.googleCSEId != "") {
         tools.push(new GoogleCustomSearch({
-            apiKey: googleCSEApiKey,
-            googleCSEId: googleCSEId,
+            apiKey: config.googleCSEApiKey,
+            googleCSEId: config.googleCSEId,
         }));
+    }
+    if (config.serperKey != "") {
+        tools.push(new Serper(config.serperKey));
+    }
+    if (config.bingKey != "") {
+        tools.push(new BingSerpAPI(config.bingKey));
     }
 
     const systemContext = `You are ChatGPT helping the User with coding.
@@ -85,7 +91,7 @@ Ensure the final answer is in the same language as the question, unless otherwis
             try {
                 const steps = super.parse(text);
                 return steps;
-            } catch (error) {
+            } catch (error: any) {
                 if (error.message.includes("Could not parse LLM output")) {
                     const msg = error.message.replace("Could not parse LLM output:", "");
                     const agentFinish: AgentFinish = {
@@ -125,7 +131,7 @@ Ensure the final answer is in the same language as the question, unless otherwis
     viewProvider.tools = tools;
     viewProvider.chain = new RunnableWithMessageHistory({
         runnable: agentExecutor,
-        getMessageHistory: (_sessionId) => messageHistory,
+        getMessageHistory: (_sessionId) => config.messageHistory,
         inputMessagesKey: "input",
         historyMessagesKey: "chat_history",
     });

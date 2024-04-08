@@ -25,6 +25,7 @@ import { ChatMessageHistory } from "langchain/stores/message/in_memory";
 import { Tool } from "langchain/tools";
 import * as vscode from "vscode";
 import { initClaudeModel } from "./anthropic";
+import { ModelConfig } from "./model-config";
 import { chatGpt, initGptModel } from "./openai";
 import { chatCompletion, initGptLegacyModel } from "./openai-legacy";
 
@@ -244,6 +245,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       const topP = configuration.get("gpt3.top_p") as number;
       const googleCSEApiKey = configuration.get("gpt3.googleCSEApiKey") as string;
       const googleCSEId = configuration.get("gpt3.googleCSEId") as string;
+      const serperKey = configuration.get("gpt3.serperKey") as string;
+      const bingKey = configuration.get("gpt3.bingKey") as string;
       let apiBaseUrl = configuration.get("gpt3.apiBaseUrl") as string;
       if (!apiBaseUrl) {
         if (this.isGpt35Model) {
@@ -301,12 +304,15 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       }
 
       this.memory = new ChatMessageHistory();
+      const modelConfig = new ModelConfig(
+        { apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, googleCSEApiKey, googleCSEId, serperKey, bingKey, messageHistory: this.memory },
+      );
       if (this.isGpt35Model) {
-        await initGptModel(this, apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, googleCSEApiKey, googleCSEId, this.memory);
+        await initGptModel(this, modelConfig);
       } else if (this.isClaude) {
-        await initClaudeModel(this, apiKey, apiBaseUrl, maxTokens, temperature, topP, googleCSEApiKey, googleCSEId, this.memory);
+        await initClaudeModel(this, modelConfig);
       } else {
-        initGptLegacyModel(this, apiBaseUrl, apiKey, maxTokens, temperature, topP, organization);
+        initGptLegacyModel(this, modelConfig);
       }
     }
 
