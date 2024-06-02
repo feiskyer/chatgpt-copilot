@@ -22,14 +22,13 @@ import {
     SystemMessagePromptTemplate
 } from "langchain/prompts";
 import { BingSerpAPI, GoogleCustomSearch, Serper, Tool } from "langchain/tools";
-import { Calculator } from "langchain/tools/calculator";
 import { WebBrowser } from "langchain/tools/webbrowser";
 import ChatGptViewProvider, { logger } from "./chatgpt-view-provider";
 import { ModelConfig } from "./model-config";
 
 // initGptModel initializes the GPT model.
 export async function initGptModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {
-    let tools: Tool[] = [new Calculator()];
+    let tools: Tool[] = [];
     if (config.googleCSEApiKey != "" && config.googleCSEId != "") {
         tools.push(new GoogleCustomSearch({
             apiKey: config.googleCSEApiKey,
@@ -88,10 +87,12 @@ export async function initGptModel(viewProvider: ChatGptViewProvider, config: Mo
         });
     }
 
-    tools.push(new WebBrowser({
-        model: viewProvider.apiChat,
-        embeddings: embeddings,
-    }));
+    if (tools.length > 0) {
+        tools.push(new WebBrowser({
+            model: viewProvider.apiChat,
+            embeddings: embeddings,
+        }));
+    }
 
     const systemContext = `Your task is to embody the role of an intelligent, helpful, and expert developer.
 You MUST provide accurate and truthful answers, adhering strictly to the instructions given.

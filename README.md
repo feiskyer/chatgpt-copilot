@@ -73,11 +73,13 @@ Refer following sections for more details of how to configure various openai ser
 
 To use a custom model name for local or self-hosted LLMs compatible with OpenAI, set the `chatgpt.gpt3.model` configuration to `"custom"` and specify your custom model name in the `chatgpt.gpt3.customModel` configuration.
 
-Example configuration for a custom model name:
+Example configuration for a custom model name with [groq](https://console.groq.com/):
 
 ```json
     "chatgpt.gpt3.model": "custom",
-    "chatgpt.gpt3.customModel": "my-custom-model-name",
+    "chatgpt.gpt3.apiKey": "<your-custom-key>",
+    "chatgpt.gpt3.customModel":  "mixtral-8x7b-32768",
+    "chatgpt.gpt3.apiBaseUrl": "https://api.groq.com/openai/v1",
 ```
 
 ## How to install locally

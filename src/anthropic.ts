@@ -21,7 +21,6 @@ import { ChatPromptTemplate as ChatPromptTemplatePackage } from "langchain/promp
 import { AgentStep } from "langchain/schema";
 import { RunnableSequence } from "langchain/schema/runnable";
 import { BingSerpAPI, GoogleCustomSearch, Serper, Tool } from "langchain/tools";
-import { Calculator } from "langchain/tools/calculator";
 import { renderTextDescription } from "langchain/tools/render";
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { ModelConfig } from "./model-config";
@@ -40,7 +39,7 @@ export async function initClaudeModel(viewProvider: ChatGptViewProvider, config:
         stop: ["</tool_input>", "</final_answer>"],
     });
 
-    let tools: Tool[] = [new Calculator()];
+    let tools: Tool[] = [];
     if (config.googleCSEApiKey != "" && config.googleCSEId != "") {
         tools.push(new GoogleCustomSearch({
             apiKey: config.googleCSEApiKey,

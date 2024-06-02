@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v4.4.2
+
+* Support custom model names for local or self-hosted LLMs
+
 ## v4.4.1
 
 * Add support of Serper and Bing search

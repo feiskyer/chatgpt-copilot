@@ -102,9 +102,19 @@ export async function activate(context: vscode.ExtensionContext) {
         .get("gpt3.model");
     }
 
+    if (e.affectsConfiguration("chatgpt.gpt3.customModel")) {
+      if (provider.model === "custom") {
+        provider.model = vscode.workspace
+          .getConfiguration("chatgpt")
+          .get("gpt3.customModel");
+      }
+    }
+
     if (
       e.affectsConfiguration("chatgpt.gpt3.apiBaseUrl") ||
       e.affectsConfiguration("chatgpt.gpt3.model") ||
+      e.affectsConfiguration("chatgpt.gpt3.apiKey") ||
+      e.affectsConfiguration("chatgpt.gpt3.customModel") ||
       e.affectsConfiguration("chatgpt.gpt3.organization") ||
       e.affectsConfiguration("chatgpt.gpt3.maxTokens") ||
       e.affectsConfiguration("chatgpt.gpt3.temperature") ||

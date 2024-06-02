@@ -68,6 +68,11 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.model = vscode.workspace
       .getConfiguration("chatgpt")
       .get("gpt3.model") as string;
+    if (this.model == "custom") {
+      this.model = vscode.workspace
+        .getConfiguration("chatgpt")
+        .get("gpt3.customModel") as string;
+    }
     this.apiBaseUrl = vscode.workspace
       .getConfiguration("chatgpt")
       .get("gpt3.apiBaseUrl") as string;
@@ -218,7 +223,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   }
 
   private get isGpt35Model(): boolean {
-    return !!this.model?.startsWith("gpt-");
+    return !this.isCodexModel && !this.isClaude;
   }
 
   private get isClaude(): boolean {
@@ -229,6 +234,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.conversationId = this.conversationId || this.getRandomId();
     const state = this.context.globalState;
     const configuration = vscode.workspace.getConfiguration("chatgpt");
+
+    if (this.model == "custom") {
+      this.model = configuration.get("gpt3.customModel") as string;
+    }
 
     if (
       (this.isGpt35Model && !this.apiChat) ||
