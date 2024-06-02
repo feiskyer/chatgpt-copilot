@@ -69,6 +69,17 @@ Refer following sections for more details of how to configure various openai ser
     "chatgpt.gpt3.apiBaseUrl": "<base-url>",
 ```
 
+### Configuring Custom Model Names
+
+To use a custom model name for local or self-hosted LLMs compatible with OpenAI, set the `chatgpt.gpt3.model` configuration to `"custom"` and specify your custom model name in the `chatgpt.gpt3.customModel` configuration.
+
+Example configuration for a custom model name:
+
+```json
+    "chatgpt.gpt3.model": "custom",
+    "chatgpt.gpt3.customModel": "my-custom-model-name",
+```
+
 ## How to install locally
 
 - Install `vsce` if you don't have it on your machine (The Visual Studio Code Extension Manager)
