@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v4.4.3
+
+* Support GPT-4o
+
 ## v4.4.2
 
 * Support custom model names for local or self-hosted LLMs

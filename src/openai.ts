@@ -87,12 +87,10 @@ export async function initGptModel(viewProvider: ChatGptViewProvider, config: Mo
         });
     }
 
-    if (tools.length > 0) {
-        tools.push(new WebBrowser({
-            model: viewProvider.apiChat,
-            embeddings: embeddings,
-        }));
-    }
+    tools.push(new WebBrowser({
+        model: viewProvider.apiChat,
+        embeddings: embeddings,
+    }));
 
     const systemContext = `Your task is to embody the role of an intelligent, helpful, and expert developer.
 You MUST provide accurate and truthful answers, adhering strictly to the instructions given.
