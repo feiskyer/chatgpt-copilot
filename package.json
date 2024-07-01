@@ -564,7 +564,7 @@
   "devDependencies": {
     "@types/glob": "^8.1.0",
     "@types/isomorphic-fetch": "^0.0.39",
-    "@types/mocha": "^10.0.6",
+    "@types/mocha": "^10.0.7",
     "@types/node": "^20.14.9",
     "@types/uuid": "^9.0.8",
     "@types/vscode": "^1.85.0",
@@ -576,7 +576,7 @@
     "esbuild": "^0.20.1",
     "eslint": "^8.56.0",
     "glob": "^10.3.10",
-    "mocha": "^10.3.0",
+    "mocha": "^10.5.2",
     "prettier": "^3.3.2",
     "ts-loader": "^9.5.1",
     "typescript": "^5.5.2",
