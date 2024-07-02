@@ -573,7 +573,7 @@
     "@types/vscode": "^1.90.0",
     "@types/vscode-webview": "^1.57.5",
     "@typescript-eslint/eslint-plugin": "^7.14.1",
-    "@typescript-eslint/parser": "^7.14.1",
+    "@typescript-eslint/parser": "^7.15.0",
     "@vscode/test-electron": "^2.4.0",
     "@vscode/vsce": "^2.29.0",
     "esbuild": "^0.21.5",
