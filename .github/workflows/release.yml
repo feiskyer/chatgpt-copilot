@@ -15,8 +15,8 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: latest
-    - run: npm install
-    - run: npm run package
-    - run: npm run publish
+    - run: yarn install
+    - run: yarn run package
+    - run: yarn run publish
       env:
         VSCE_PAT: ${{ secrets.VSCE_PAT }}
