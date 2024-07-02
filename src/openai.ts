@@ -11,24 +11,32 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
 */
-import { RunnableWithMessageHistory } from "@langchain/core/runnables";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { AgentExecutor, createOpenAIFunctionsAgent } from "langchain/agents";
-import { ChatOpenAI } from "langchain/chat_models/openai";
+import { BingSerpAPI } from "@langchain/community/tools/bingserpapi";
+import { GoogleCustomSearch } from "@langchain/community/tools/google_custom_search";
+import { Serper } from "@langchain/community/tools/serper";
+import { WikipediaQueryRun } from "@langchain/community/tools/wikipedia_query_run";
 import {
     ChatPromptTemplate as ChatPromptTemplatePackage,
     HumanMessagePromptTemplate,
     MessagesPlaceholder,
     SystemMessagePromptTemplate
-} from "langchain/prompts";
-import { BingSerpAPI, GoogleCustomSearch, Serper, Tool } from "langchain/tools";
+} from "@langchain/core/prompts";
+import { RunnableWithMessageHistory } from "@langchain/core/runnables";
+import { Tool } from "@langchain/core/tools";
+import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import { AgentExecutor, createOpenAIFunctionsAgent } from "langchain/agents";
 import { WebBrowser } from "langchain/tools/webbrowser";
 import ChatGptViewProvider, { logger } from "./chatgpt-view-provider";
 import { ModelConfig } from "./model-config";
 
 // initGptModel initializes the GPT model.
 export async function initGptModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {
-    let tools: Tool[] = [];
+    let tools: Tool[] = [
+        new WikipediaQueryRun({
+            topKResults: 3,
+            maxDocContentLength: 4000,
+        })
+    ];
     if (config.googleCSEApiKey != "" && config.googleCSEId != "") {
         tools.push(new GoogleCustomSearch({
             apiKey: config.googleCSEApiKey,
@@ -46,6 +54,7 @@ export async function initGptModel(viewProvider: ChatGptViewProvider, config: Mo
         modelName: "text-embedding-ada-002",
         openAIApiKey: config.apiKey,
     });
+
     // AzureOpenAI
     if (config.apiBaseUrl?.includes("azure")) {
         const instanceName = config.apiBaseUrl.split(".")[0].split("//")[1];
@@ -87,10 +96,12 @@ export async function initGptModel(viewProvider: ChatGptViewProvider, config: Mo
         });
     }
 
-    tools.push(new WebBrowser({
-        model: viewProvider.apiChat,
-        embeddings: embeddings,
-    }));
+    if (config.apiBaseUrl == "https://api.openai.com/v1") {
+        tools.push(new WebBrowser({
+            model: viewProvider.apiChat,
+            embeddings: embeddings,
+        }));
+    }
 
     const systemContext = `Your task is to embody the role of an intelligent, helpful, and expert developer.
 You MUST provide accurate and truthful answers, adhering strictly to the instructions given.

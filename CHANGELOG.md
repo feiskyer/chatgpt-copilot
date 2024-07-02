@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v4.4.4
+
+* Add support for Anthropic Claude 3.5
+
 ## v4.4.3
 
 * Support GPT-4o

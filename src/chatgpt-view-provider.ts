@@ -13,14 +13,9 @@
  * copies or substantial portions of the Software.
  */
 
-import { RunnableWithMessageHistory } from "@langchain/core/runnables";
+import { ChatOpenAI, OpenAI } from "@langchain/openai";
 import delay from "delay";
-import { LLMChain } from "langchain/chains";
-import { ChatOpenAI } from "langchain/chat_models/openai";
-import { OpenAI } from "langchain/llms/openai";
 import { BufferMemory } from "langchain/memory";
-
-import { ChainValues } from "langchain/schema";
 import { ChatMessageHistory } from "langchain/stores/message/in_memory";
 import { Tool } from "langchain/tools";
 import * as vscode from "vscode";
@@ -41,8 +36,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
   public apiCompletion?: OpenAI;
   public apiChat?: ChatOpenAI;
-  public chain?: RunnableWithMessageHistory<Record<string, any>, ChainValues>;
-  public llmChain?: LLMChain;
+  public chain?: any;
+  public llmChain?: any;
   public tools?: Tool[];
   public memory?: ChatMessageHistory;
   public conversationId?: string;
@@ -680,7 +675,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
                 background-color: #484a44;
                 color: #ffffff;
                 border: 1px solid #1f241f;
-                padding: 10px;
                 width: 200px;
             }
 
@@ -691,7 +685,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
             /* Customize the item that is currently selected or being hovered over */
             .ui-menu-item.ui-state-focus {
-                background-color: #808080;
+                background-color: #808080 !important;
+            }
+            .ui-menu-item .ui-menu-item-wrapper.ui-state-active {
+                background-color: #808080 !important;
             }
           </style>
 

@@ -12,15 +12,16 @@
  * copies or substantial portions of the Software.
 */
 import { ChatAnthropic } from "@langchain/anthropic";
-import { AgentAction, AgentFinish } from "@langchain/core/agents";
-import { RunnableWithMessageHistory } from "@langchain/core/runnables";
+import { BingSerpAPI } from "@langchain/community/tools/bingserpapi";
+import { GoogleCustomSearch } from "@langchain/community/tools/google_custom_search";
+import { Serper } from "@langchain/community/tools/serper";
+import { AgentAction, AgentFinish, AgentStep } from "@langchain/core/agents";
+import { ChatPromptTemplate as ChatPromptTemplatePackage } from "@langchain/core/prompts";
+import { RunnableSequence, RunnableWithMessageHistory } from "@langchain/core/runnables";
+import { Tool } from "@langchain/core/tools";
 import { AgentExecutor } from "langchain/agents";
 import { formatXml } from "langchain/agents/format_scratchpad/xml";
 import { XMLAgentOutputParser } from "langchain/agents/xml/output_parser";
-import { ChatPromptTemplate as ChatPromptTemplatePackage } from "langchain/prompts";
-import { AgentStep } from "langchain/schema";
-import { RunnableSequence } from "langchain/schema/runnable";
-import { BingSerpAPI, GoogleCustomSearch, Serper, Tool } from "langchain/tools";
 import { renderTextDescription } from "langchain/tools/render";
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { ModelConfig } from "./model-config";
@@ -53,7 +54,21 @@ export async function initClaudeModel(viewProvider: ChatGptViewProvider, config:
         tools.push(new BingSerpAPI(config.bingKey));
     }
 
-    const systemContext = `You are ChatGPT helping the User with coding.
+    let systemContext = `You are ChatGPT helping the User with coding.
+You are intelligent, helpful and an expert developer, who always gives the correct answer and only does what instructed.
+You always answer truthfully and don't make things up. When responding to the following prompt, please make sure to
+properly style your response using Github Flavored Markdown. Use markdown syntax for things like headings, lists, colored
+text, code blocks, highlights etc. Make sure not to mention markdown or styling in your actual response.
+
+When you are done, respond with a final answer between <final_answer></final_answer>. For example:
+
+<final_answer>The weather in SF is 64 degrees</final_answer>
+
+Ensure the final answer is in the same language as the question, unless otherwise specified by the question.
+`;
+
+    if (tools.length > 0) {
+        systemContext = `You are ChatGPT helping the User with coding.
 You are intelligent, helpful and an expert developer, who always gives the correct answer and only does what instructed.
 You always answer truthfully and don't make things up. When responding to the following prompt, please make sure to
 properly style your response using Github Flavored Markdown. Use markdown syntax for things like headings, lists, colored
@@ -77,6 +92,7 @@ When you are done, respond with a final answer between <final_answer></final_ans
 
 Ensure the final answer is in the same language as the question, unless otherwise specified by the question.
       `;
+    }
 
     const chatPrompt = ChatPromptTemplatePackage.fromMessages([
         ["human", systemContext],

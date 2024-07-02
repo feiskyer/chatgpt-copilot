@@ -460,20 +460,18 @@
     });
 
     $(function () {
-        var availableCommands = ["/clear"];
+        const availableCommands = ["/clear", "/settings"];
 
         $("#question-input").autocomplete({
             source: function (request, response) {
                 if (request.term.startsWith("/")) {
-                    var filteredCommands = availableCommands.filter(function (command) {
-                        return command.startsWith(request.term);
-                    });
-                    response(filteredCommands);
+                    response(availableCommands.filter(command => command.startsWith(request.term)));
                 } else {
                     response([]);
                 }
             },
-            position: { my: "right bottom", at: "right top" },
+            position: { my: "left bottom", at: "left top" },
+            delay: 10,
             open: function () {
                 $(this).data("ui-autocomplete").menu.focus(null, $(".ui-menu-item").first());
             },
@@ -481,10 +479,18 @@
                 if (ui.item.value === "/clear") {
                     clearConversation();
                 }
+
+                if (ui.item.value === "/settings") {
+                    vscode.postMessage({
+                        type: "openSettings",
+                    });
+                }
+
                 $('#question-input').val("");
                 return false;
             }
         });
+
     });
 
 })();

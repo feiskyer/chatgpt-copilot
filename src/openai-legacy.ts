@@ -11,15 +11,15 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
 */
-import { ConversationChain } from "langchain/chains";
-import { OpenAI } from "langchain/llms/openai";
-import { BufferMemory } from "langchain/memory";
 import {
     ChatPromptTemplate as ChatPromptTemplatePackage,
     HumanMessagePromptTemplate,
     MessagesPlaceholder,
     SystemMessagePromptTemplate
-} from "langchain/prompts";
+} from "@langchain/core/prompts";
+import { OpenAI } from "@langchain/openai";
+import { ConversationChain } from "langchain/chains";
+import { BufferMemory } from "langchain/memory";
 import ChatGptViewProvider, { logger } from "./chatgpt-view-provider";
 import { ModelConfig } from "./model-config";
 

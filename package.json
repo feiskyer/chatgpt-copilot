@@ -4,13 +4,13 @@
   "displayName": "ChatGPT Copilot",
   "icon": "images/ai-logo.png",
   "description": "An VS Code ChatGPT Copilot Extension",
-  "version": "4.4.3",
+  "version": "4.4.4",
   "aiKey": "",
   "repository": {
     "url": "https://github.com/feiskyer/chatgpt-copilot"
   },
   "engines": {
-    "vscode": "^1.85.0"
+    "vscode": "^1.90.0"
   },
   "categories": [
     "Testing",
@@ -417,6 +417,7 @@
             "claude-3-opus-20240229",
             "claude-3-sonnet-20240229",
             "claude-3-haiku-20240307",
+            "claude-3-5-sonnet-20240620",
             "custom"
           ],
           "default": "gpt-3.5-turbo",
@@ -451,6 +452,7 @@
             "Claude 3 - claude-3-opus-20240229",
             "Claude 3 - claude-3-sonnet-20240229",
             "Claude 3 - claude-3-haiku-20240307",
+            "Claude 3 - claude-3-5-sonnet-20240620",
             "Custom Model"
           ],
           "markdownEnumDescriptions": [
@@ -482,6 +484,7 @@
             "claude-3-opus-20240229",
             "claude-3-sonnet-20240229",
             "claude-3-haiku-20240307",
+            "claude-3-5-sonnet-20240620",
             "Custom model name set by `chatgpt.gpt3.customModel`"
           ]
         },
@@ -558,45 +561,48 @@
     "fmt": "prettier --write \"src/**/*.ts\"&& yarn run test",
     "update": "npm install -g npm-check-updates && ncu -u && npm install",
     "test": "eslint src --ext ts && tsc --noEmit",
-    "package": "vsce package --yarn",
-    "publish": "vsce publish --yarn"
+    "package": "npx @vscode/vsce package --yarn",
+    "publish": "npx @vscode/vsce publish --yarn"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
     "@types/isomorphic-fetch": "^0.0.39",
-    "@types/mocha": "^10.0.6",
+    "@types/mocha": "^10.0.7",
     "@types/node": "^20.14.9",
-    "@types/uuid": "^9.0.8",
-    "@types/vscode": "^1.85.0",
+    "@types/uuid": "^10.0.0",
+    "@types/vscode": "^1.90.0",
     "@types/vscode-webview": "^1.57.5",
-    "@typescript-eslint/eslint-plugin": "^7.11.0",
+    "@typescript-eslint/eslint-plugin": "^7.14.1",
     "@typescript-eslint/parser": "^7.14.1",
     "@vscode/test-electron": "^2.4.0",
-    "@vscode/vsce": "^2.24.0",
-    "esbuild": "^0.20.1",
-    "eslint": "^8.56.0",
-    "glob": "^10.3.10",
-    "mocha": "^10.3.0",
+    "@vscode/vsce": "^2.29.0",
+    "esbuild": "^0.21.5",
+    "eslint": "^9.6.0",
+    "glob": "^10.4.2",
+    "mocha": "^10.5.2",
     "prettier": "^3.3.2",
     "ts-loader": "^9.5.1",
     "typescript": "^5.5.2",
-    "webpack": "^5.90.3"
+    "webpack": "^5.92.1"
   },
   "dependencies": {
-    "@langchain/anthropic": "^0.1.10",
+    "@langchain/anthropic": "^0.2.3",
+    "@langchain/community": "^0.2.16",
+    "@langchain/openai": "^0.2.1",
     "@types/minimatch": "^5.1.2",
-    "axios": "^1.6.7",
+    "axios": "^1.7.2",
     "cheerio": "^1.0.0-rc.12",
     "delay": "^6.0.0",
     "eventsource-parser": "^1.1.2",
     "gpt3-tokenizer": "^1.1.5",
     "isomorphic-fetch": "^3.0.0",
     "keyv": "^4.5.4",
-    "langchain": "^0.1.31",
-    "minimatch": "^5.1.6",
-    "openai": "^4.28.0",
+    "langchain": "^0.2.8",
+    "minimatch": "^9.0.5",
+    "openai": "^4.52.2",
     "p-timeout": "^6.1.2",
-    "puppeteer": "^19.11.1",
+    "punycode": "^2.3.1",
+    "puppeteer": "^22.12.1",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "puppeteer-extra-plugin-user-data-dir": "^2.4.1",
@@ -604,7 +610,7 @@
     "quick-lru": "^7.0.0",
     "remark": "^15.0.1",
     "strip-markdown": "^6.0.0",
-    "uuid": "^9.0.1"
+    "uuid": "^10.0.0"
   },
   "resolutions": {
     "clone-deep": "^4.0.1"
