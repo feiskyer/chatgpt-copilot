@@ -3426,10 +3426,10 @@ open@^8.0.0:
     is-docker "^2.1.1"
     is-wsl "^2.2.0"
 
-openai@^4.41.1, openai@^4.49.1, openai@^4.52.2:
-  version "4.52.2"
-  resolved "https://registry.yarnpkg.com/openai/-/openai-4.52.2.tgz#5d67271f3df84c0b54676b08990eaa9402151759"
-  integrity sha512-mMc0XgFuVSkcm0lRIi8zaw++otC82ZlfkCur1qguXYWPETr/+ZwL9A/vvp3YahX+shpaT6j03dwsmUyLAfmEfg==
+openai@^4.41.1, openai@^4.49.1, openai@^4.52.5:
+  version "4.52.5"
+  resolved "https://registry.yarnpkg.com/openai/-/openai-4.52.5.tgz#d202c712a63b115e445a3e98a539fa81002cfbb3"
+  integrity sha512-qqH8GsyPE3z06took/2uWOGqRcrZNlRoPAsihpg4jsl0+2Dfelnw6HDDMep0EI2Cfzw75nn3vHRZehep/IZzxg==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
