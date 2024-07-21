@@ -127,8 +127,7 @@ export async function activate(context: vscode.ExtensionContext) {
     if (
       e.affectsConfiguration("chatgpt.promptPrefix") ||
       e.affectsConfiguration("chatgpt.gpt3.generateCode-enabled") ||
-      e.affectsConfiguration("chatgpt.gpt3.model") ||
-      e.affectsConfiguration("chatgpt.method")
+      e.affectsConfiguration("chatgpt.gpt3.model")
     ) {
       setContext();
     }
@@ -243,12 +242,8 @@ export async function activate(context: vscode.ExtensionContext) {
         const modelName = vscode.workspace
           .getConfiguration("chatgpt")
           .get("gpt3.model") as string;
-        const method = vscode.workspace
-          .getConfiguration("chatgpt")
-          .get("method") as string;
         generateCodeEnabled =
           generateCodeEnabled &&
-          method === "GPT3 OpenAI API Key" &&
           modelName.startsWith("code-");
         vscode.commands.executeCommand(
           "setContext",

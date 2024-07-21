@@ -19,6 +19,7 @@ import { CoreMessage } from "ai";
 import delay from "delay";
 import * as vscode from "vscode";
 import { initClaudeModel } from "./anthropic";
+import { initGeminiModel } from "./gemini";
 import { ModelConfig } from "./model-config";
 import { chatGpt, initGptModel } from "./openai";
 import { chatCompletion, initGptLegacyModel } from "./openai-legacy";
@@ -216,11 +217,15 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   }
 
   private get isGpt35Model(): boolean {
-    return !this.isCodexModel && !this.isClaude;
+    return !this.isCodexModel && !this.isClaude && !this.isGemini;
   }
 
   private get isClaude(): boolean {
     return !!this.model?.startsWith("claude-");
+  }
+
+  private get isGemini(): boolean {
+    return !!this.model?.startsWith("gemini-");
   }
 
   public async prepareConversation(modelChanged = false): Promise<boolean> {
@@ -235,7 +240,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     if (
       (this.isGpt35Model && !this.apiChat) ||
       (this.isClaude && !this.apiChat) ||
-      (!this.isGpt35Model && !this.isClaude && !this.apiCompletion) ||
+      (this.isGemini && !this.apiChat) ||
+      (!this.isGpt35Model && !this.isClaude && !this.isGemini && !this.apiCompletion) ||
       modelChanged
     ) {
       let apiKey =
@@ -252,11 +258,14 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       }
 
       let apiBaseUrl = configuration.get("gpt3.apiBaseUrl") as string;
-      if (!apiBaseUrl) {
-        if (this.isGpt35Model) {
-          apiBaseUrl = "https://api.openai.com/v1";
-        } else if (this.isClaude) {
-          apiBaseUrl = "https://api.anthropic.com";
+      if (!apiBaseUrl && this.isGpt35Model) {
+        apiBaseUrl = "https://api.openai.com/v1";
+      }
+      if (!apiBaseUrl || apiBaseUrl == "https://api.openai.com/v1") {
+        if (this.isClaude) {
+          apiBaseUrl = "https://api.anthropic.com/v1";
+        } else if (this.isGemini) {
+          apiBaseUrl = "https://generativelanguage.googleapis.com/v1beta";
         }
       }
 
@@ -314,6 +323,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         await initGptModel(this, this.modelConfig);
       } else if (this.isClaude) {
         await initClaudeModel(this, this.modelConfig);
+      } else if (this.isGemini) {
+        await initGeminiModel(this, this.modelConfig);
       } else {
         initGptLegacyModel(this, this.modelConfig);
       }
@@ -400,9 +411,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       });
     };
     try {
-      if (this.isGpt35Model) {
-        await chatGpt(this, question, updateResponse);
-      } else if (this.isClaude) {
+      if (this.isGpt35Model || this.isClaude || this.isGemini) {
         await chatGpt(this, question, updateResponse);
       } else {
         await chatCompletion(this, question, updateResponse);

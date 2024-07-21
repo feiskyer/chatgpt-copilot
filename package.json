@@ -244,24 +244,6 @@
     "configuration": {
       "title": "ChatGPT",
       "properties": {
-        "chatgpt.method": {
-          "type": "string",
-          "enum": [
-            "GPT3 OpenAI API Key",
-            "Claude 3"
-          ],
-          "default": "GPT3 OpenAI API Key",
-          "markdownDescription": "Choose your integration preference.",
-          "order": 1,
-          "enumItemLabels": [
-            "Use OpenAI API key integration",
-            "Use Claude 3 integration"
-          ],
-          "markdownEnumDescriptions": [
-            "Various chat & text completion models are supported including OpenAI and OpenAI API compatible local models.",
-            "Claude 3 models from Anthropic"
-          ]
-        },
         "chatgpt.systemPrompt": {
           "type": "string",
           "default": "",
@@ -424,6 +406,9 @@
             "claude-3-sonnet-20240229",
             "claude-3-haiku-20240307",
             "claude-3-5-sonnet-20240620",
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-pro-latest",
+            "gemini-1.0-pro-latest",
             "custom"
           ],
           "default": "gpt-3.5-turbo",
@@ -459,6 +444,9 @@
             "Claude 3 - claude-3-sonnet-20240229",
             "Claude 3 - claude-3-haiku-20240307",
             "Claude 3 - claude-3-5-sonnet-20240620",
+            "Google Gemini - gemini-1.5-flash-latest",
+            "Google Gemini - gemini-1.5-pro-latest",
+            "Google Gemini - gemini-1.0-pro-latest",
             "Custom Model"
           ],
           "markdownEnumDescriptions": [
@@ -491,6 +479,9 @@
             "claude-3-sonnet-20240229",
             "claude-3-haiku-20240307",
             "claude-3-5-sonnet-20240620",
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-pro-latest",
+            "gemini-1.0-pro-latest",
             "Custom model name set by `chatgpt.gpt3.customModel`"
           ]
         },
@@ -572,6 +563,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^0.0.30",
     "@ai-sdk/azure": "^0.0.14",
+    "@ai-sdk/google": "^0.0.27",
     "@ai-sdk/openai": "^0.0.37",
     "@types/minimatch": "^5.1.2",
     "ai": "^3.2.32",
