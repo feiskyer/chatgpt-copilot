@@ -45,14 +45,15 @@ Refer following sections for more details of how to configure various openai ser
 
 ```json
     "chatgpt.gpt3.apiKey": "<api-key>",
+    "chatgpt.gpt3.apiBaseUrl": "https://api.openai.com/v1", // Optional
 ```
 
 ### Azure OpenAI Service
 
 ```json
-    "chatgpt.gpt3.apiBaseUrl": "https://<endpoint-name>.openai.azure.com/openai/deployments/<deployment-name>",
     "chatgpt.gpt3.apiKey": "<api-key>",
     "chatgpt.gpt3.model": "gpt-3.5-turbo",
+    "chatgpt.gpt3.apiBaseUrl": "https://<endpoint-name>.openai.azure.com/openai/deployments/<deployment-name>", // Required
 ```
 
 ### Anthropic Claude 3
@@ -60,6 +61,7 @@ Refer following sections for more details of how to configure various openai ser
 ```json
     "chatgpt.gpt3.model": "claude-3-sonnet-20240229",
     "chatgpt.gpt3.apiKey": "<api-key>",
+    "chatgpt.gpt3.apiBaseUrl": "https://api.anthropic.com", // Optional
 ```
 
 ### Local or self-hosted LLM compatible with OpenAI

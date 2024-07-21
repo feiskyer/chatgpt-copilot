@@ -10,7 +10,7 @@
     "url": "https://github.com/feiskyer/chatgpt-copilot"
   },
   "engines": {
-    "vscode": "^1.90.0"
+    "vscode": "^1.91.0"
   },
   "categories": [
     "Testing",
@@ -568,28 +568,30 @@
     "@types/glob": "^8.1.0",
     "@types/isomorphic-fetch": "^0.0.39",
     "@types/mocha": "^10.0.7",
-    "@types/node": "^20.14.9",
+    "@types/node": "^20.14.11",
     "@types/uuid": "^10.0.0",
-    "@types/vscode": "^1.90.0",
+    "@types/vscode": "^1.91.0",
     "@types/vscode-webview": "^1.57.5",
-    "@typescript-eslint/eslint-plugin": "^7.14.1",
-    "@typescript-eslint/parser": "^7.15.0",
-    "@vscode/test-electron": "^2.4.0",
-    "@vscode/vsce": "^2.29.0",
-    "esbuild": "^0.21.5",
-    "eslint": "^9.6.0",
-    "glob": "^10.4.2",
-    "mocha": "^10.5.2",
-    "prettier": "^3.3.2",
+    "@typescript-eslint/eslint-plugin": "^7.16.1",
+    "@typescript-eslint/parser": "^7.16.1",
+    "@vscode/test-electron": "^2.4.1",
+    "@vscode/vsce": "^2.31.1",
+    "esbuild": "^0.23.0",
+    "eslint": "^9.7.0",
+    "glob": "^11.0.0",
+    "mocha": "^10.7.0",
+    "prettier": "^3.3.3",
     "ts-loader": "^9.5.1",
-    "typescript": "^5.5.2",
-    "webpack": "^5.92.1"
+    "typescript": "^5.5.3",
+    "webpack": "^5.93.0"
   },
   "dependencies": {
-    "@langchain/anthropic": "^0.2.3",
-    "@langchain/community": "^0.2.16",
-    "@langchain/openai": "^0.2.1",
+    "@langchain/anthropic": "^0.2.6",
+    "@langchain/community": "^0.2.20",
+    "@langchain/core": "^0.2.17",
+    "@langchain/openai": "^0.2.4",
     "@types/minimatch": "^5.1.2",
+    "ajv": "^8.17.1",
     "axios": "^1.7.2",
     "cheerio": "^1.0.0-rc.12",
     "delay": "^6.0.0",
@@ -597,12 +599,12 @@
     "gpt3-tokenizer": "^1.1.5",
     "isomorphic-fetch": "^3.0.0",
     "keyv": "^4.5.4",
-    "langchain": "^0.2.8",
-    "minimatch": "^9.0.5",
-    "openai": "^4.52.2",
+    "langchain": "^0.2.10",
+    "minimatch": "^10.0.1",
+    "openai": "^4.52.7",
     "p-timeout": "^6.1.2",
     "punycode": "^2.3.1",
-    "puppeteer": "^22.12.1",
+    "puppeteer": "^22.13.1",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "puppeteer-extra-plugin-user-data-dir": "^2.4.1",
@@ -610,9 +612,11 @@
     "quick-lru": "^7.0.0",
     "remark": "^15.0.1",
     "strip-markdown": "^6.0.0",
+    "uri-js": "^4.4.1",
     "uuid": "^10.0.0"
   },
   "resolutions": {
+    "punycode": "2.3.1",
     "clone-deep": "^4.0.1"
   }
 }
