@@ -118,10 +118,7 @@ export async function activate(context: vscode.ExtensionContext) {
       e.affectsConfiguration("chatgpt.gpt3.organization") ||
       e.affectsConfiguration("chatgpt.gpt3.maxTokens") ||
       e.affectsConfiguration("chatgpt.gpt3.temperature") ||
-      e.affectsConfiguration("chatgpt.gpt3.googleCSEId") ||
-      e.affectsConfiguration("chatgpt.gpt3.googleCSEApiKey") ||
-      e.affectsConfiguration("chatgpt.gpt3.serperKey") ||
-      e.affectsConfiguration("chatgpt.gpt3.bingKey") ||
+      e.affectsConfiguration("chatgpt.systemPrompt") ||
       e.affectsConfiguration("chatgpt.gpt3.top_p")
     ) {
       provider.prepareConversation(true);

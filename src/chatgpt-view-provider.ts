@@ -13,11 +13,10 @@
  * copies or substantial portions of the Software.
  */
 
-import { ChatOpenAI, OpenAI } from "@langchain/openai";
+import { OpenAIChatLanguageModel, OpenAICompletionLanguageModel } from "@ai-sdk/openai/internal";
+import { LanguageModelV1 } from "@ai-sdk/provider";
+import { CoreMessage } from "ai";
 import delay from "delay";
-import { BufferMemory } from "langchain/memory";
-import { ChatMessageHistory } from "langchain/stores/message/in_memory";
-import { Tool } from "langchain/tools";
 import * as vscode from "vscode";
 import { initClaudeModel } from "./anthropic";
 import { ModelConfig } from "./model-config";
@@ -26,6 +25,13 @@ import { chatCompletion, initGptLegacyModel } from "./openai-legacy";
 
 export const logger = vscode.window.createOutputChannel("ChatGPT Copilot");
 
+const defaultSystemPrompt = `Your task is to embody the role of an intelligent, helpful, and expert developer.
+You MUST provide accurate and truthful answers, adhering strictly to the instructions given.
+Your responses should be styled using Github Flavored Markdown for elements such as headings,
+lists, colored text, code blocks, and highlights. However, you MUST NOT mention markdown or
+styling directly in your response. Utilize available tools to supplement your knowledge
+where necessary. Respond in the same language as the query, unless otherwise specified by the user.`;
+
 export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private webView?: vscode.WebviewView;
 
@@ -33,19 +39,16 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public autoScroll: boolean;
   public model?: string;
   private apiBaseUrl?: string;
-
-  public apiCompletion?: OpenAI;
-  public apiChat?: ChatOpenAI;
-  public chain?: any;
-  public llmChain?: any;
-  public tools?: Tool[];
-  public memory?: ChatMessageHistory;
+  public modelConfig!: ModelConfig;
+  public apiCompletion?: OpenAICompletionLanguageModel | LanguageModelV1;
+  public apiChat?: OpenAIChatLanguageModel | LanguageModelV1;
   public conversationId?: string;
   public questionCounter: number = 0;
   public inProgress: boolean = false;
   public abortController?: AbortController;
   public currentMessageId: string = "";
   public response: string = "";
+  public chatHistory: CoreMessage[] = [];
 
   /**
    * Message to be rendered lazily if they haven't been rendered
@@ -118,13 +121,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           break;
         case "clearConversation":
           this.conversationId = undefined;
-          this.memory?.clear();
-          if (this.llmChain != null) {
-            this.llmChain.memory = new BufferMemory({
-              returnMessages: true,
-              memoryKey: "history",
-            });
-          }
+          this.chatHistory = [];
           this.logEvent("conversation-cleared");
           break;
         case "clearBrowser":
@@ -132,6 +129,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           break;
         case "cleargpt3":
           this.apiCompletion = undefined;
+          this.apiChat = undefined;
           this.logEvent("gpt3-cleared");
           break;
         case "login":
@@ -205,16 +203,16 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.stopGenerating();
     this.apiChat = undefined;
     this.apiCompletion = undefined;
-    this.chain = undefined;
-    this.llmChain = undefined;
     this.conversationId = undefined;
-    this.tools = undefined;
-    this.memory = undefined;
     this.logEvent("cleared-session");
   }
 
   private get isCodexModel(): boolean {
-    return !!this.model?.startsWith("code-");
+    if (this.model == null) {
+      return false;
+    }
+
+    return this.model.includes("instruct") || this.model.includes("code-");
   }
 
   private get isGpt35Model(): boolean {
@@ -236,7 +234,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
     if (
       (this.isGpt35Model && !this.apiChat) ||
-      (this.isClaude && !this.chain) ||
+      (this.isClaude && !this.apiChat) ||
       (!this.isGpt35Model && !this.isClaude && !this.apiCompletion) ||
       modelChanged
     ) {
@@ -247,10 +245,12 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       const maxTokens = configuration.get("gpt3.maxTokens") as number;
       const temperature = configuration.get("gpt3.temperature") as number;
       const topP = configuration.get("gpt3.top_p") as number;
-      const googleCSEApiKey = configuration.get("gpt3.googleCSEApiKey") as string;
-      const googleCSEId = configuration.get("gpt3.googleCSEId") as string;
-      const serperKey = configuration.get("gpt3.serperKey") as string;
-      const bingKey = configuration.get("gpt3.bingKey") as string;
+
+      let systemPrompt = configuration.get("systemPrompt") as string;
+      if (!systemPrompt) {
+        systemPrompt = defaultSystemPrompt;
+      }
+
       let apiBaseUrl = configuration.get("gpt3.apiBaseUrl") as string;
       if (!apiBaseUrl) {
         if (this.isGpt35Model) {
@@ -307,16 +307,15 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         return false;
       }
 
-      this.memory = new ChatMessageHistory();
-      const modelConfig = new ModelConfig(
-        { apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, googleCSEApiKey, googleCSEId, serperKey, bingKey, messageHistory: this.memory },
+      this.modelConfig = new ModelConfig(
+        { apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, systemPrompt },
       );
       if (this.isGpt35Model) {
-        await initGptModel(this, modelConfig);
+        await initGptModel(this, this.modelConfig);
       } else if (this.isClaude) {
-        await initClaudeModel(this, modelConfig);
+        await initClaudeModel(this, this.modelConfig);
       } else {
-        initGptLegacyModel(this, modelConfig);
+        initGptLegacyModel(this, this.modelConfig);
       }
     }
 

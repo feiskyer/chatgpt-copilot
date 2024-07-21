@@ -11,15 +11,9 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
 */
-import {
-    ChatPromptTemplate as ChatPromptTemplatePackage,
-    HumanMessagePromptTemplate,
-    MessagesPlaceholder,
-    SystemMessagePromptTemplate
-} from "@langchain/core/prompts";
-import { OpenAI } from "@langchain/openai";
-import { ConversationChain } from "langchain/chains";
-import { BufferMemory } from "langchain/memory";
+import { createAzure } from '@ai-sdk/azure';
+import { createOpenAI } from '@ai-sdk/openai';
+import { streamText } from 'ai';
 import ChatGptViewProvider, { logger } from "./chatgpt-view-provider";
 import { ModelConfig } from "./model-config";
 
@@ -28,72 +22,55 @@ export function initGptLegacyModel(viewProvider: ChatGptViewProvider, config: Mo
     if (config.apiBaseUrl?.includes("azure")) {
         const instanceName = config.apiBaseUrl.split(".")[0].split("//")[1];
         const deployName = config.apiBaseUrl.split("/")[config.apiBaseUrl.split("/").length - 1];
-        viewProvider.apiCompletion = new OpenAI({
-            modelName: viewProvider.model,
-            azureOpenAIApiKey: config.apiKey,
-            azureOpenAIApiInstanceName: instanceName,
-            azureOpenAIApiDeploymentName: deployName,
-            azureOpenAIApiCompletionsDeploymentName: deployName,
-            azureOpenAIApiVersion: "2024-02-01",
-            maxTokens: config.maxTokens,
-            streaming: true,
-            temperature: config.temperature,
-            topP: config.topP,
+
+        viewProvider.model = deployName;
+        const azure = createAzure({
+            resourceName: instanceName,
+            apiKey: config.apiKey,
         });
+        viewProvider.apiCompletion = azure.completion(deployName);
     } else {
         // OpenAI
-        viewProvider.apiCompletion = new OpenAI({
-            openAIApiKey: config.apiKey,
-            modelName: viewProvider.model,
-            maxTokens: config.maxTokens,
-            streaming: true,
-            temperature: config.temperature,
-            topP: config.topP,
-            configuration: {
-                apiKey: config.apiKey,
-                baseURL: config.apiBaseUrl,
-                organization: config.organization,
-            },
+        const openai = createOpenAI({
+            baseURL: config.apiBaseUrl,
+            apiKey: config.apiKey,
+            organization: config.organization,
         });
+        viewProvider.apiCompletion = openai.completion(viewProvider.model ? viewProvider.model : "gpt-4o");
     }
-
-    const systemContext = `You are ChatGPT helping the User with coding.
-			You are intelligent, helpful and an expert developer, who always gives the correct answer and only does what instructed. You always answer truthfully and don't make things up.
-			(When responding to the following prompt, please make sure to properly style your response using Github Flavored Markdown.
-			Use markdown syntax for things like headings, lists, colored text, code blocks, highlights etc. Make sure not to mention markdown or styling in your actual response.)`;
-    const chatPrompt = ChatPromptTemplatePackage.fromMessages([
-        SystemMessagePromptTemplate.fromTemplate(systemContext),
-        new MessagesPlaceholder("history"),
-        HumanMessagePromptTemplate.fromTemplate("{input}"),
-    ]);
-    const chatMemory = new BufferMemory({
-        returnMessages: true,
-        memoryKey: "history",
-    });
-    viewProvider.llmChain = new ConversationChain({
-        memory: chatMemory,
-        prompt: chatPrompt,
-        llm: viewProvider.apiCompletion,
-    });
 }
 
 // chatCompletion is a function that completes the chat.
 export async function chatCompletion(provider: ChatGptViewProvider, question: string, updateResponse: (message: string) => void) {
-    const gptResponse = await provider.llmChain?.call(
-        {
-            input: question,
-            signal: provider.abortController?.signal,
-        },
-        [
-            {
-                handleLLMNewToken(token: string) {
-                    updateResponse(token);
-                },
-                handleLLMError(err: any, runId: any, parentRunId: any) {
-                    logger.appendLine(`Error in LLM: ${err.message}`);
-                },
-            },
-        ]
-    );
-    provider.response = gptResponse?.response;
+    if (!provider.apiCompletion) {
+        throw new Error("apiCompletion is not defined");
+    }
+
+    logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question}`);
+    provider.chatHistory.push({ role: "user", content: question });
+    let prompt = "";
+    for (const message of provider.chatHistory) {
+        prompt += `${message.role === "user" ? "Human:" : "AI:"} ${message.content}\n`;
+    }
+    prompt += `AI: `;
+
+    const result = await streamText({
+        system: provider.modelConfig.systemPrompt,
+        model: provider.apiCompletion,
+        prompt: prompt,
+        maxTokens: provider.modelConfig.maxTokens,
+        topP: provider.modelConfig.topP,
+        temperature: provider.modelConfig.temperature,
+    });
+    const chunks = [];
+    for await (const textPart of result.textStream) {
+        // logger.appendLine(
+        //     `INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question} response: ${JSON.stringify(textPart, null, 2)}`
+        // );
+        updateResponse(textPart);
+        chunks.push(textPart);
+    }
+    provider.response = chunks.join("");
+    provider.chatHistory.push({ role: "assistant", content: chunks.join("") });
+    logger.appendLine(`INFO: chatgpt.response: ${provider.response}`);
 }

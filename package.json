@@ -262,6 +262,12 @@
             "Claude 3 models from Anthropic"
           ]
         },
+        "chatgpt.systemPrompt": {
+          "type": "string",
+          "default": "",
+          "description": "System prompts for the copilot.",
+          "order": 3
+        },
         "chatgpt.gpt3.generateCode-enabled": {
           "type": "boolean",
           "default": true,
@@ -529,26 +535,6 @@
           "default": false,
           "markdownDescription": "Specify if you want to disable the telemetry. This extension also respects your default vs-code telemetry setting `telemetry.telemetryLevel`. We check both settings for telemetry. **Important**: No user data is tracked, we only use telemetry to see what is used, and what isn't. This allows us to make accurate decisions on what to add or enhance to the extension.",
           "order": 40
-        },
-        "chatgpt.gpt3.googleCSEApiKey": {
-          "type": "string",
-          "markdownDescription": "Google search API key.",
-          "order": 41
-        },
-        "chatgpt.gpt3.googleCSEId": {
-          "type": "string",
-          "markdownDescription": "Google custom search ID.",
-          "order": 42
-        },
-        "chatgpt.gpt3.serperKey": {
-          "type": "string",
-          "markdownDescription": "API key of Serper search API.",
-          "order": 43
-        },
-        "chatgpt.gpt3.bingKey": {
-          "type": "string",
-          "markdownDescription": "API key of Bing search API.",
-          "order": 44
         }
       }
     }
@@ -572,8 +558,6 @@
     "@types/uuid": "^10.0.0",
     "@types/vscode": "^1.91.0",
     "@types/vscode-webview": "^1.57.5",
-    "@typescript-eslint/eslint-plugin": "^7.16.1",
-    "@typescript-eslint/parser": "^7.16.1",
     "@vscode/test-electron": "^2.4.1",
     "@vscode/vsce": "^2.31.1",
     "esbuild": "^0.23.0",
@@ -586,11 +570,11 @@
     "webpack": "^5.93.0"
   },
   "dependencies": {
-    "@langchain/anthropic": "^0.2.6",
-    "@langchain/community": "^0.2.20",
-    "@langchain/core": "^0.2.17",
-    "@langchain/openai": "^0.2.4",
+    "@ai-sdk/anthropic": "^0.0.30",
+    "@ai-sdk/azure": "^0.0.14",
+    "@ai-sdk/openai": "^0.0.37",
     "@types/minimatch": "^5.1.2",
+    "ai": "^3.2.32",
     "ajv": "^8.17.1",
     "axios": "^1.7.2",
     "cheerio": "^1.0.0-rc.12",
@@ -599,7 +583,6 @@
     "gpt3-tokenizer": "^1.1.5",
     "isomorphic-fetch": "^3.0.0",
     "keyv": "^4.5.4",
-    "langchain": "^0.2.10",
     "minimatch": "^10.0.1",
     "openai": "^4.52.7",
     "p-timeout": "^6.1.2",
@@ -613,7 +596,8 @@
     "remark": "^15.0.1",
     "strip-markdown": "^6.0.0",
     "uri-js": "^4.4.1",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "zod": "^3.23.8"
   },
   "resolutions": {
     "punycode": "2.3.1",
