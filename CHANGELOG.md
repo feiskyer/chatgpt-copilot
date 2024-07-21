@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v4.5.0
+
+* Add support of Google Generative AI models
+* Refine the project and reduce extension size (web searching is temporally removed and will be added back in the future)
+
 ## v4.4.4
 
 * Add support for Anthropic Claude 3.5
