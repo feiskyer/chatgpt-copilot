@@ -10,14 +10,14 @@
     "@ai-sdk/provider" "0.0.12"
     "@ai-sdk/provider-utils" "1.0.2"
 
-"@ai-sdk/azure@^0.0.14":
-  version "0.0.14"
-  resolved "https://registry.npmjs.org/@ai-sdk/azure/-/azure-0.0.14.tgz"
-  integrity sha512-rJrD5MOpiK5LTXSR/weqNVtF+686OSSUrcLAHJCk8LpOiunCeINSrvL0LBB6LhDj921A9RwDqI9sm6adehMzmg==
+"@ai-sdk/azure@^0.0.16":
+  version "0.0.16"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/azure/-/azure-0.0.16.tgz#4f6bf08eade24e8d1f2c9e69563e7281acb89e81"
+  integrity sha512-PP7AsgGzCodhBNBK4tQg0YIi1GF6wCnB8PzC3ena7VAOoVpGVd3c4myTRg0PXR8x8rJK9BgnY7wDdXLBIkxozw==
   dependencies:
-    "@ai-sdk/openai" "0.0.37"
-    "@ai-sdk/provider" "0.0.12"
-    "@ai-sdk/provider-utils" "1.0.2"
+    "@ai-sdk/openai" "0.0.39"
+    "@ai-sdk/provider" "0.0.13"
+    "@ai-sdk/provider-utils" "1.0.4"
 
 "@ai-sdk/google@^0.0.27":
   version "0.0.27"
@@ -27,7 +27,15 @@
     "@ai-sdk/provider" "0.0.12"
     "@ai-sdk/provider-utils" "1.0.2"
 
-"@ai-sdk/openai@0.0.37", "@ai-sdk/openai@^0.0.37":
+"@ai-sdk/openai@0.0.39":
+  version "0.0.39"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/openai/-/openai-0.0.39.tgz#9f43e2dc5680a4de9f513987dc51d2e85beab937"
+  integrity sha512-UNkT7394/aG7s2VRY53mRqKlv2tBBuRGvIOuqMcpgfVquf+NRYWsDWAYM4UxqcK5uigSKk4uV/lIJX+fRUXszg==
+  dependencies:
+    "@ai-sdk/provider" "0.0.13"
+    "@ai-sdk/provider-utils" "1.0.4"
+
+"@ai-sdk/openai@^0.0.37":
   version "0.0.37"
   resolved "https://registry.npmjs.org/@ai-sdk/openai/-/openai-0.0.37.tgz"
   integrity sha512-OBhnvptzOEn+jy75vySnhbH5ezidn4WI/yftc0C1MiWkS/m4CmRV9P5zFGKHOgC1vxtw6691gASGYpQbof/JoQ==
@@ -55,6 +63,16 @@
     nanoid "3.3.6"
     secure-json-parse "2.7.0"
 
+"@ai-sdk/provider-utils@1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/provider-utils/-/provider-utils-1.0.4.tgz#3b6e722b868bd312fdab1a8a86be7a766370ff34"
+  integrity sha512-2TldHn54+HrvVHMCos9lrSMcDIp3cgnpphpYT/95RXcIzcGwAFM5MioDWnsrki3noplU5pVld6ylD3Vu/Xt3Vw==
+  dependencies:
+    "@ai-sdk/provider" "0.0.13"
+    eventsource-parser "1.1.2"
+    nanoid "3.3.6"
+    secure-json-parse "2.7.0"
+
 "@ai-sdk/provider@0.0.10":
   version "0.0.10"
   resolved "https://registry.npmjs.org/@ai-sdk/provider/-/provider-0.0.10.tgz"
@@ -66,6 +84,13 @@
   version "0.0.12"
   resolved "https://registry.npmjs.org/@ai-sdk/provider/-/provider-0.0.12.tgz"
   integrity sha512-oOwPQD8i2Ynpn22cur4sk26FW3mSy6t6/X/K1Ay2yGBKYiSpRyLfObhOrZEGsXDx+3euKy4nEZ193R36NM+tpQ==
+  dependencies:
+    json-schema "0.4.0"
+
+"@ai-sdk/provider@0.0.13":
+  version "0.0.13"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/provider/-/provider-0.0.13.tgz#a0e7191efe5b12470da3c6b9eb12f58957fcfa28"
+  integrity sha512-RBstpG/3RqVBBJgTvjZpou/+1fNQMDIwB9enqQPXqr0MoCrJHscLD2Zsfr6cKM5HFfY1D4KhdSPTycCDebVGlQ==
   dependencies:
     json-schema "0.4.0"
 
