@@ -22,11 +22,10 @@ import delay from "delay";
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from "vscode";
-import { initClaudeModel } from "./anthropic";
-import { initGeminiModel } from "./gemini";
-import { chatGpt, initGptModel } from "./llm_models/openai";
+import { loadConfigurations, onConfigurationChanged, prepareConversation } from './config/configuration';
+import { chatGpt } from "./llm_models/openai";
 import { ModelConfig } from "./model-config";
-import { chatCompletion, initGptLegacyModel } from "./openai-legacy";
+import { chatCompletion } from "./openai-legacy";
 
 export const logger = vscode.window.createOutputChannel("ChatGPT Copilot");
 
@@ -63,29 +62,29 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
    */
   private leftOverMessage?: any;
   constructor(private context: vscode.ExtensionContext) {
-    this.subscribeToResponse =
-      vscode.workspace
-        .getConfiguration("chatgpt")
-        .get("response.showNotification") || false;
-    this.autoScroll = !!vscode.workspace
-      .getConfiguration("chatgpt")
-      .get("response.autoScroll");
-    this.model = vscode.workspace
-      .getConfiguration("chatgpt")
-      .get("gpt3.model") as string;
-    if (this.model == "custom") {
-      this.model = vscode.workspace
-        .getConfiguration("chatgpt")
-        .get("gpt3.customModel") as string;
-    }
-    this.apiBaseUrl = vscode.workspace
-      .getConfiguration("chatgpt")
-      .get("gpt3.apiBaseUrl") as string;
+    const config = loadConfigurations();
+    this.subscribeToResponse = config.subscribeToResponse;
+    this.autoScroll = config.autoScroll;
+    this.model = config.model;
+    this.apiBaseUrl = config.apiBaseUrl;
 
     // Azure model names can't contain dots.
     if (this.apiBaseUrl?.includes("azure")) {
       this.model = this.model?.replace(".", "");
     }
+
+    onConfigurationChanged(() => {
+      const config = loadConfigurations();
+      this.subscribeToResponse = config.subscribeToResponse;
+      this.autoScroll = config.autoScroll;
+      this.model = config.model;
+      this.apiBaseUrl = config.apiBaseUrl;
+
+      // Azure model names can't contain dots.
+      if (this.apiBaseUrl?.includes("azure")) {
+        this.model = this.model?.replace(".", "");
+      }
+    });
   }
 
   public resolveWebviewView(
@@ -236,109 +235,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
   public async prepareConversation(modelChanged = false): Promise<boolean> {
     this.conversationId = this.conversationId || this.getRandomId();
-    const state = this.context.globalState;
-    const configuration = vscode.workspace.getConfiguration("chatgpt");
-
-    if (this.model == "custom") {
-      this.model = configuration.get("gpt3.customModel") as string;
-    }
-
-    if (
-      (this.isGpt35Model && !this.apiChat) ||
-      (this.isClaude && !this.apiChat) ||
-      (this.isGemini && !this.apiChat) ||
-      (!this.isGpt35Model && !this.isClaude && !this.isGemini && !this.apiCompletion) ||
-      modelChanged
-    ) {
-      let apiKey =
-        (configuration.get("gpt3.apiKey") as string) ||
-        (state.get("chatgpt-gpt3-apiKey") as string);
-      const organization = configuration.get("gpt3.organization") as string;
-      const maxTokens = configuration.get("gpt3.maxTokens") as number;
-      const temperature = configuration.get("gpt3.temperature") as number;
-      const topP = configuration.get("gpt3.top_p") as number;
-
-      let systemPrompt = configuration.get("systemPrompt") as string;
-      if (!systemPrompt) {
-        systemPrompt = defaultSystemPrompt;
-      }
-
-      let apiBaseUrl = configuration.get("gpt3.apiBaseUrl") as string;
-      if (!apiBaseUrl && this.isGpt35Model) {
-        apiBaseUrl = "https://api.openai.com/v1";
-      }
-      if (!apiBaseUrl || apiBaseUrl == "https://api.openai.com/v1") {
-        if (this.isClaude) {
-          apiBaseUrl = "https://api.anthropic.com/v1";
-        } else if (this.isGemini) {
-          apiBaseUrl = "https://generativelanguage.googleapis.com/v1beta";
-        }
-      }
-
-      if (!apiKey && process.env.OPENAI_API_KEY != null) {
-        apiKey = process.env.OPENAI_API_KEY;
-        this.logEvent("api key loaded from environment variable");
-      }
-
-      if (!apiKey) {
-        vscode.window
-          .showErrorMessage(
-            "Please add your API Key to use OpenAI official APIs. Storing the API Key in Settings is discouraged due to security reasons, though you can still opt-in to use it to persist it in settings. Instead you can also temporarily set the API Key one-time: You will need to re-enter after restarting the vs-code.",
-            "Store in session (Recommended)",
-            "Open settings",
-          )
-          .then(async (choice) => {
-            if (choice === "Open settings") {
-              vscode.commands.executeCommand(
-                "workbench.action.openSettings",
-                "chatgpt.gpt3.apiKey",
-              );
-              return false;
-            } else if (choice === "Store in session (Recommended)") {
-              await vscode.window
-                .showInputBox({
-                  title: "Store OpenAI API Key in session",
-                  prompt:
-                    "Please enter your OpenAI API Key to store in your session only. This option won't persist the token on your settings.json file. You may need to re-enter after restarting your VS-Code",
-                  ignoreFocusOut: true,
-                  placeHolder: "API Key",
-                  value: apiKey || "",
-                })
-                .then((value) => {
-                  if (value) {
-                    apiKey = value;
-                    state.update("chatgpt-gpt3-apiKey", apiKey);
-                    this.sendMessage(
-                      {
-                        type: "loginSuccessful",
-                      },
-                      true,
-                    );
-                  }
-                });
-            }
-          });
-
-        return false;
-      }
-
-      this.modelConfig = new ModelConfig(
-        { apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, systemPrompt },
-      );
-      if (this.isGpt35Model) {
-        await initGptModel(this, this.modelConfig);
-      } else if (this.isClaude) {
-        await initClaudeModel(this, this.modelConfig);
-      } else if (this.isGemini) {
-        await initGeminiModel(this, this.modelConfig);
-      } else {
-        initGptLegacyModel(this, this.modelConfig);
-      }
-    }
-
-    this.sendMessage({ type: "loginSuccessful" }, true);
-
-    return true;
+    return prepareConversation(this, modelChanged);
   }
 
   private processQuestion(question: string, code?: string, language?: string) {
@@ -531,6 +428,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       this.sendMessage({ type: "showInProgress", inProgress: this.inProgress });
     }
   }
+
 
   /**
    * Message sender, stores if a message cannot be delivered
@@ -829,6 +727,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       vscode.window.showErrorMessage(errorMessage);
       fs.appendFileSync(logFilePath, `${new Date().toISOString()} - ${errorMessage}\n`);
     }
+  }
+
+  public getContext() {
+    return this.context;
   }
 }
 
