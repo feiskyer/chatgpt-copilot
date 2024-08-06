@@ -1,3 +1,5 @@
+// extension.ts
+
 /**
  * @author Pengfei Ni
  *
@@ -11,8 +13,14 @@
  * copies or substantial portions of the Software.
  */
 
-import * as vscode from "vscode";
+import * as fs from 'fs';
+import * as path from 'path';
+import * as vscode from 'vscode';
+
 import ChatGptViewProvider from "./chatgpt-view-provider";
+
+import AbortController from "abort-controller";
+global.AbortController = AbortController;
 
 const menuCommands = [
   "addTests",
@@ -26,6 +34,8 @@ const menuCommands = [
   "customPrompt2",
   "adhoc",
 ];
+
+const logFilePath = path.join(__dirname, 'error.log');
 
 export async function activate(context: vscode.ExtensionContext) {
   let adhocCommandPrefix: string =
@@ -42,6 +52,12 @@ export async function activate(context: vscode.ExtensionContext) {
       },
     },
   );
+
+  const showTypeHint = vscode.commands.registerCommand('chatgpt-copilot.showTypeHint', async () => {
+    provider.showFiles();
+  });
+
+  context.subscriptions.push(view, showTypeHint);
 
   const freeText = vscode.commands.registerCommand(
     "chatgpt-copilot.freeText",
@@ -130,6 +146,10 @@ export async function activate(context: vscode.ExtensionContext) {
       e.affectsConfiguration("chatgpt.gpt3.model")
     ) {
       setContext();
+    }
+
+    if (e.affectsConfiguration("chatgpt.fileInclusionRegex") || e.affectsConfiguration("chatgpt.fileExclusionRegex")) {
+      // TODO: Handle any specific actions needed when these configurations change
     }
   });
 
@@ -265,5 +285,36 @@ export async function activate(context: vscode.ExtensionContext) {
 
   setContext();
 }
+
+async function findMatchingFiles(inclusionPattern: string, exclusionPattern?: string): Promise<string[]> {
+  try {
+    // TODO: replace hardcoded value later, as I encounted some issues testing
+    // the extension currently.
+    // const rootPath = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || '';
+    const rootPath = "/home/jean/git/chatgpt-copilot/src";
+    if (!rootPath) {
+      throw new Error('Workspace root path is not defined.');
+    }
+
+    const files = fs.readdirSync(rootPath);
+
+    const inclusionRegex = new RegExp(inclusionPattern);
+    const exclusionRegex = exclusionPattern ? new RegExp(exclusionPattern) : null;
+
+    const matchedFiles = files.filter(file => {
+      const fullPath = path.join(rootPath, file);
+      const isFileIncluded = inclusionRegex.test(fullPath);
+      const isFileExcluded = exclusionRegex ? exclusionRegex.test(fullPath) : false;
+      return isFileIncluded && !isFileExcluded;
+    });
+
+    return matchedFiles;
+  } catch (err) {
+    const errorMessage = `Error in findMatchingFiles: ${err.message}\n${err.stack}`;
+    fs.appendFileSync(logFilePath, `${new Date().toISOString()} - ${errorMessage}\n`);
+    throw err;
+  }
+}
+
 
 export function deactivate() { }
