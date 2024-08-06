@@ -4,7 +4,7 @@
   "displayName": "ChatGPT Copilot",
   "icon": "images/ai-logo.png",
   "description": "An VS Code ChatGPT Copilot Extension",
-  "version": "4.5.0",
+  "version": "4.6.0",
   "aiKey": "",
   "repository": {
     "url": "https://github.com/feiskyer/chatgpt-copilot"
@@ -90,6 +90,17 @@
           "command": "chatgpt-copilot.customPrompt2",
           "group": "chatGpt@10",
           "when": "editorHasSelection && customPrompt2-enabled"
+        },
+        {
+          "command": "chatgpt-copilot.showTypeHint",
+          "title": "Show Type Hint Window"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "chatgpt-copilot.showTypeHint",
+          "when": "editorTextFocus",
+          "group": "navigation"
         }
       ]
     },
@@ -221,6 +232,10 @@
       {
         "command": "chatgpt-copilot.exportConversation",
         "title": "ChatGPT: Export conversation"
+      },
+      {
+        "command": "chatgpt-copilot.showTypeHint",
+        "title": "ChatGPT: Show Type Hint Window"
       }
     ],
     "viewsContainers": {
@@ -526,6 +541,18 @@
           "default": false,
           "markdownDescription": "Specify if you want to disable the telemetry. This extension also respects your default vs-code telemetry setting `telemetry.telemetryLevel`. We check both settings for telemetry. **Important**: No user data is tracked, we only use telemetry to see what is used, and what isn't. This allows us to make accurate decisions on what to add or enhance to the extension.",
           "order": 40
+        },
+        "chatgpt.fileInclusionRegex": {
+          "type": "string",
+          "default": "^src\/.*\\.(ts|py)$",
+          "description": "Regex pattern to include specific file types, default is to include TypeScript and Python files.",
+          "order": 41
+        },
+        "chatgpt.fileExclusionRegex": {
+          "type": "string",
+          "default": "__pycache__",
+          "description": "Regex pattern to exclude specific files or folders, default is to exclude __pycache__.",
+          "order": 42
         }
       }
     }
@@ -566,6 +593,7 @@
     "@ai-sdk/google": "^0.0.27",
     "@ai-sdk/openai": "^0.0.37",
     "@types/minimatch": "^5.1.2",
+    "abort-controller": "^3.0.0",
     "ai": "^3.2.32",
     "ajv": "^8.17.1",
     "axios": "^1.7.2",
