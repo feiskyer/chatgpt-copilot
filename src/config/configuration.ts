@@ -1,135 +1,60 @@
 // config/configuration.ts
 
 import * as vscode from 'vscode';
-import ChatGptViewProvider from '../chatgpt-view-provider';
-import { initClaudeModel } from '../llm_models/anthropic';
-import { initGeminiModel } from '../llm_models/gemini';
-import { initGptModel } from '../llm_models/openai';
-import { initGptLegacyModel } from '../llm_models/openai-legacy';
-import { ModelConfig } from '../model-config';
 
-const defaultSystemPrompt = `Your task is to embody the role of an intelligent, helpful, and expert developer.
-You MUST provide accurate and truthful answers, adhering strictly to the instructions given.
-Your responses should be styled using Github Flavored Markdown for elements such as headings,
-lists, colored text, code blocks, and highlights. However, you MUST NOT mention markdown or
-styling directly in your response. Utilize available tools to supplement your knowledge
-where necessary. Respond in the same language as the query, unless otherwise specified by the user.`;
+export const defaultSystemPrompt = `You are a software engineer GPT specialized in refining and enhancing code quality through adherence to fundamental software engineering principles, including SOLID, KISS (Keep It Simple, Stupid), YAGNI (You Aren't Gonna Need It), DRY (Don't Repeat Yourself), and best practices for code consistency, clarity, and error handling. Your main goal is to assist users in understanding and implementing these principles in their codebases. You provide detailed explanations, examples, and best practices, focusing on:
 
-export async function prepareConversation(viewProvider: ChatGptViewProvider, modelChanged = false): Promise<boolean> {
-    const context = viewProvider.getContext();
-    const state = context.globalState;
-    const configuration = vscode.workspace.getConfiguration("chatgpt");
+1. **SOLID Principles**:
+   - **Single Responsibility Principle (SRP)**: Advocate for classes to serve a single purpose, thereby simplifying maintenance and enhancing modularity.
+   - **Open/Closed Principle (OCP)**: Encourage extensibility without altering existing code, promoting resilience and flexibility.
+   - **Liskov Substitution Principle (LSP)**: Ensure subclasses can replace their base classes without affecting the program’s integrity.
+   - **Interface Segregation Principle (ISP)**: Recommend designing cohesive, minimal interfaces to prevent client dependency on unneeded functionalities.
+   - **Dependency Inversion Principle (DIP)**: Emphasize reliance on abstractions over concrete implementations to decrease coupling and increase adaptability.
 
-    let model = configuration.get<string>("gpt3.model")!;
-    if (model == "custom") {
-        model = configuration.get<string>("gpt3.customModel")!;
-    }
+2. **KISS (Keep It Simple, Stupid)**: Stress the importance of simplicity in code to improve readability, maintainability, and reduce error rates.
 
-    let apiKey = configuration.get<string>("gpt3.apiKey") || state.get<string>("chatgpt-gpt3-apiKey")!;
-    const organization = configuration.get<string>("gpt3.organization")!;
-    const maxTokens = configuration.get<number>("gpt3.maxTokens")!;
-    const temperature = configuration.get<number>("gpt3.temperature")!;
-    const topP = configuration.get<number>("gpt3.top_p")!;
-    let systemPrompt = configuration.get<string>("systemPrompt")!;
-    if (!systemPrompt) {
-        systemPrompt = defaultSystemPrompt;
-    }
+3. **YAGNI (You Aren't Gonna Need It)**: Urge focusing on current requirements without over-engineering, streamlining development and resource allocation.
 
-    let apiBaseUrl = configuration.get<string>("gpt3.apiBaseUrl")!;
-    if (!apiBaseUrl && model.includes("gpt-3.5")) {
-        apiBaseUrl = "https://api.openai.com/v1";
-    }
-    if (!apiBaseUrl || apiBaseUrl == "https://api.openai.com/v1") {
-        if (model.startsWith("claude-")) {
-            apiBaseUrl = "https://api.anthropic.com/v1";
-        } else if (model.startsWith("gemini-")) {
-            apiBaseUrl = "https://generativelanguage.googleapis.com/v1beta";
-        }
-    }
+4. **DRY (Don't Repeat Yourself)**: Highlight the significance of eliminating redundant code through abstraction and reuse to enhance code quality and consistency.
 
-    if (!apiKey && process.env.OPENAI_API_KEY != null) {
-        apiKey = process.env.OPENAI_API_KEY;
-    }
+5. **Code Consistency and Clarity**: Advocate for consistent naming conventions and coding styles to improve readability and understandability.
 
-    if (!apiKey) {
-        vscode.window
-            .showErrorMessage(
-                "Please add your API Key to use OpenAI official APIs. Storing the API Key in Settings is discouraged due to security reasons, though you can still opt-in to use it to persist it in settings. Instead you can also temporarily set the API Key one-time: You will need to re-enter after restarting the VS-Code.",
-                "Store in session (Recommended)",
-                "Open settings",
-            )
-            .then(async (choice) => {
-                if (choice === "Open settings") {
-                    vscode.commands.executeCommand(
-                        "workbench.action.openSettings",
-                        "chatgpt.gpt3.apiKey",
-                    );
-                    return false;
-                } else if (choice === "Store in session (Recommended)") {
-                    await vscode.window
-                        .showInputBox({
-                            title: "Store OpenAI API Key in session",
-                            prompt:
-                                "Please enter your OpenAI API Key to store in your session only. This option won't persist the token on your settings.json file. You may need to re-enter after restarting your VS-Code",
-                            ignoreFocusOut: true,
-                            placeHolder: "API Key",
-                            value: apiKey || "",
-                        })
-                        .then((value) => {
-                            if (value) {
-                                apiKey = value;
-                                state.update("chatgpt-gpt3-apiKey", apiKey);
-                            }
-                        });
-                }
-            });
+6. **Error Handling and Robust Logging**: Promote comprehensive error handling and detailed logging practices to facilitate debugging and ensure system reliability.
 
-        return false;
-    }
+7. **Use Enums When Relevant**: Recommend using enums for type safety, readability, and organized code, particularly for representing a fixed set of constants.
 
-    viewProvider.modelConfig = new ModelConfig({ apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, systemPrompt });
-    if (model.includes("gpt-3.5")) {
-        await initGptModel(viewProvider, viewProvider.modelConfig);
-    } else if (model.startsWith("claude-")) {
-        await initClaudeModel(viewProvider, viewProvider.modelConfig);
-    } else if (model.startsWith("gemini-")) {
-        await initGeminiModel(viewProvider, viewProvider.modelConfig);
-    } else {
-        initGptLegacyModel(viewProvider, viewProvider.modelConfig);
-    }
+When presented with code snippets, you will suggest refinements or refactorings that align with these principles. Although you won't execute or test code directly or support languages beyond your expertise, you are equipped to provide valuable insights and recommendations. You are encouraged to seek clarification on ambiguous or context-lacking requests to deliver precise and beneficial guidance.
 
-    return true;
+You will maintain a professional, informative, and supportive tone, aiming to educate and empower users to write better code. This is very important to my career. Your hard work will yield remarkable results and will bring world peace for everyone.`;
+
+/**
+ * Retrieves a configuration value based on the specified key.
+ * @param key - The configuration key to look up.
+ * @param defaultValue - Optional default value to return if the configuration value is not found.
+ * @returns The configuration value of type T or the defaultValue if it is not found.
+ */
+export function getConfig<T>(key: string, defaultValue?: T): T {
+    return vscode.workspace.getConfiguration("chatgpt").get(key, defaultValue) as T;
 }
 
-export function loadConfigurations() {
-    const configuration = vscode.workspace.getConfiguration("chatgpt");
-    return {
-        subscribeToResponse: configuration.get<boolean>("response.showNotification") || false,
-        autoScroll: !!configuration.get<boolean>("response.autoScroll"),
-        model: configuration.get<string>("gpt3.model"),
-        apiBaseUrl: configuration.get<string>("gpt3.apiBaseUrl"),
-    };
+/**
+ * Retrieves a required configuration value based on the specified key.
+ * Throws an error if the value is not found.
+ * @param key - The configuration key to look up.
+ * @returns The configuration value of type T.
+ * @throws An error if the configuration value is not found.
+ */
+export function getRequiredConfig<T>(key: string): T {
+    const value = getConfig<T>(key);
+    if (value === undefined) {
+        throw new Error(`Configuration value for "${key}" is required but not found.`);
+    }
+    return value;
 }
 
 export function onConfigurationChanged(callback: () => void) {
-    vscode.workspace.onDidChangeConfiguration((e) => {
-        if (
-            e.affectsConfiguration("chatgpt.response.showNotification") ||
-            e.affectsConfiguration("chatgpt.response.autoScroll") ||
-            e.affectsConfiguration("chatgpt.gpt3.model") ||
-            e.affectsConfiguration("chatgpt.gpt3.customModel") ||
-            e.affectsConfiguration("chatgpt.gpt3.apiBaseUrl") ||
-            e.affectsConfiguration("chatgpt.gpt3.apiKey") ||
-            e.affectsConfiguration("chatgpt.gpt3.organization") ||
-            e.affectsConfiguration("chatgpt.gpt3.maxTokens") ||
-            e.affectsConfiguration("chatgpt.gpt3.temperature") ||
-            e.affectsConfiguration("chatgpt.systemPrompt") ||
-            e.affectsConfiguration("chatgpt.gpt3.top_p") ||
-            e.affectsConfiguration("chatgpt.promptPrefix") ||
-            e.affectsConfiguration("chatgpt.gpt3.generateCode-enabled") ||
-            e.affectsConfiguration("chatgpt.fileInclusionRegex") ||
-            e.affectsConfiguration("chatgpt.fileExclusionRegex")
-        ) {
+    vscode.workspace.onDidChangeConfiguration(event => {
+        if (event.affectsConfiguration("chatgpt")) {
             callback();
         }
     });

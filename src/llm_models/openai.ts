@@ -16,8 +16,11 @@
 import { createAzure } from '@ai-sdk/azure';
 import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
-import ChatGptViewProvider, { logger } from "../chatgpt-view-provider";
+import ChatGptViewProvider from "../chatgpt-view-provider";
+import { Logger, LogLevel } from "../logger";
 import { ModelConfig } from "../model-config";
+
+const logger = new Logger("ChatGPT Copilot");
 
 // initGptModel initializes the GPT model.
 export async function initGptModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {
@@ -50,7 +53,7 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, u
     }
 
     try {
-        logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question}`);
+        logger.log(LogLevel.Info, `chatgpt.model: ${provider.model} chatgpt.question: ${question}`);
         provider.chatHistory.push({ role: "user", content: question });
 
         const chunks = [];
@@ -71,9 +74,9 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, u
         }
         provider.response = chunks.join("");
         provider.chatHistory.push({ role: "assistant", content: chunks.join("") });
-        logger.appendLine(`INFO: chatgpt.response: ${provider.response}`);
+        logger.log(LogLevel.Info, `chatgpt.response: ${provider.response}`);
     } catch (error) {
-        logger.appendLine(`ERROR: chatgpt.model: ${provider.model} response: ${error}`);
+        logger.log(LogLevel.Error, `chatgpt.model: ${provider.model} response: ${error}`);
         throw error;
     }
 }

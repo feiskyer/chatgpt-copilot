@@ -16,8 +16,11 @@
 import { createAzure } from '@ai-sdk/azure';
 import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
-import ChatGptViewProvider, { logger } from "../chatgpt-view-provider";
+import ChatGptViewProvider from "../chatgpt-view-provider";
+import { Logger, LogLevel } from "../logger";
 import { ModelConfig } from "../model-config";
+
+const logger = new Logger("ChatGPT Copilot");
 
 // initGptLegacyModel initializes the GPT legacy model.
 export function initGptLegacyModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {
@@ -48,7 +51,7 @@ export async function chatCompletion(provider: ChatGptViewProvider, question: st
         throw new Error("apiCompletion is not defined");
     }
 
-    logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question}`);
+    logger.log(LogLevel.Info, `chatgpt.model: ${provider.model} chatgpt.question: ${question}`);
     provider.chatHistory.push({ role: "user", content: question });
     let prompt = "";
     for (const message of provider.chatHistory) {
@@ -74,5 +77,5 @@ export async function chatCompletion(provider: ChatGptViewProvider, question: st
     }
     provider.response = chunks.join("");
     provider.chatHistory.push({ role: "assistant", content: chunks.join("") });
-    logger.appendLine(`INFO: chatgpt.response: ${provider.response}`);
+    logger.log(LogLevel.Info, `chatgpt.response: ${provider.response}`);
 }

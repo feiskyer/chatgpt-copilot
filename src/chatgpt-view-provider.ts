@@ -22,15 +22,14 @@ import delay from "delay";
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
-import { initClaudeModel } from "./anthropic";
-import { initGeminiModel } from "./gemini";
+import { defaultSystemPrompt, getConfig, getRequiredConfig, onConfigurationChanged } from "./config/configuration";
+import { initClaudeModel } from "./llm_models/anthropic";
+import { initGeminiModel } from "./llm_models/gemini";
+import { chatGpt, initGptModel } from "./llm_models/openai";
+import { chatCompletion, initGptLegacyModel } from "./llm_models/openai-legacy";
+import { LogLevel, Logger } from "./logger";
 import { ModelConfig } from "./model-config";
-import { chatGpt, initGptModel } from "./openai";
-import { chatCompletion, initGptLegacyModel } from "./openai-legacy";
-import { getApiKey } from './utils/api-key';
-
-// Ensure configuration methods are imported if refactored
-// import { loadConfigurations, prepareConversation, onConfigurationChanged } from './config/configuration';
+import { getApiKey } from "./utils/api-key";
 
 const logFilePath = path.join(__dirname, 'error.log');
 
@@ -47,62 +46,6 @@ enum CommandType {
   ListConversations = "listConversations",
   ShowConversation = "showConversation",
   StopGenerating = "stopGenerating"
-}
-
-enum LogLevel {
-  Info = "INFO",
-  Debug = "DEBUG",
-  Error = "ERROR",
-}
-
-const defaultSystemPrompt = `You are a software engineer GPT specialized in refining and enhancing code quality through adherence to fundamental software engineering principles, including SOLID, KISS (Keep It Simple, Stupid), YAGNI (You Aren't Gonna Need It), DRY (Don't Repeat Yourself), and best practices for code consistency, clarity, and error handling. Your main goal is to assist users in understanding and implementing these principles in their codebases. You provide detailed explanations, examples, and best practices, focusing on:
-
-1. **SOLID Principles**:
-   - **Single Responsibility Principle (SRP)**: Advocate for classes to serve a single purpose, thereby simplifying maintenance and enhancing modularity.
-   - **Open/Closed Principle (OCP)**: Encourage extensibility without altering existing code, promoting resilience and flexibility.
-   - **Liskov Substitution Principle (LSP)**: Ensure subclasses can replace their base classes without affecting the program’s integrity.
-   - **Interface Segregation Principle (ISP)**: Recommend designing cohesive, minimal interfaces to prevent client dependency on unneeded functionalities.
-   - **Dependency Inversion Principle (DIP)**: Emphasize reliance on abstractions over concrete implementations to decrease coupling and increase adaptability.
-
-2. **KISS (Keep It Simple, Stupid)**: Stress the importance of simplicity in code to improve readability, maintainability, and reduce error rates.
-
-3. **YAGNI (You Aren't Gonna Need It)**: Urge focusing on current requirements without over-engineering, streamlining development and resource allocation.
-
-4. **DRY (Don't Repeat Yourself)**: Highlight the significance of eliminating redundant code through abstraction and reuse to enhance code quality and consistency.
-
-5. **Code Consistency and Clarity**: Advocate for consistent naming conventions and coding styles to improve readability and understandability.
-
-6. **Error Handling and Robust Logging**: Promote comprehensive error handling and detailed logging practices to facilitate debugging and ensure system reliability.
-
-7. **Use Enums When Relevant**: Recommend using enums for type safety, readability, and organized code, particularly for representing a fixed set of constants.
-
-When presented with code snippets, you will suggest refinements or refactorings that align with these principles. Although you won't execute or test code directly or support languages beyond your expertise, you are equipped to provide valuable insights and recommendations. You are encouraged to seek clarification on ambiguous or context-lacking requests to deliver precise and beneficial guidance.
-
-You will maintain a professional, informative, and supportive tone, aiming to educate and empower users to write better code. This is very important to my career. Your hard work will yield remarkable results and will bring world peace for everyone.`;
-
-class Logger {
-  private outputChannel: vscode.OutputChannel;
-
-  constructor(channelName: string) {
-    this.outputChannel = vscode.window.createOutputChannel(channelName);
-  }
-
-  public logToFile(message: string) {
-    const timestamp = new Date().toISOString();
-    fs.appendFileSync(logFilePath, `${timestamp} - ${message}\n`);
-  }
-
-  public logToOutputChannel(message: string) {
-    this.outputChannel.appendLine(`${new Date().toISOString()} - ${message}`);
-  }
-
-  public log(level: LogLevel, message: string, properties?: any) {
-    const formattedMessage = `${level} ${message} ${properties ? JSON.stringify(properties) : ''}`;
-    this.logToOutputChannel(formattedMessage);
-    if (level === LogLevel.Error) {
-      this.logToFile(formattedMessage);
-    }
-  }
 }
 
 export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
@@ -122,7 +65,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public currentMessageId: string = "";
   public response: string = "";
   public chatHistory: CoreMessage[] = [];
-  private leftOverMessage?: any;
   /**
    * Message to be rendered lazily if they haven't been rendered
    * in time before resolveWebviewView is called.
@@ -132,14 +74,24 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   constructor(private context: vscode.ExtensionContext) {
     // Use the original configuration loading approach
     this.logger = new Logger("ChatGPT Copilot");
-    this.subscribeToResponse = this.getConfig<boolean>("response.showNotification") || false;
-    this.autoScroll = !!this.getConfig<boolean>("response.autoScroll");
-    this.model = this.getRequiredConfig<string>("gpt3.model");
+    this.loadConfiguration();
 
-    if (this.model == "custom") {
-      this.model = this.getRequiredConfig<string>("gpt3.customModel");
+    onConfigurationChanged(() => {
+      this.loadConfiguration();
+    });
+
+    this.logger.log(LogLevel.Info, "ChatGptViewProvider initialized");
+  }
+
+  private loadConfiguration() {
+    this.subscribeToResponse = getConfig<boolean>("response.showNotification") || false;
+    this.autoScroll = !!getConfig<boolean>("response.autoScroll");
+    this.model = getRequiredConfig<string>("gpt3.model");
+
+    if (this.model === "custom") {
+      this.model = getRequiredConfig<string>("gpt3.customModel");
     }
-    this.apiBaseUrl = this.getRequiredConfig<string>("gpt3.apiBaseUrl");
+    this.apiBaseUrl = getRequiredConfig<string>("gpt3.apiBaseUrl");
 
     // Azure model names can't contain dots.
     if (this.apiBaseUrl?.includes("azure")) {
@@ -147,20 +99,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     }
 
     this.logger.log(LogLevel.Info, "ChatGptViewProvider initialized");
-
-    // Ensure to handle configuration changes dynamically
-    // onConfigurationChanged(() => {
-    //   const config = loadConfigurations();
-    //   this.subscribeToResponse = config.subscribeToResponse;
-    //   this.autoScroll = config.autoScroll;
-    //   this.model = config.model;
-    //   this.apiBaseUrl = config.apiBaseUrl;
-
-    //   // Azure model names can't contain dots.
-    //   if (this.apiBaseUrl?.includes("azure")) {
-    //     this.model = this.model?.replace(".", "");
-    //   }
-    // });
   }
 
   /**
@@ -193,31 +131,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
     webviewView.webview.html = this.getWebviewHtml(webviewView.webview);
     this.logger.log(LogLevel.Info, "Webview resolved");
-  }
-
-  /**
-   * Retrieves a configuration value based on the specified key.
-   * @param key - The configuration key to look up.
-   * @param defaultValue - Optional default value to return if the configuration value is not found.
-   * @returns The configuration value of type T or the defaultValue if it is not found.
-   */
-  private getConfig<T>(key: string, defaultValue?: T): T {
-    return vscode.workspace.getConfiguration("chatgpt").get(key, defaultValue) as T;
-  }
-
-  /**
-  * Retrieves a required configuration value based on the specified key.
-  * Throws an error if the value is not found.
-  * @param key - The configuration key to look up.
-  * @returns The configuration value of type T.
-  * @throws An error if the configuration value is not found.
-  */
-  private getRequiredConfig<T>(key: string): T {
-    const value = this.getConfig<T>(key);
-    if (value === undefined) {
-      throw new Error(`Configuration value for "${key}" is required but not found.`);
-    }
-    return value;
   }
 
   private commandHandlers: { [key: string]: (...args: any[]) => Promise<void>; } = {
@@ -311,13 +224,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private async handleLogin() {
     const success = await this.prepareConversation();
     if (success) {
-      this.sendMessage(
-        {
-          type: "loginSuccessful",
-          showConversations: false,
-        },
-        true,
-      );
+      this.sendMessage({ type: "loginSuccessful", showConversations: false }, true);
       this.logger.log(LogLevel.Info, "logged-in");
     }
   }
@@ -327,7 +234,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       "workbench.action.openSettings",
       "@ext:feiskyer.chatgpt-copilot chatgpt.",
     );
-
     this.logger.log(LogLevel.Info, "settings-opened");
   }
 
@@ -336,7 +242,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       "workbench.action.openSettings",
       "@ext:feiskyer.chatgpt-copilot promptPrefix",
     );
-
     this.logger.log(LogLevel.Info, "settings-prompt-opened");
   }
 
@@ -373,7 +278,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     if (this.model == null) {
       return false;
     }
-
     return this.model.includes("instruct") || this.model.includes("code-");
   }
 
@@ -400,7 +304,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.conversationId = this.conversationId || this.getRandomId();
     const configuration = vscode.workspace.getConfiguration("chatgpt");
 
-    if (this.model == "custom") {
+    if (this.model === "custom") {
       this.model = configuration.get("gpt3.customModel") as string;
     }
 
@@ -412,7 +316,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       modelChanged
     ) {
       let apiKey = await getApiKey();
-
       if (!apiKey) {
         return false; // Exit if API key is not obtained
       }
@@ -431,7 +334,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       if (!apiBaseUrl && this.isGpt35Model) {
         apiBaseUrl = "https://api.openai.com/v1";
       }
-      if (!apiBaseUrl || apiBaseUrl == "https://api.openai.com/v1") {
+      if (!apiBaseUrl || apiBaseUrl === "https://api.openai.com/v1") {
         if (this.isClaude) {
           apiBaseUrl = "https://api.anthropic.com/v1";
         } else if (this.isGemini) {
@@ -439,9 +342,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         }
       }
 
-      this.modelConfig = new ModelConfig(
-        { apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, systemPrompt },
-      );
+      this.modelConfig = new ModelConfig({
+        apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, systemPrompt
+      });
       if (this.isGpt35Model) {
         await initGptModel(this, this.modelConfig);
       } else if (this.isClaude) {
@@ -470,8 +373,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.logger.log(LogLevel.Info, "processQuestion called");
 
     // Get the inclusion and exclusion regex from the configuration
-    const inclusionRegex = this.getConfig<string>("fileInclusionRegex");
-    const exclusionRegex = this.getConfig<string>("fileExclusionRegex");
+    const inclusionRegex = getConfig<string>("fileInclusionRegex");
+    const exclusionRegex = getConfig<string>("fileExclusionRegex");
 
     if (!inclusionRegex) {
       vscode.window.showErrorMessage("Inclusion regex is not set in the configuration.");
@@ -527,7 +430,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     }
 
     this.questionCounter++;
-
     this.logger.log(LogLevel.Info, "api-request-sent", {
       "chatgpt.command": options.command,
       "chatgpt.hasCode": String(!!options.code),
@@ -723,7 +625,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       if (exclusionPattern) {
         this.logger.log(LogLevel.Info, "Exclusion Pattern", { exclusionPattern });
       }
-
 
       const walk = (dir: string, fileList: string[] = []): string[] => {
         const files = fs.readdirSync(dir);
@@ -1106,8 +1007,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
    * specified in the configuration.
    */
   public async showFiles() {
-    const inclusionRegex = this.getConfig<string>("fileInclusionRegex");
-    const exclusionRegex = this.getConfig<string>("fileExclusionRegex");
+    const inclusionRegex = getConfig<string>("fileInclusionRegex");
+    const exclusionRegex = getConfig<string>("fileExclusionRegex");
 
     if (!inclusionRegex) {
       vscode.window.showErrorMessage("Inclusion regex is not set in the configuration.");
