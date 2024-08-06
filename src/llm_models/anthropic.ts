@@ -14,8 +14,8 @@
  * copies or substantial portions of the Software.
 */
 import { createAnthropic } from '@ai-sdk/anthropic';
-import ChatGptViewProvider from "./chatgpt-view-provider";
-import { ModelConfig } from "./model-config";
+import ChatGptViewProvider from "../chatgpt-view-provider";
+import { ModelConfig } from "../model-config";
 
 // initClaudeModel initializes the Claude model with the given parameters.
 export async function initClaudeModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {

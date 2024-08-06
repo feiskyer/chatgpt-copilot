@@ -16,8 +16,8 @@
 import { createAzure } from '@ai-sdk/azure';
 import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
-import ChatGptViewProvider, { logger } from "./chatgpt-view-provider";
-import { ModelConfig } from "./model-config";
+import ChatGptViewProvider, { logger } from "../chatgpt-view-provider";
+import { ModelConfig } from "../model-config";
 
 // initGptLegacyModel initializes the GPT legacy model.
 export function initGptLegacyModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {

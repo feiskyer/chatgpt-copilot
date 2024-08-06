@@ -14,8 +14,8 @@
  * copies or substantial portions of the Software.
 */
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import ChatGptViewProvider from "./chatgpt-view-provider";
-import { ModelConfig } from "./model-config";
+import ChatGptViewProvider from "../chatgpt-view-provider";
+import { ModelConfig } from "../model-config";
 
 // initGeminiModel initializes the Gemini model with the given parameters.
 export async function initGeminiModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {

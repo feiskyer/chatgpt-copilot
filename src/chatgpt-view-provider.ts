@@ -24,8 +24,8 @@ import * as path from 'path';
 import * as vscode from "vscode";
 import { loadConfigurations, onConfigurationChanged, prepareConversation } from './config/configuration';
 import { chatGpt } from "./llm_models/openai";
+import { chatCompletion } from "./llm_models/openai-legacy";
 import { ModelConfig } from "./model-config";
-import { chatCompletion } from "./openai-legacy";
 
 export const logger = vscode.window.createOutputChannel("ChatGPT Copilot");
 
