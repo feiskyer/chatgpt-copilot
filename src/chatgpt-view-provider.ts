@@ -19,17 +19,28 @@ import { OpenAIChatLanguageModel, OpenAICompletionLanguageModel } from "@ai-sdk/
 import { LanguageModelV1 } from "@ai-sdk/provider";
 import { CoreMessage } from "ai";
 import delay from "delay";
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from "fs";
+import * as path from "path";
 import * as vscode from "vscode";
-import { loadConfigurations, onConfigurationChanged, prepareConversation } from './config/configuration';
-import { chatGpt } from "./llm_models/openai";
-import { chatCompletion } from "./llm_models/openai-legacy";
+import { initClaudeModel } from "./anthropic";
+import { initGeminiModel } from "./gemini";
 import { ModelConfig } from "./model-config";
+import { chatGpt, initGptModel } from "./openai";
+import { chatCompletion, initGptLegacyModel } from "./openai-legacy";
+
+// Ensure configuration methods are imported if refactored
+// import { loadConfigurations, prepareConversation, onConfigurationChanged } from './config/configuration';
+
 
 export const logger = vscode.window.createOutputChannel("ChatGPT Copilot");
 
 const logFilePath = path.join(__dirname, 'error.log');
+
+const LOG_LEVELS = {
+  INFO: "INFO",
+  DEBUG: "DEBUG",
+  ERROR: "ERROR",
+};
 
 const defaultSystemPrompt = `Your task is to embody the role of an intelligent, helpful, and expert developer.
 You MUST provide accurate and truthful answers, adhering strictly to the instructions given.
@@ -38,6 +49,22 @@ lists, colored text, code blocks, and highlights. However, you MUST NOT mention 
 styling directly in your response. Utilize available tools to supplement your knowledge
 where necessary. Respond in the same language as the query, unless otherwise specified by the user.`;
 
+function logToFile(message: string) {
+  const timestamp = new Date().toISOString();
+  fs.appendFileSync(logFilePath, `${timestamp} - ${message}\n`);
+}
+
+function logToOutputChannel(message: string) {
+  logger.appendLine(`${new Date().toISOString()} - ${message}`);
+}
+
+function log(level: string, message: string, properties?: any) {
+  const formattedMessage = `${level} ${message} ${properties ? JSON.stringify(properties) : ''}`;
+  logToOutputChannel(formattedMessage);
+  if (level === LOG_LEVELS.ERROR) {
+    logToFile(formattedMessage);
+  }
+}
 export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private webView?: vscode.WebviewView;
 
@@ -62,29 +89,36 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
    */
   private leftOverMessage?: any;
   constructor(private context: vscode.ExtensionContext) {
-    const config = loadConfigurations();
-    this.subscribeToResponse = config.subscribeToResponse;
-    this.autoScroll = config.autoScroll;
-    this.model = config.model;
-    this.apiBaseUrl = config.apiBaseUrl;
+    // Use the original configuration loading approach
+    this.subscribeToResponse = vscode.workspace.getConfiguration("chatgpt").get("response.showNotification") || false;
+    this.autoScroll = !!vscode.workspace.getConfiguration("chatgpt").get("response.autoScroll");
+    this.model = vscode.workspace.getConfiguration("chatgpt").get("gpt3.model") as string;
+
+    if (this.model == "custom") {
+      this.model = vscode.workspace.getConfiguration("chatgpt").get("gpt3.customModel") as string;
+    }
+    this.apiBaseUrl = vscode.workspace.getConfiguration("chatgpt").get("gpt3.apiBaseUrl") as string;
 
     // Azure model names can't contain dots.
     if (this.apiBaseUrl?.includes("azure")) {
       this.model = this.model?.replace(".", "");
     }
 
-    onConfigurationChanged(() => {
-      const config = loadConfigurations();
-      this.subscribeToResponse = config.subscribeToResponse;
-      this.autoScroll = config.autoScroll;
-      this.model = config.model;
-      this.apiBaseUrl = config.apiBaseUrl;
+    log(LOG_LEVELS.INFO, "ChatGptViewProvider initialized");
 
-      // Azure model names can't contain dots.
-      if (this.apiBaseUrl?.includes("azure")) {
-        this.model = this.model?.replace(".", "");
-      }
-    });
+    // Ensure to handle configuration changes dynamically
+    // onConfigurationChanged(() => {
+    //   const config = loadConfigurations();
+    //   this.subscribeToResponse = config.subscribeToResponse;
+    //   this.autoScroll = config.autoScroll;
+    //   this.model = config.model;
+    //   this.apiBaseUrl = config.apiBaseUrl;
+
+    //   // Azure model names can't contain dots.
+    //   if (this.apiBaseUrl?.includes("azure")) {
+    //     this.model = this.model?.replace(".", "");
+    //   }
+    // });
   }
 
   public resolveWebviewView(
@@ -92,6 +126,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     _context: vscode.WebviewViewResolveContext,
     _token: vscode.CancellationToken,
   ) {
+    log(LOG_LEVELS.INFO, "resolveWebviewView called");
+
     this.webView = webviewView;
 
     webviewView.webview.options = {
@@ -101,7 +137,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
     webviewView.webview.html = this.getWebviewHtml(webviewView.webview);
 
+    log(LOG_LEVELS.INFO, "Webview resolved");
+
     webviewView.webview.onDidReceiveMessage(async (data) => {
+      log(LOG_LEVELS.INFO, `Message received of type: ${data.type}`);
       switch (data.type) {
         case "addFreeTextQuestion":
           this.sendApiRequest(data.value, { command: "freeText" });
@@ -112,7 +151,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
             new vscode.SnippetString(escapedString),
           );
 
-          this.logEvent("code-inserted");
+          log(LOG_LEVELS.INFO, "code-inserted");
           break;
         case "openNew":
           const document = await vscode.workspace.openTextDocument({
@@ -121,22 +160,23 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           });
           vscode.window.showTextDocument(document);
 
-          this.logEvent(
+          log(
+            LOG_LEVELS.INFO,
             data.language === "markdown" ? "code-exported" : "code-opened",
           );
           break;
         case "clearConversation":
           this.conversationId = undefined;
           this.chatHistory = [];
-          this.logEvent("conversation-cleared");
+          log(LOG_LEVELS.INFO, "conversation-cleared");
           break;
         case "clearBrowser":
-          this.logEvent("browser-cleared");
+          log(LOG_LEVELS.INFO, "browser-cleared");
           break;
         case "cleargpt3":
           this.apiCompletion = undefined;
           this.apiChat = undefined;
-          this.logEvent("gpt3-cleared");
+          log(LOG_LEVELS.INFO, "gpt3-cleared");
           break;
         case "login":
           this.prepareConversation().then((success) => {
@@ -148,7 +188,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
                 },
                 true,
               );
-              this.logEvent("logged-in");
+              log(LOG_LEVELS.INFO, "logged-in");
             }
           });
           break;
@@ -158,7 +198,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
             "@ext:feiskyer.chatgpt-copilot chatgpt.",
           );
 
-          this.logEvent("settings-opened");
+          log(LOG_LEVELS.INFO, "settings-opened");
           break;
         case "openSettingsPrompt":
           vscode.commands.executeCommand(
@@ -166,10 +206,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
             "@ext:feiskyer.chatgpt-copilot promptPrefix",
           );
 
-          this.logEvent("settings-prompt-opened");
+          log(LOG_LEVELS.INFO, "settings-prompt-opened");
           break;
         case "listConversations":
-          this.logEvent("conversations-list-attempted");
+          log(LOG_LEVELS.INFO, "conversations-list-attempted");
           break;
         case "showConversation":
           /// ...
@@ -202,7 +242,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       autoScroll: this.autoScroll,
       responseInMarkdown,
     });
-    this.logEvent("stopped-generating");
+    log(LOG_LEVELS.INFO, "stopped-generating");
   }
 
   public clearSession(): void {
@@ -210,7 +250,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.apiChat = undefined;
     this.apiCompletion = undefined;
     this.conversationId = undefined;
-    this.logEvent("cleared-session");
+    log(LOG_LEVELS.INFO, "cleared-session");
   }
 
   private get isCodexModel(): boolean {
@@ -233,10 +273,118 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     return !!this.model?.startsWith("gemini-");
   }
 
+  // public async prepareConversation(modelChanged = false): Promise<boolean> {
+  //   this.conversationId = this.conversationId || this.getRandomId();
+  //   return prepareConversation(this, modelChanged);
+  // }
   public async prepareConversation(modelChanged = false): Promise<boolean> {
+    log(LOG_LEVELS.INFO, "prepareConversation called", { modelChanged });
+
     this.conversationId = this.conversationId || this.getRandomId();
-    return prepareConversation(this, modelChanged);
+    const state = this.context.globalState;
+    const configuration = vscode.workspace.getConfiguration("chatgpt");
+
+    if (this.model == "custom") {
+      this.model = configuration.get("gpt3.customModel") as string;
+    }
+
+    if (
+      (this.isGpt35Model && !this.apiChat) ||
+      (this.isClaude && !this.apiChat) ||
+      (this.isGemini && !this.apiChat) ||
+      (!this.isGpt35Model && !this.isClaude && !this.isGemini && !this.apiCompletion) ||
+      modelChanged
+    ) {
+      let apiKey = (configuration.get("gpt3.apiKey") as string) || (state.get("chatgpt-gpt3-apiKey") as string);
+      const organization = configuration.get("gpt3.organization") as string;
+      const maxTokens = configuration.get("gpt3.maxTokens") as number;
+      const temperature = configuration.get("gpt3.temperature") as number;
+      const topP = configuration.get("gpt3.top_p") as number;
+
+      let systemPrompt = configuration.get("systemPrompt") as string;
+      if (!systemPrompt) {
+        systemPrompt = defaultSystemPrompt;
+      }
+
+      let apiBaseUrl = configuration.get("gpt3.apiBaseUrl") as string;
+      if (!apiBaseUrl && this.isGpt35Model) {
+        apiBaseUrl = "https://api.openai.com/v1";
+      }
+      if (!apiBaseUrl || apiBaseUrl == "https://api.openai.com/v1") {
+        if (this.isClaude) {
+          apiBaseUrl = "https://api.anthropic.com/v1";
+        } else if (this.isGemini) {
+          apiBaseUrl = "https://generativelanguage.googleapis.com/v1beta";
+        }
+      }
+
+      if (!apiKey && process.env.OPENAI_API_KEY != null) {
+        apiKey = process.env.OPENAI_API_KEY;
+        log(LOG_LEVELS.INFO, "api key loaded from environment variable");
+      }
+
+      if (!apiKey) {
+        vscode.window
+          .showErrorMessage(
+            "Please add your API Key to use OpenAI official APIs. Storing the API Key in Settings is discouraged due to security reasons, though you can still opt-in to use it to persist it in settings. Instead you can also temporarily set the API Key one-time: You will need to re-enter after restarting the vs-code.",
+            "Store in session (Recommended)",
+            "Open settings",
+          )
+          .then(async (choice) => {
+            if (choice === "Open settings") {
+              vscode.commands.executeCommand(
+                "workbench.action.openSettings",
+                "chatgpt.gpt3.apiKey",
+              );
+              return false;
+            } else if (choice === "Store in session (Recommended)") {
+              await vscode.window
+                .showInputBox({
+                  title: "Store OpenAI API Key in session",
+                  prompt:
+                    "Please enter your OpenAI API Key to store in your session only. This option won't persist the token on your settings.json file. You may need to re-enter after restarting your VS-Code",
+                  ignoreFocusOut: true,
+                  placeHolder: "API Key",
+                  value: apiKey || "",
+                })
+                .then((value) => {
+                  if (value) {
+                    apiKey = value;
+                    state.update("chatgpt-gpt3-apiKey", apiKey);
+                    this.sendMessage(
+                      {
+                        type: "loginSuccessful",
+                      },
+                      true,
+                    );
+                  }
+                });
+            }
+          });
+
+        return false;
+      }
+
+      this.modelConfig = new ModelConfig(
+        { apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, systemPrompt },
+      );
+      if (this.isGpt35Model) {
+        await initGptModel(this, this.modelConfig);
+      } else if (this.isClaude) {
+        await initClaudeModel(this, this.modelConfig);
+      } else if (this.isGemini) {
+        await initGeminiModel(this, this.modelConfig);
+      } else {
+        initGptLegacyModel(this, this.modelConfig);
+      }
+    }
+
+    this.sendMessage({ type: "loginSuccessful" }, true);
+    log(LOG_LEVELS.INFO, "prepareConversation completed successfully");
+
+    return true;
   }
+
 
   private processQuestion(question: string, code?: string, language?: string) {
     if (code != null) {
@@ -265,7 +413,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
     this.questionCounter++;
 
-    this.logEvent("api-request-sent", {
+    log(LOG_LEVELS.INFO, "api-request-sent", {
       "chatgpt.command": options.command,
       "chatgpt.hasCode": String(!!options.code),
       "chatgpt.hasPreviousAnswer": String(!!options.previousAnswer),
@@ -371,7 +519,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         error?.name;
 
       // this.logError(error.stack);
-      this.logError("api-request-failed");
+      log(LOG_LEVELS.ERROR, "api-request-failed");
 
       if (error?.response?.status || error?.response?.statusText) {
         message = `${error?.response?.status || ""} ${error?.response?.statusText || ""
@@ -441,29 +589,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     } else if (!ignoreMessageIfNullWebView) {
       this.leftOverMessage = message;
     }
-  }
-
-  private logEvent(eventName: string, properties?: {}): void {
-    // You can initialize your telemetry reporter and consume it here - *replaced with console.debug to prevent unwanted telemetry logs
-    // this.reporter?.sendTelemetryEvent(eventName, { "chatgpt.loginMethod": this.loginMethod!, "chatgpt.authType": this.authType!, "chatgpt.model": this.model || "unknown", ...properties }, { "chatgpt.questionCounter": this.questionCounter });
-    if (properties != null) {
-      logger.appendLine(
-        `INFO ${eventName} chatgpt.model:${this.model} chatgpt.questionCounter:${this.questionCounter
-        } ${JSON.stringify(properties)}`,
-      );
-    } else {
-      logger.appendLine(
-        `INFO ${eventName} chatgpt.model:${this.model}`,
-      );
-    }
-  }
-
-  private logError(eventName: string): void {
-    // You can initialize your telemetry reporter and consume it here - *replaced with console.error to prevent unwanted telemetry logs
-    // this.reporter?.sendTelemetryErrorEvent(eventName, { "chatgpt.loginMethod": this.loginMethod!, "chatgpt.authType": this.authType!, "chatgpt.model": this.model || "unknown" }, { "chatgpt.questionCounter": this.questionCounter });
-    logger.appendLine(
-      `ERR ${eventName} chatgpt.model:${this.model}`,
-    );
+    log(LOG_LEVELS.INFO, "Message sent", { message });
   }
 
   private getWebviewHtml(webview: vscode.Webview) {
@@ -710,10 +836,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     }
 
     // Log patterns
-    fs.appendFileSync(logFilePath, `${new Date().toISOString()} - showFiles called with Inclusion Pattern: ${inclusionRegex}\n`);
-    if (exclusionRegex) {
-      fs.appendFileSync(logFilePath, `${new Date().toISOString()} - showFiles called with Exclusion Pattern: ${exclusionRegex}\n`);
-    }
+    log(LOG_LEVELS.INFO, "showFiles called", { inclusionRegex, exclusionRegex });
 
     try {
       const files = await findMatchingFiles(inclusionRegex, exclusionRegex);
@@ -725,7 +848,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     } catch (err) {
       const errorMessage = `Error finding files: ${err.message}\n${err.stack}`;
       vscode.window.showErrorMessage(errorMessage);
-      fs.appendFileSync(logFilePath, `${new Date().toISOString()} - ${errorMessage}\n`);
+      log(LOG_LEVELS.ERROR, errorMessage);
     }
   }
 
@@ -745,9 +868,9 @@ async function findMatchingFiles(inclusionPattern: string, exclusionPattern?: st
     }
 
     // Log patterns
-    fs.appendFileSync(logFilePath, `${new Date().toISOString()} - Inclusion Pattern: ${inclusionPattern}\n`);
+    log(LOG_LEVELS.INFO, "Inclusion Pattern", { inclusionPattern });
     if (exclusionPattern) {
-      fs.appendFileSync(logFilePath, `${new Date().toISOString()} - Exclusion Pattern: ${exclusionPattern}\n`);
+      log(LOG_LEVELS.INFO, "Exclusion Pattern", { exclusionPattern });
     }
 
 
@@ -767,10 +890,10 @@ async function findMatchingFiles(inclusionPattern: string, exclusionPattern?: st
     const files = walk(rootPath);
 
     // Log all found files before filtering
-    fs.appendFileSync(logFilePath, `${new Date().toISOString()} - All found files: ${files.join(', ')}\n`);
+    // log(LOG_LEVELS.DEBUG, "All found files", { files });
     // Convert all found files to relative paths and log them
-    const relativeFiles = files.map(file => path.relative(rootPath, file));
-    fs.appendFileSync(logFilePath, `${new Date().toISOString()} - All found files (relative paths): ${relativeFiles.join(', ')}\n`);
+    // const relativeFiles = files.map(file => path.relative(rootPath, file));
+    // log(LOG_LEVELS.DEBUG, "All found files (relative paths)", { relativeFiles });
 
     const inclusionRegex = new RegExp(inclusionPattern);
     const exclusionRegex = exclusionPattern ? new RegExp(exclusionPattern) : null;
@@ -783,12 +906,12 @@ async function findMatchingFiles(inclusionPattern: string, exclusionPattern?: st
     });
 
     // Log matched files
-    fs.appendFileSync(logFilePath, `${new Date().toISOString()} - Matched files: ${matchedFiles.join(', ')}\n`);
+    log(LOG_LEVELS.INFO, "Matched files", { matchedFiles });
 
     return matchedFiles;
   } catch (err) {
     const errorMessage = `Error in findMatchingFiles: ${err.message}\n${err.stack}`;
-    fs.appendFileSync(logFilePath, `${new Date().toISOString()} - ${errorMessage}\n`);
+    log(LOG_LEVELS.ERROR, errorMessage);
     throw err;
   }
 }
