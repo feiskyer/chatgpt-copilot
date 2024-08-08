@@ -2,13 +2,13 @@
 # yarn lockfile v1
 
 
-"@ai-sdk/anthropic@^0.0.30":
-  version "0.0.30"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/anthropic/-/anthropic-0.0.30.tgz#5d8fd21ca20ae7efbde004ce22731802da38b04f"
-  integrity sha512-iPJjKtIH8yk2cf5BNXLN6sn6TTghOh8puWothX4pPVBM/OKC4RWVjYTEELwUv2VDPIw918KBg2j/T0RfTgu+bw==
+"@ai-sdk/anthropic@^0.0.39":
+  version "0.0.39"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/anthropic/-/anthropic-0.0.39.tgz#90cd66cbd9c92e82b97d57773da28bb14f3d7de1"
+  integrity sha512-Ouku41O9ebyRi0EUW7pB8+lk4sI74SfJKydzK7FjynhNmCSvi42+U4WPlEjP64NluXUzpkYLvBa6BAd36VY4/g==
   dependencies:
-    "@ai-sdk/provider" "0.0.12"
-    "@ai-sdk/provider-utils" "1.0.2"
+    "@ai-sdk/provider" "0.0.17"
+    "@ai-sdk/provider-utils" "1.0.9"
 
 "@ai-sdk/azure@^0.0.14":
   version "0.0.14"
@@ -55,6 +55,16 @@
     nanoid "3.3.6"
     secure-json-parse "2.7.0"
 
+"@ai-sdk/provider-utils@1.0.9":
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/provider-utils/-/provider-utils-1.0.9.tgz#4582474991bf872f2e20a386ffc0a9e54cc6a558"
+  integrity sha512-yfdanjUiCJbtGoRGXrcrmXn0pTyDfRIeY6ozDG96D66f2wupZaZvAgKptUa3zDYXtUCQQvcNJ+tipBBfQD/UYA==
+  dependencies:
+    "@ai-sdk/provider" "0.0.17"
+    eventsource-parser "1.1.2"
+    nanoid "3.3.6"
+    secure-json-parse "2.7.0"
+
 "@ai-sdk/provider@0.0.10":
   version "0.0.10"
   resolved "https://registry.npmjs.org/@ai-sdk/provider/-/provider-0.0.10.tgz"
@@ -66,6 +76,13 @@
   version "0.0.12"
   resolved "https://registry.npmjs.org/@ai-sdk/provider/-/provider-0.0.12.tgz"
   integrity sha512-oOwPQD8i2Ynpn22cur4sk26FW3mSy6t6/X/K1Ay2yGBKYiSpRyLfObhOrZEGsXDx+3euKy4nEZ193R36NM+tpQ==
+  dependencies:
+    json-schema "0.4.0"
+
+"@ai-sdk/provider@0.0.17":
+  version "0.0.17"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/provider/-/provider-0.0.17.tgz#4d18b503c3f52ec90770def6c1d5053c1bdfa3bd"
+  integrity sha512-f9j+P5yYRkqKFHxvWae5FI0j6nqROPCoPnMkpc2hc2vC7vKjqzrxBJucD8rpSaUjqiBnY/QuRJ0QeV717Uz5tg==
   dependencies:
     json-schema "0.4.0"
 
