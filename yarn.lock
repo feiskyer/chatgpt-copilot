@@ -2,13 +2,13 @@
 # yarn lockfile v1
 
 
-"@ai-sdk/anthropic@^0.0.30":
-  version "0.0.30"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/anthropic/-/anthropic-0.0.30.tgz#5d8fd21ca20ae7efbde004ce22731802da38b04f"
-  integrity sha512-iPJjKtIH8yk2cf5BNXLN6sn6TTghOh8puWothX4pPVBM/OKC4RWVjYTEELwUv2VDPIw918KBg2j/T0RfTgu+bw==
+"@ai-sdk/anthropic@^0.0.47":
+  version "0.0.47"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/anthropic/-/anthropic-0.0.47.tgz#572c8a28a94a286b1ed0acaa8dcd82cd69ae631c"
+  integrity sha512-CYwo4Bu5lwZ/KdLQ2ORJ1g1QPywBjcb1//Y6858nUAVK7A76o1qJAbYfF0RT6OQOhrbPxvbmqAbfGSs8RJlxWQ==
   dependencies:
-    "@ai-sdk/provider" "0.0.12"
-    "@ai-sdk/provider-utils" "1.0.2"
+    "@ai-sdk/provider" "0.0.21"
+    "@ai-sdk/provider-utils" "1.0.16"
 
 "@ai-sdk/azure@^0.0.14":
   version "0.0.14"
@@ -45,6 +45,16 @@
     nanoid "3.3.6"
     secure-json-parse "2.7.0"
 
+"@ai-sdk/provider-utils@1.0.16":
+  version "1.0.16"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/provider-utils/-/provider-utils-1.0.16.tgz#b866161032d5b47fc73ebc2dd5426990b3aaada2"
+  integrity sha512-8Nd8vIkGTIthhfgJEdP9KyMlykehBNP/1J47eMC3vQqYgJV6r5Bgvl3LFVfWi9KzamiD8tp9nU2NJKTeo4MH/A==
+  dependencies:
+    "@ai-sdk/provider" "0.0.21"
+    eventsource-parser "1.1.2"
+    nanoid "3.3.6"
+    secure-json-parse "2.7.0"
+
 "@ai-sdk/provider-utils@1.0.2":
   version "1.0.2"
   resolved "https://registry.npmjs.org/@ai-sdk/provider-utils/-/provider-utils-1.0.2.tgz"
@@ -66,6 +76,13 @@
   version "0.0.12"
   resolved "https://registry.npmjs.org/@ai-sdk/provider/-/provider-0.0.12.tgz"
   integrity sha512-oOwPQD8i2Ynpn22cur4sk26FW3mSy6t6/X/K1Ay2yGBKYiSpRyLfObhOrZEGsXDx+3euKy4nEZ193R36NM+tpQ==
+  dependencies:
+    json-schema "0.4.0"
+
+"@ai-sdk/provider@0.0.21":
+  version "0.0.21"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/provider/-/provider-0.0.21.tgz#1c4ad334efc3b9275164886262a950a31150b807"
+  integrity sha512-9j95uaPRxwYkzQdkl4XO/MmWWW5c5vcVSXtqvALpD9SMB9fzH46dO3UN4VbOJR2J3Z84CZAqgZu5tNlkptT9qQ==
   dependencies:
     json-schema "0.4.0"
 
