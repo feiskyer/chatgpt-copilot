@@ -544,7 +544,7 @@
         },
         "chatgpt.fileInclusionRegex": {
           "type": "string",
-          "default": "^src\/.*\\.(ts|py)$",
+          "default": "(^src/.*\\.(ts|py|json)$)|(^test/.*\\.(ts|py|json)$)|(^.*\\.package.json$)|(^.*\\.tsconfig.json$)|(^.*\\.jest.config.js)|(^.*\\.global.d.ts$)",
           "description": "Regex pattern to include specific file types, default is to include TypeScript and Python files.",
           "order": 41
         },
@@ -564,13 +564,14 @@
     "watch": "yarn run -S esbuild-base --sourcemap --watch",
     "fmt": "prettier --write \"src/**/*.ts\"&& yarn run test",
     "update": "npm install -g npm-check-updates && ncu -u && npm install",
-    "test": "eslint src --ext ts && tsc --noEmit",
+    "test": "jest",
     "package": "npx @vscode/vsce package --yarn",
     "publish": "npx @vscode/vsce publish --yarn"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
     "@types/isomorphic-fetch": "^0.0.39",
+    "@types/jest": "^29.5.12",
     "@types/mocha": "^10.0.7",
     "@types/node": "^20.14.11",
     "@types/uuid": "^10.0.0",
@@ -581,8 +582,10 @@
     "esbuild": "^0.23.0",
     "eslint": "^9.7.0",
     "glob": "^11.0.0",
+    "jest": "^29.7.0",
     "mocha": "^10.7.0",
     "prettier": "^3.3.3",
+    "ts-jest": "^29.2.5",
     "ts-loader": "^9.5.1",
     "typescript": "^5.5.3",
     "webpack": "^5.93.0"

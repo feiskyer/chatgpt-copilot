@@ -19,11 +19,9 @@ export class Logger {
     }
 
     public logToFile(message: string) {
-        if (!this.logFilePath) {
-            throw new Error("logFilePath must be defined to log to file");
+        if (this.logFilePath) {
+            fs.appendFileSync(this.logFilePath, message + '\n');
         }
-        const timestamp = new Date().toISOString();
-        fs.appendFileSync(this.logFilePath, `${timestamp} - ${message}\n`);
     }
 
     public logToOutputChannel(message: string) {
@@ -31,10 +29,8 @@ export class Logger {
     }
 
     public log(level: LogLevel, message: string, properties?: any) {
-        const formattedMessage = `${level} ${message} ${properties ? JSON.stringify(properties) : ''}`;
+        const formattedMessage = `${level} ${message} ${properties ? JSON.stringify(properties) : ""}`.trim();
         this.logToOutputChannel(formattedMessage);
-        if (this.logFilePath) {
-            this.logToFile(formattedMessage);
-        }
+        this.logToFile(formattedMessage);
     }
 }

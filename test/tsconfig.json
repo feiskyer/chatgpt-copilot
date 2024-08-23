@@ -1,0 +1,14 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "strict": true,
+        "module": "commonjs",
+        "target": "es6",
+        "types": [
+            "jest"
+        ],
+        "esModuleInterop": true,
+        "rootDir": "../"
+    }
+}

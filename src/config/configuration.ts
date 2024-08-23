@@ -34,7 +34,8 @@ You will maintain a professional, informative, and supportive tone, aiming to ed
  * @returns The configuration value of type T or the defaultValue if it is not found.
  */
 export function getConfig<T>(key: string, defaultValue?: T): T {
-    return vscode.workspace.getConfiguration("chatgpt").get(key, defaultValue) as T;
+    const configValue = vscode.workspace.getConfiguration("chatgpt").get<T>(key);
+    return configValue !== undefined ? configValue : defaultValue as T;
 }
 
 /**
