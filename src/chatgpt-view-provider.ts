@@ -70,6 +70,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
    * in time before resolveWebviewView is called.
    */
   private leftOverMessage?: any;
+  private conversationHistoryEnabled: boolean = true;
 
   constructor(private context: vscode.ExtensionContext) {
     // Use the original configuration loading approach
@@ -87,6 +88,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.subscribeToResponse = getConfig<boolean>("response.showNotification") || false;
     this.autoScroll = !!getConfig<boolean>("response.autoScroll");
     this.model = getRequiredConfig<string>("gpt3.model");
+    this.conversationHistoryEnabled = getConfig<boolean>("conversationHistoryEnabled") !== false;
 
     if (this.model === "custom") {
       this.model = getRequiredConfig<string>("gpt3.customModel");
@@ -176,6 +178,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
    * @param question - The question to be added.
    */
   private async handleAddFreeTextQuestion(question: string) {
+    // Clear chat history if conversationHistoryEnabled is false
+    if (!this.conversationHistoryEnabled) {
+      this.chatHistory = [];
+    }
     this.sendApiRequest(question, { command: "freeText" });
   }
 
@@ -363,6 +369,63 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   }
 
   /**
+   * Retrieves additional context from the codebase to be included in the prompt.
+   * This function finds files that match the inclusion pattern and retrieves their content.
+   * @returns A Promise that resolves to a string containing the formatted content.
+   */
+  public async retrieveContextForPrompt(): Promise<string> {
+    try {
+      const inclusionRegex = getConfig<string>("fileInclusionRegex");
+      const exclusionRegex = getConfig<string>("fileExclusionRegex");
+
+      if (!inclusionRegex) {
+        vscode.window.showErrorMessage("Inclusion regex is not set in the configuration.");
+        this.logger.log(LogLevel.Info, "Inclusion regex is not set in the configuration.");
+        return "";  // Return an empty string if the regex is not set
+      }
+
+      // Find matching files
+      this.logger.log(LogLevel.Info, "Finding matching files");
+      const files = await this.findMatchingFiles(inclusionRegex, exclusionRegex);
+
+      // Get the content of the matched files
+      this.logger.log(LogLevel.Info, "Retrieving file content");
+      const contextContent = await this.getFilesContent(files);
+
+      // Generate context for prompt
+      const formattedContext = this.generateFormattedContext(contextContent);
+
+      return formattedContext;
+    } catch (error) {
+      this.logger.log(LogLevel.Error, `Error retrieving context: ${error.message}`);
+      throw error;
+    }
+  }
+
+  /**
+  * Generates a formatted context string from the content of files.
+  * The context is structured with a title and section headers for each file's content.
+  * 
+  * @param fileContents - A string containing the content of files, 
+  *                      where each file's content is separated by double new lines.
+  * @returns A string that represents the formatted context, ready for use in a prompt.
+  */
+  private generateFormattedContext(fileContents: string): string {
+    // Split by double new lines to handle separate file contents
+    const contentSections = fileContents.split('\n\n');
+
+    // Prepend a title for the context
+    const contextTitle = "### Context from Project Files:\n\n";
+
+    // Format each section with index for better context understanding
+    const formattedContents = contentSections.map((content, idx) => {
+      return `#### File ${idx + 1}:\n${content}`;
+    }).join('\n\n'); // Join the formatted contents with double new lines
+
+    return contextTitle + formattedContents; // Combine title and contents
+  }
+
+  /**
    * Processes the provided question, appending contextual information from the current project files.
    * @param question - The original question to process.
    * @param code - Optional code block associated with the question.
@@ -372,33 +435,15 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private async processQuestion(question: string, code?: string, language?: string) {
     this.logger.log(LogLevel.Info, "processQuestion called");
 
-    // Get the inclusion and exclusion regex from the configuration
-    const inclusionRegex = getConfig<string>("fileInclusionRegex");
-    const exclusionRegex = getConfig<string>("fileExclusionRegex");
-
-    if (!inclusionRegex) {
-      vscode.window.showErrorMessage("Inclusion regex is not set in the configuration.");
-      this.logger.log(LogLevel.Info, "Inclusion regex is not set in the configuration.");
-      return question; // Return the original question if regex is not set
-    }
-
-    // Find matching files
-    this.logger.log(LogLevel.Info, "will call findMatchingFiles");
-    const files = await this.findMatchingFiles(inclusionRegex, exclusionRegex);
-
-    // Get the content of the matched files
-    this.logger.log(LogLevel.Info, "will call getFilesContent");
-    const contextContent = await this.getFilesContent(files);
-
-    // Add the context content to the question
-    if (code != null) {
-      // Add prompt prefix to the code if there was a code block selected
-      question = `${question}${language ? ` (The following code is in ${language} programming language)` : ""}: ${code}`;
-    }
+    // Format the question to send, keeping the context separate
+    const formattedQuestion = code != null
+      ? `${question}${language ? ` (The following code is in ${language} programming language)` : ""}: ${code}`
+      : question;
 
     // Append the context content to the question
     this.logger.log(LogLevel.Info, "returning question processed...");
-    return `${contextContent}\n\n${question}\r\n`;
+    return formattedQuestion;
+
 
     // if (code != null) {
     //   // Add prompt prefix to the code if there was a code block selected
@@ -441,8 +486,11 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     }
 
     this.response = "";
-    let question = await this.processQuestion(prompt, options.code, options.language);
 
+    // Retrieve the additional context
+    const additionalContext = await this.retrieveContextForPrompt();
+
+    const formattedQuestion = await this.processQuestion(prompt, options.code, options.language);
     this.logger.log(LogLevel.Info, "processQuestion done");
 
     // If the ChatGPT view is not in focus/visible; focus on it to render Q&A
@@ -470,16 +518,26 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     });
 
     try {
-      await this.getChatResponse(question, options);
+      await this.getChatResponse(formattedQuestion, additionalContext, options);
     } catch (error: any) {
-      this.handleError(error, prompt, options);
+      this.handleError(error, formattedQuestion, options);
     } finally {
       this.inProgress = false;
       this.sendMessage({ type: "showInProgress", inProgress: this.inProgress });
     }
   }
 
-  private async getChatResponse(question: string, options: any) {
+  /**
+   * Sends a prompt to the AI model and receives a response while updating the 
+   * response incrementally. It handles the streaming of the AI's response and 
+   * updates the chat history accordingly.
+   * 
+   * @param prompt - The prompt to be sent to the AI model.
+   * @param additionalContext - Additional contextual information to prefix to the prompt, if provided.
+   * @param options - An object containing command options, including any previous responses.
+   * @throws Throws an error if the response cannot be generated due to an issue with the API.
+   */
+  private async getChatResponse(prompt: string, additionalContext: string, options: any) {
     const responseInMarkdown = !this.isCodexModel;
     const updateResponse = (message: string) => {
       this.response += message;
@@ -494,9 +552,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     };
 
     if (this.isGpt35Model || this.isClaude || this.isGemini) {
-      await chatGpt(this, question, updateResponse);
+      await chatGpt(this, prompt, updateResponse, additionalContext);
     } else {
-      await chatCompletion(this, question, updateResponse);
+      await chatCompletion(this, prompt, updateResponse, additionalContext);
     }
 
     if (options.previousAnswer != null) {
@@ -610,6 +668,12 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     return;
   }
 
+  /**
+   * Finds files in the workspace that match the inclusion pattern and do not match the exclusion pattern.
+   * @param inclusionPattern - Regex pattern to include files.
+   * @param exclusionPattern - Optional regex pattern to exclude files.
+   * @returns A Promise that resolves to an array of matching file paths.
+   */
   private async findMatchingFiles(inclusionPattern: string, exclusionPattern?: string): Promise<string[]> {
     try {
       // TODO: replace hardcoded value later, as I encounted some issues testing
@@ -1034,6 +1098,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
   /**
    * Retrieves the context of the current extension, which contains useful state information.
+   * This function finds files that match the inclusion pattern and retrieves their content.
    * @returns The extension context associated with the provider.
    */
   public getContext() {

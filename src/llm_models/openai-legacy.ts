@@ -46,36 +46,60 @@ export function initGptLegacyModel(viewProvider: ChatGptViewProvider, config: Mo
 }
 
 // chatCompletion is a function that completes the chat.
-export async function chatCompletion(provider: ChatGptViewProvider, question: string, updateResponse: (message: string) => void) {
+export async function chatCompletion(
+    provider: ChatGptViewProvider,
+    question: string,
+    updateResponse: (message: string) => void,
+    additionalContext: string = "",
+) {
     if (!provider.apiCompletion) {
         throw new Error("apiCompletion is not defined");
     }
 
-    logger.log(LogLevel.Info, `chatgpt.model: ${provider.model} chatgpt.question: ${question}`);
-    provider.chatHistory.push({ role: "user", content: question });
-    let prompt = "";
-    for (const message of provider.chatHistory) {
-        prompt += `${message.role === "user" ? "Human:" : "AI:"} ${message.content}\n`;
-    }
-    prompt += `AI: `;
+    try {
+        logger.log(LogLevel.Info, `chatgpt.model: ${provider.model} chatgpt.question: ${question}`);
 
-    const result = await streamText({
-        system: provider.modelConfig.systemPrompt,
-        model: provider.apiCompletion,
-        prompt: prompt,
-        maxTokens: provider.modelConfig.maxTokens,
-        topP: provider.modelConfig.topP,
-        temperature: provider.modelConfig.temperature,
-    });
-    const chunks = [];
-    for await (const textPart of result.textStream) {
-        // logger.appendLine(
-        //     `INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question} response: ${JSON.stringify(textPart, null, 2)}`
-        // );
-        updateResponse(textPart);
-        chunks.push(textPart);
+        // Add the user's question to the provider's chat history (without additionalContext)
+        provider.chatHistory.push({ role: "user", content: question });
+
+        // Create a temporary chat history, including the additionalContext
+        const tempChatHistory = [...provider.chatHistory];
+        const fullQuestion = additionalContext ? `${additionalContext}\n\n${question}` : question;
+        tempChatHistory[tempChatHistory.length - 1] = { role: "user", content: fullQuestion }; // Replace the user's question with the full question in the temp history
+
+        // Construct the prompt using the temporary chat history
+        let prompt = "";
+        for (const message of tempChatHistory) {
+            prompt += `${message.role === "user" ? "Human:" : "AI:"} ${message.content}\n`;
+        }
+        prompt += `AI: `;
+
+        // Generate the response using the temporary prompt
+        const result = await streamText({
+            system: provider.modelConfig.systemPrompt,
+            model: provider.apiCompletion,
+            prompt: prompt,
+            maxTokens: provider.modelConfig.maxTokens,
+            topP: provider.modelConfig.topP,
+            temperature: provider.modelConfig.temperature,
+        });
+
+        const chunks = [];
+        for await (const textPart of result.textStream) {
+            // logger.appendLine(
+            //     `INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question} response: ${JSON.stringify(textPart, null, 2)}`
+            // );
+            updateResponse(textPart);
+            chunks.push(textPart);
+        }
+        provider.response = chunks.join("");
+
+        // Add the assistant's response to the provider's chat history (without additionalContext)
+        provider.chatHistory.push({ role: "assistant", content: provider.response });
+
+        logger.log(LogLevel.Info, `chatgpt.response: ${provider.response}`);
+    } catch (error) {
+        logger.log(LogLevel.Error, `chatgpt.model: ${provider.model} response: ${error}`);
+        throw error;
     }
-    provider.response = chunks.join("");
-    provider.chatHistory.push({ role: "assistant", content: chunks.join("") });
-    logger.log(LogLevel.Info, `chatgpt.response: ${provider.response}`);
 }

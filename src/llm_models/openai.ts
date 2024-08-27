@@ -47,24 +47,42 @@ export async function initGptModel(viewProvider: ChatGptViewProvider, config: Mo
 }
 
 // chatGpt is a function that completes the chat.
-export async function chatGpt(provider: ChatGptViewProvider, question: string, updateResponse: (message: string) => void) {
+export async function chatGpt(
+    provider: ChatGptViewProvider,
+    question: string,
+    updateResponse: (message: string) => void,
+    additionalContext: string = "",
+) {
     if (!provider.apiChat) {
         throw new Error("apiChat is undefined");
     }
 
     try {
         logger.log(LogLevel.Info, `chatgpt.model: ${provider.model} chatgpt.question: ${question}`);
+
+        // Add the user's question to the provider's chat history (without additionalContext)
         provider.chatHistory.push({ role: "user", content: question });
+
+        // Create a temporary chat history, including the additionalContext
+        const tempChatHistory = [...provider.chatHistory];
+
+        // Prepend the additional context to the user's question in the temp chat history
+        if (additionalContext) {
+            const fullQuestion = `${additionalContext}\n\n${question}`;
+            tempChatHistory[tempChatHistory.length - 1] = { role: "user", content: fullQuestion };
+        }
 
         const chunks = [];
         const result = await streamText({
             system: provider.modelConfig.systemPrompt,
             model: provider.apiChat,
-            messages: provider.chatHistory,
+            messages: tempChatHistory, // Use the temporary chat history with the additional context
             maxTokens: provider.modelConfig.maxTokens,
             topP: provider.modelConfig.topP,
             temperature: provider.modelConfig.temperature,
         });
+
+        // Process the streamed response
         for await (const textPart of result.textStream) {
             // logger.appendLine(
             //     `INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question} response: ${JSON.stringify(textPart, null, 2)}`
@@ -73,7 +91,10 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, u
             chunks.push(textPart);
         }
         provider.response = chunks.join("");
+
+        // Add the assistant's response to the provider's chat history (without additionalContext)
         provider.chatHistory.push({ role: "assistant", content: chunks.join("") });
+
         logger.log(LogLevel.Info, `chatgpt.response: ${provider.response}`);
     } catch (error) {
         logger.log(LogLevel.Error, `chatgpt.model: ${provider.model} response: ${error}`);
