@@ -113,14 +113,14 @@ export async function activate(context: vscode.ExtensionContext) {
     }
 
     if (e.affectsConfiguration("chatgpt.gpt3.model")) {
-      provider.model = vscode.workspace
+      provider.modelManager.model = vscode.workspace
         .getConfiguration("chatgpt")
         .get("gpt3.model");
     }
 
     if (e.affectsConfiguration("chatgpt.gpt3.customModel")) {
-      if (provider.model === "custom") {
-        provider.model = vscode.workspace
+      if (provider.modelManager.model === "custom") {
+        provider.modelManager.model = vscode.workspace
           .getConfiguration("chatgpt")
           .get("gpt3.customModel");
       }

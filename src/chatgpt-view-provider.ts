@@ -22,16 +22,19 @@ import delay from "delay";
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
-import { defaultSystemPrompt, getConfig, getRequiredConfig, onConfigurationChanged } from "./config/configuration";
-import { initClaudeModel } from "./llm_models/anthropic";
-import { initGeminiModel } from "./llm_models/gemini";
-import { chatGpt, initGptModel } from "./llm_models/openai";
-import { chatCompletion, initGptLegacyModel } from "./llm_models/openai-legacy";
+import { getConfig, getRequiredConfig, onConfigurationChanged } from "./config/configuration";
+import { chatGpt } from "./llm_models/openai";
+import { chatCompletion } from "./llm_models/openai-legacy";
 import { LogLevel, Logger } from "./logger";
-import { ModelConfig } from "./model-config";
-import { getApiKey } from "./utils/api-key";
+import { ModelManager } from "./modelManager";
 
 const logFilePath = path.join(__dirname, 'error.log');
+
+interface CommandData {
+  value: string; // Or any other types that represent the expected value.
+  language?: string; // If applicable
+}
+
 
 enum CommandType {
   AddFreeTextQuestion = "addFreeTextQuestion",
@@ -51,11 +54,11 @@ enum CommandType {
 export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private webView?: vscode.WebviewView;
   private logger: Logger;
-  public subscribeToResponse: boolean;
-  public autoScroll: boolean;
-  public model?: string;
+  public modelManager: ModelManager;
+
+  public subscribeToResponse: boolean = false;
+  public autoScroll: boolean = false;
   private apiBaseUrl?: string;
-  public modelConfig!: ModelConfig;
   public apiCompletion?: OpenAICompletionLanguageModel | LanguageModelV1;
   public apiChat?: OpenAIChatLanguageModel | LanguageModelV1;
   public conversationId?: string;
@@ -72,9 +75,19 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private leftOverMessage?: any;
   private conversationHistoryEnabled: boolean = true;
 
-  constructor(private context: vscode.ExtensionContext) {
+  constructor(
+    private context: vscode.ExtensionContext,
+    // TODO: refactor to inject following dependencies, separating concerns.
+    // logger: LoggerManager,
+    // configManager: ConfigurationManager,
+    // webviewManager: WebviewManager,
+    // commandHandler: CommandHandler,
+    // apiManager: ApiManager,
+    // modelManager: ModelManager
+  ) {
     // Use the original configuration loading approach
     this.logger = new Logger("ChatGPT Copilot");
+    this.modelManager = new ModelManager(this);
     this.loadConfiguration();
 
     onConfigurationChanged(() => {
@@ -84,20 +97,24 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.logger.log(LogLevel.Info, "ChatGptViewProvider initialized");
   }
 
-  private loadConfiguration() {
-    this.subscribeToResponse = getConfig<boolean>("response.showNotification") || false;
-    this.autoScroll = !!getConfig<boolean>("response.autoScroll");
-    this.model = getRequiredConfig<string>("gpt3.model");
-    this.conversationHistoryEnabled = getConfig<boolean>("conversationHistoryEnabled") !== false;
+  public getWorkspaceConfiguration() {
+    return vscode.workspace.getConfiguration("chatgpt");
+  }
 
-    if (this.model === "custom") {
-      this.model = getRequiredConfig<string>("gpt3.customModel");
+  private loadConfiguration() {
+    this.subscribeToResponse = getConfig<boolean>("response.showNotification", false);
+    this.autoScroll = !!getConfig<boolean>("response.autoScroll", false);
+    this.modelManager.model = getRequiredConfig<string>("gpt3.model");
+    this.conversationHistoryEnabled = getConfig<boolean>("conversationHistoryEnabled", true);
+
+    if (this.modelManager.model === "custom") {
+      this.modelManager.model = getRequiredConfig<string>("gpt3.customModel");
     }
     this.apiBaseUrl = getRequiredConfig<string>("gpt3.apiBaseUrl");
 
     // Azure model names can't contain dots.
     if (this.apiBaseUrl?.includes("azure")) {
-      this.model = this.model?.replace(".", "");
+      this.modelManager.model = this.modelManager.model?.replace(".", "");
     }
 
     this.logger.log(LogLevel.Info, "ChatGptViewProvider initialized");
@@ -135,18 +152,19 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.logger.log(LogLevel.Info, "Webview resolved");
   }
 
-  private commandHandlers: { [key: string]: (...args: any[]) => Promise<void>; } = {
-    [CommandType.AddFreeTextQuestion]: this.handleAddFreeTextQuestion.bind(this),
-    [CommandType.EditCode]: this.handleEditCode.bind(this),
-    [CommandType.OpenNew]: this.handleOpenNew.bind(this),
-    [CommandType.ClearConversation]: this.handleClearConversation.bind(this),
-    [CommandType.ClearBrowser]: this.handleClearBrowser.bind(this),
-    [CommandType.ClearGpt3]: this.handleClearGpt3.bind(this),
-    [CommandType.Login]: this.handleLogin.bind(this),
-    [CommandType.OpenSettings]: this.handleOpenSettings.bind(this),
-    [CommandType.OpenSettingsPrompt]: this.handleOpenSettingsPrompt.bind(this),
-    [CommandType.ListConversations]: this.handleListConversations.bind(this),
-    [CommandType.StopGenerating]: this.handleStopGenerating.bind(this),
+  private commandHandlers: Record<CommandType, (data: CommandData) => Promise<void>> = {
+    [CommandType.AddFreeTextQuestion]: (data) => this.handleAddFreeTextQuestion(data.value),
+    [CommandType.EditCode]: (data) => this.handleEditCode(data.value),
+    [CommandType.OpenNew]: (data) => this.handleOpenNew(data.value || '', data.language || ''),
+    [CommandType.ClearConversation]: () => this.handleClearConversation(),
+    [CommandType.ClearBrowser]: () => this.handleClearBrowser(),
+    [CommandType.ClearGpt3]: () => this.handleClearGpt3(),
+    [CommandType.Login]: () => this.handleLogin(),
+    [CommandType.OpenSettings]: () => this.handleOpenSettings(),
+    [CommandType.OpenSettingsPrompt]: () => this.handleOpenSettingsPrompt(),
+    [CommandType.ListConversations]: () => this.handleListConversations(),
+    [CommandType.ShowConversation]: () => this.handleShowConversation(),
+    [CommandType.StopGenerating]: () => this.handleStopGenerating(),
   };
 
   /**
@@ -154,15 +172,28 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
    * @param webviewView - The webview view that is sending messages.
    */
   private handleWebviewMessages(webviewView: vscode.WebviewView) {
-    webviewView.webview.onDidReceiveMessage(async (data) => {
+    webviewView.webview.onDidReceiveMessage(async (data: {
+      type: CommandType;
+      value: any;
+      language?: string;
+    }) => {
       this.logger.log(LogLevel.Info, `Message received of type: ${data.type}`);
       const handler = this.commandHandlers[data.type];
+
       if (handler) {
         try {
-          await handler(data.value, data.language);
+          await handler(data); // Pass the entire data object
         } catch (error) {
-          this.logger.log(LogLevel.Error, `Error handling command ${data.type}: ${error.message}`);
+          // Specify the expected error type if possible
+          if (error instanceof Error) {
+            this.logger.log(LogLevel.Error, `Error handling command ${data.type}: ${error.message}`);
+          } else {
+            // Handle unexpected error types
+            this.logger.log(LogLevel.Error, `Unexpected error handling command ${data.type}: ${String(error)}`);
+          }
         }
+      } else {
+        this.logger.log(LogLevel.Warning, `No handler found for command type: ${data.type}`);
       }
     });
 
@@ -172,6 +203,13 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       this.leftOverMessage = null;
     }
   }
+
+  private async handleShowConversation() {
+    // Logic to show the conversation goes here.
+    this.logger.log(LogLevel.Info, "Showing conversation...");
+    // You can add additional implementation details here if necessary.
+  }
+
 
   /**
    * Handles the command to add a free text question to the chat.
@@ -260,7 +298,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.abortController?.abort?.();
     this.inProgress = false;
     this.sendMessage({ type: "showInProgress", inProgress: this.inProgress });
-    const responseInMarkdown = !this.isCodexModel;
+    const responseInMarkdown = !this.modelManager.isCodexModel;
     this.sendMessage({
       type: "addResponse",
       value: this.response,
@@ -280,25 +318,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.logger.log(LogLevel.Info, "cleared-session");
   }
 
-  private get isCodexModel(): boolean {
-    if (this.model == null) {
-      return false;
-    }
-    return this.model.includes("instruct") || this.model.includes("code-");
-  }
-
-  private get isGpt35Model(): boolean {
-    return !this.isCodexModel && !this.isClaude && !this.isGemini;
-  }
-
-  private get isClaude(): boolean {
-    return !!this.model?.startsWith("claude-");
-  }
-
-  private get isGemini(): boolean {
-    return !!this.model?.startsWith("gemini-");
-  }
-
   /**
    * Prepares the conversation context and initializes the appropriate AI model based on current configurations.
    * @param modelChanged - A flag indicating whether the model has changed.
@@ -308,64 +327,14 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.logger.log(LogLevel.Info, "prepareConversation called", { modelChanged });
 
     this.conversationId = this.conversationId || this.getRandomId();
-    const configuration = vscode.workspace.getConfiguration("chatgpt");
 
-    if (this.model === "custom") {
-      this.model = configuration.get("gpt3.customModel") as string;
+    if (await this.modelManager.prepareModelForConversation(modelChanged, this.logger)) {
+      this.sendMessage({ type: "loginSuccessful" }, true);
+      this.logger.log(LogLevel.Info, "prepareConversation completed successfully");
+      return true;
+    } else {
+      return false;
     }
-
-    if (
-      (this.isGpt35Model && !this.apiChat) ||
-      (this.isClaude && !this.apiChat) ||
-      (this.isGemini && !this.apiChat) ||
-      (!this.isGpt35Model && !this.isClaude && !this.isGemini && !this.apiCompletion) ||
-      modelChanged
-    ) {
-      let apiKey = await getApiKey();
-      if (!apiKey) {
-        return false; // Exit if API key is not obtained
-      }
-
-      const organization = configuration.get("gpt3.organization") as string;
-      const maxTokens = configuration.get("gpt3.maxTokens") as number;
-      const temperature = configuration.get("gpt3.temperature") as number;
-      const topP = configuration.get("gpt3.top_p") as number;
-
-      let systemPrompt = configuration.get("systemPrompt") as string;
-      if (!systemPrompt) {
-        systemPrompt = defaultSystemPrompt;
-      }
-
-      let apiBaseUrl = configuration.get("gpt3.apiBaseUrl") as string;
-      if (!apiBaseUrl && this.isGpt35Model) {
-        apiBaseUrl = "https://api.openai.com/v1";
-      }
-      if (!apiBaseUrl || apiBaseUrl === "https://api.openai.com/v1") {
-        if (this.isClaude) {
-          apiBaseUrl = "https://api.anthropic.com/v1";
-        } else if (this.isGemini) {
-          apiBaseUrl = "https://generativelanguage.googleapis.com/v1beta";
-        }
-      }
-
-      this.modelConfig = new ModelConfig({
-        apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, systemPrompt
-      });
-      if (this.isGpt35Model) {
-        await initGptModel(this, this.modelConfig);
-      } else if (this.isClaude) {
-        await initClaudeModel(this, this.modelConfig);
-      } else if (this.isGemini) {
-        await initGeminiModel(this, this.modelConfig);
-      } else {
-        initGptLegacyModel(this, this.modelConfig);
-      }
-    }
-
-    this.sendMessage({ type: "loginSuccessful" }, true);
-    this.logger.log(LogLevel.Info, "prepareConversation completed successfully");
-
-    return true;
   }
 
   /**
@@ -397,8 +366,15 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
       return formattedContext;
     } catch (error) {
-      this.logger.log(LogLevel.Error, `Error retrieving context: ${error.message}`);
-      throw error;
+      if (error instanceof Error) {
+        // Properly log the error message
+        this.logger.log(LogLevel.Error, `Error retrieving context: ${error.message}`);
+      } else {
+        // Handle cases where the error is not an instance of Error
+        this.logger.log(LogLevel.Error, `Unknown error: ${String(error)}`);
+      }
+
+      throw error; // Rethrow the error if necessary
     }
   }
 
@@ -537,8 +513,12 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
    * @param options - An object containing command options, including any previous responses.
    * @throws Throws an error if the response cannot be generated due to an issue with the API.
    */
-  private async getChatResponse(prompt: string, additionalContext: string, options: any) {
-    const responseInMarkdown = !this.isCodexModel;
+  private async getChatResponse(
+    prompt: string,
+    additionalContext: string,
+    options: { command: string; previousAnswer?: string; },
+  ) {
+    const responseInMarkdown = !this.modelManager.isCodexModel;
     const updateResponse = (message: string) => {
       this.response += message;
       this.sendMessage({
@@ -551,16 +531,20 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       });
     };
 
-    if (this.isGpt35Model || this.isClaude || this.isGemini) {
+    if (this.modelManager.isGpt35Model || this.modelManager.isClaude || this.modelManager.isGemini) {
+      this.logger.log(LogLevel.Info, `Using AI model: ${this.modelManager.model} for prompt: ${prompt}`);
       await chatGpt(this, prompt, updateResponse, additionalContext);
     } else {
+      this.logger.log(LogLevel.Info, `Using legacy model for prompt: ${prompt}`);
       await chatCompletion(this, prompt, updateResponse, additionalContext);
     }
 
+    // Check for previous answer and append it to the response if applicable
     if (options.previousAnswer != null) {
-      this.response = options.previousAnswer + this.response;
+      this.response = options.previousAnswer + this.response; // Combine with previous answer
     }
 
+    // Handling potential incomplete responses
     const hasContinuation = this.response.split("```").length % 2 === 0;
     if (hasContinuation) {
       this.response = this.response + " \r\n ```\r\n";
@@ -638,7 +622,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           }
         });
     } else if (error.statusCode === 400) {
-      message = `Your model: '${this.model}' may be incompatible or one of your parameters is unknown. Reset your settings to default. (HTTP 400 Bad Request)`;
+      message = `Your model: '${this.modelManager.model}' may be incompatible or one of your parameters is unknown. Reset your settings to default. (HTTP 400 Bad Request)`;
     } else if (error.statusCode === 401) {
       message =
         "Make sure you are properly signed in. If you are using Browser Auto-login method, make sure the browser is open (You could refresh the browser tab manually if you face any issues, too). If you stored your API key in settings.json, make sure it is accurate. If you stored API key in session, you can reset it with `ChatGPT: Reset session` command. (HTTP 401 Unauthorized) Potential reasons: \r\n- 1.Invalid Authentication\r\n- 2.Incorrect API key provided.\r\n- 3.Incorrect Organization provided. \r\n See https://platform.openai.com/docs/guides/error-codes for more details.";
@@ -646,7 +630,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       message =
         "Your token has expired. Please try authenticating again. (HTTP 403 Forbidden)";
     } else if (error.statusCode === 404) {
-      message = `Your model: '${this.model}' may be incompatible or you may have exhausted your ChatGPT subscription allowance. (HTTP 404 Not Found)`;
+      message = `Your model: '${this.modelManager.model}' may be incompatible or you may have exhausted your ChatGPT subscription allowance. (HTTP 404 Not Found)`;
     } else if (error.statusCode === 429) {
       message =
         "Too many requests try again later. (HTTP 429 Too Many Requests) Potential reasons: \r\n 1. You exceeded your current quota, please check your plan and billing details\r\n 2. You are sending requests too quickly \r\n 3. The engine is currently overloaded, please try again later. \r\n See https://platform.openai.com/docs/guides/error-codes for more details.";
@@ -724,10 +708,19 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       this.logger.log(LogLevel.Info, "Matched files", { matchedFiles });
 
       return matchedFiles;
-    } catch (err) {
-      const errorMessage = `Error in findMatchingFiles: ${err.message}\n${err.stack}`;
+    } catch (error) {
+      // Check if error is an instance of Error
+      let errorMessage: string;
+
+      if (error instanceof Error) {
+        errorMessage = `Error in findMatchingFiles: ${error.message}\n${error.stack}`;
+      } else {
+        // Fallback for unknown error types
+        errorMessage = `Unknown error in findMatchingFiles: ${String(error)}`;
+      }
+
       this.logger.log(LogLevel.Error, errorMessage);
-      throw err;
+      throw error; // Rethrow the error so it can be handled by the caller
     }
   }
 
@@ -1076,23 +1069,36 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
     if (!inclusionRegex) {
       vscode.window.showErrorMessage("Inclusion regex is not set in the configuration.");
-      return;
+      return [];
     }
 
-    // Log patterns
-    this.logger.log(LogLevel.Info, "showFiles called", { inclusionRegex, exclusionRegex });
+    this.logger.log(LogLevel.Info, "Inclusion Regex: ", inclusionRegex);
+    this.logger.log(LogLevel.Info, "Exclusion Regex: ", exclusionRegex);
 
     try {
       const files = await this.findMatchingFiles(inclusionRegex, exclusionRegex);
+      this.logger.log(LogLevel.Info, "Matched Files: ", files);
+
       const filesWithLineCount = files.map(file => ({
         path: file,
         lines: getLineCount(file)
       }));
       this.updateFilesList(filesWithLineCount);
-    } catch (err) {
-      const errorMessage = `Error finding files: ${err.message}\n${err.stack}`;
+
+      return files;  // Return matched files
+    } catch (error) {
+      let errorMessage: string;
+
+      if (error instanceof Error) {
+        errorMessage = `Error finding files: ${error.message}\n${error.stack}`;
+      } else {
+        // Fallback for unknown error types
+        errorMessage = `Unknown error finding files: ${String(error)}`;
+      }
+
       vscode.window.showErrorMessage(errorMessage);
       this.logger.log(LogLevel.Error, errorMessage);
+      return [];
     }
   }
 
@@ -1129,7 +1135,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
  * @param filePath - The path of the file to count lines in.
  * @returns The number of lines in the file.
  */
-function getLineCount(filePath: string): number {
+export function getLineCount(filePath: string): number {
   const fileContent = fs.readFileSync(filePath, 'utf-8');
   return fileContent.split('\n').length;
 }

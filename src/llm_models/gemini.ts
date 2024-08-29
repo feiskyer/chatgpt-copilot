@@ -23,6 +23,6 @@ export async function initGeminiModel(viewProvider: ChatGptViewProvider, config:
         baseURL: config.apiBaseUrl,
         apiKey: config.apiKey,
     });
-    const model = viewProvider.model ? viewProvider.model : "gemini-1.5-flash-latest";
+    const model = viewProvider.modelManager.model ? viewProvider.modelManager.model : "gemini-1.5-flash-latest";
     viewProvider.apiChat = gemini("models/" + model);
 }

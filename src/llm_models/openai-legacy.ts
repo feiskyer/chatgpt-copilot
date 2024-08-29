@@ -28,7 +28,7 @@ export function initGptLegacyModel(viewProvider: ChatGptViewProvider, config: Mo
         const instanceName = config.apiBaseUrl.split(".")[0].split("//")[1];
         const deployName = config.apiBaseUrl.split("/")[config.apiBaseUrl.split("/").length - 1];
 
-        viewProvider.model = deployName;
+        viewProvider.modelManager.model = deployName;
         const azure = createAzure({
             resourceName: instanceName,
             apiKey: config.apiKey,
@@ -41,7 +41,7 @@ export function initGptLegacyModel(viewProvider: ChatGptViewProvider, config: Mo
             apiKey: config.apiKey,
             organization: config.organization,
         });
-        viewProvider.apiCompletion = openai.completion(viewProvider.model ? viewProvider.model : "gpt-4o");
+        viewProvider.apiCompletion = openai.completion(viewProvider.modelManager.model ? viewProvider.modelManager.model : "gpt-4o");
     }
 }
 
@@ -57,7 +57,7 @@ export async function chatCompletion(
     }
 
     try {
-        logger.log(LogLevel.Info, `chatgpt.model: ${provider.model} chatgpt.question: ${question}`);
+        logger.log(LogLevel.Info, `chatgpt.model: ${provider.modelManager.model} chatgpt.question: ${question}`);
 
         // Add the user's question to the provider's chat history (without additionalContext)
         provider.chatHistory.push({ role: "user", content: question });
@@ -76,12 +76,12 @@ export async function chatCompletion(
 
         // Generate the response using the temporary prompt
         const result = await streamText({
-            system: provider.modelConfig.systemPrompt,
+            system: provider.modelManager.modelConfig.systemPrompt,
             model: provider.apiCompletion,
             prompt: prompt,
-            maxTokens: provider.modelConfig.maxTokens,
-            topP: provider.modelConfig.topP,
-            temperature: provider.modelConfig.temperature,
+            maxTokens: provider.modelManager.modelConfig.maxTokens,
+            topP: provider.modelManager.modelConfig.topP,
+            temperature: provider.modelManager.modelConfig.temperature,
         });
 
         const chunks = [];
@@ -99,7 +99,7 @@ export async function chatCompletion(
 
         logger.log(LogLevel.Info, `chatgpt.response: ${provider.response}`);
     } catch (error) {
-        logger.log(LogLevel.Error, `chatgpt.model: ${provider.model} response: ${error}`);
+        logger.log(LogLevel.Error, `chatgpt.model: ${provider.modelManager.model} response: ${error}`);
         throw error;
     }
 }

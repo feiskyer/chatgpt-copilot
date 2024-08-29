@@ -59,8 +59,12 @@ describe('Logger Tests', () => {
         const message = "This message should contain a timestamp";
         logger.log(LogLevel.Info, message);
 
+        // Get the current time formatted to match the expected format with milliseconds
+        const currentTime = new Date().toISOString(); // Includes milliseconds
+
+        // Check if the message contains the expected string
         expect(mockOutputChannel.appendLine).toHaveBeenCalledWith(expect.stringContaining(message));
-        expect(mockOutputChannel.appendLine).toHaveBeenCalledWith(expect.stringContaining(new Date().toISOString()));
+        expect(mockOutputChannel.appendLine).toHaveBeenCalledWith(expect.stringContaining(currentTime)); // Now matches with milliseconds
     });
 
     it('should log without throwing error if log file path is undefined', () => {

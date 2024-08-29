@@ -29,7 +29,7 @@ export async function initGptModel(viewProvider: ChatGptViewProvider, config: Mo
         const instanceName = config.apiBaseUrl.split(".")[0].split("//")[1];
         const deployName = config.apiBaseUrl.split("/")[config.apiBaseUrl.split("/").length - 1];
 
-        viewProvider.model = deployName;
+        viewProvider.modelManager.model = deployName;
         const azure = createAzure({
             resourceName: instanceName,
             apiKey: config.apiKey,
@@ -42,7 +42,7 @@ export async function initGptModel(viewProvider: ChatGptViewProvider, config: Mo
             apiKey: config.apiKey,
             organization: config.organization,
         });
-        viewProvider.apiChat = openai.chat(viewProvider.model ? viewProvider.model : "gpt-4o");
+        viewProvider.apiChat = openai.chat(viewProvider.modelManager.model ? viewProvider.modelManager.model : "gpt-4o");
     }
 }
 
@@ -58,7 +58,7 @@ export async function chatGpt(
     }
 
     try {
-        logger.log(LogLevel.Info, `chatgpt.model: ${provider.model} chatgpt.question: ${question}`);
+        logger.log(LogLevel.Info, `chatgpt.model: ${provider.modelManager.model} chatgpt.question: ${question}`);
 
         // Add the user's question to the provider's chat history (without additionalContext)
         provider.chatHistory.push({ role: "user", content: question });
@@ -74,12 +74,12 @@ export async function chatGpt(
 
         const chunks = [];
         const result = await streamText({
-            system: provider.modelConfig.systemPrompt,
+            system: provider.modelManager.modelConfig.systemPrompt,
             model: provider.apiChat,
             messages: tempChatHistory, // Use the temporary chat history with the additional context
-            maxTokens: provider.modelConfig.maxTokens,
-            topP: provider.modelConfig.topP,
-            temperature: provider.modelConfig.temperature,
+            maxTokens: provider.modelManager.modelConfig.maxTokens,
+            topP: provider.modelManager.modelConfig.topP,
+            temperature: provider.modelManager.modelConfig.temperature,
         });
 
         // Process the streamed response
@@ -97,7 +97,7 @@ export async function chatGpt(
 
         logger.log(LogLevel.Info, `chatgpt.response: ${provider.response}`);
     } catch (error) {
-        logger.log(LogLevel.Error, `chatgpt.model: ${provider.model} response: ${error}`);
+        logger.log(LogLevel.Error, `chatgpt.model: ${provider.modelManager.model} response: ${error}`);
         throw error;
     }
 }
