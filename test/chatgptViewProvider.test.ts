@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 // import * as path from 'path';
 import * as vscode from 'vscode';
-import ChatGptViewProvider, { getLineCount } from '../src/chatgpt-view-provider';
+import { ChatGptViewProvider, getLineCount } from '../src/chatgptViewProvider';
 import { getConfig } from '../src/config/configuration';
 
 jest.mock('fs');

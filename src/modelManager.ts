@@ -1,6 +1,6 @@
 // src/modelManager.ts
 
-import { ChatGptViewProvider } from './chatgpt-view-provider';
+import { ChatGptViewProvider } from './chatgptViewProvider';
 import { defaultSystemPrompt, getApiKey } from "./config/configuration";
 import { initClaudeModel } from './llm_models/anthropic';
 import { initGeminiModel } from './llm_models/gemini';

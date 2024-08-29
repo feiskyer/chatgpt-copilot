@@ -1,4 +1,4 @@
-import { ChatGptViewProvider, CommandType } from "./chatgpt-view-provider";
+import { ChatGptViewProvider, CommandType } from "./chatgptViewProvider";
 
 interface Command {
     execute(data: any, provider: ChatGptViewProvider): Promise<void>;

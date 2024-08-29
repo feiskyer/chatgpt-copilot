@@ -18,7 +18,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 
 import AbortController from "abort-controller";
-import { ChatGptViewProvider } from "./chatgpt-view-provider";
+import { ChatGptViewProvider } from "./chatgptViewProvider";
 import { CommandHandler } from "./commandHandler";
 import { ConfigurationManager } from "./configurationManager";
 import { Logger } from "./logger";
