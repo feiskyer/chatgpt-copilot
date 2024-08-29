@@ -17,9 +17,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-import ChatGptViewProvider from "./chatgpt-view-provider";
-
 import AbortController from "abort-controller";
+import { ChatGptViewProvider } from "./chatgpt-view-provider";
+import { CommandHandler } from "./commandHandler";
+import { ConfigurationManager } from "./configurationManager";
+import { Logger } from "./logger";
+import { ModelManager } from "./modelManager";
+import { WebviewManager } from "./webviewManager";
+
 global.AbortController = AbortController;
 
 const menuCommands = [
@@ -41,7 +46,19 @@ export async function activate(context: vscode.ExtensionContext) {
   let adhocCommandPrefix: string =
     context.globalState.get("chatgpt-adhoc-prompt") || "";
 
-  const provider = new ChatGptViewProvider(context);
+  const logger = new Logger("ChatGPT Copilot");
+  const webviewManager = new WebviewManager(logger);
+  const commandHandler = new CommandHandler();
+  const modelManager = new ModelManager();
+  const configurationManager = new ConfigurationManager(logger, modelManager);
+  const provider = new ChatGptViewProvider({
+    context,
+    logger,
+    webviewManager,
+    commandHandler,
+    modelManager,
+    configurationManager
+  });
 
   const view = vscode.window.registerWebviewViewProvider(
     "chatgpt-copilot.view",
@@ -75,14 +92,14 @@ export async function activate(context: vscode.ExtensionContext) {
   const resetThread = vscode.commands.registerCommand(
     "chatgpt-copilot.clearConversation",
     async () => {
-      provider?.sendMessage({ type: "clearConversation" }, true);
+      provider?.sendMessage({ type: "clearConversation" });
     },
   );
 
   const exportConversation = vscode.commands.registerCommand(
     "chatgpt-copilot.exportConversation",
     async () => {
-      provider?.sendMessage({ type: "exportConversation" }, true);
+      provider?.sendMessage({ type: "exportConversation" });
     },
   );
 
@@ -94,20 +111,20 @@ export async function activate(context: vscode.ExtensionContext) {
       context.globalState.update("chatgpt-user-agent", null);
       context.globalState.update("chatgpt-gpt3-apiKey", null);
       provider?.clearSession();
-      provider?.sendMessage({ type: "clearConversation" }, true);
+      provider?.sendMessage({ type: "clearConversation" });
     },
   );
 
   const configChanged = vscode.workspace.onDidChangeConfiguration((e) => {
     if (e.affectsConfiguration("chatgpt.response.showNotification")) {
-      provider.subscribeToResponse =
+      provider.configurationManager.subscribeToResponse =
         vscode.workspace
           .getConfiguration("chatgpt")
           .get("response.showNotification") || false;
     }
 
     if (e.affectsConfiguration("chatgpt.response.autoScroll")) {
-      provider.autoScroll = !!vscode.workspace
+      provider.configurationManager.autoScroll = !!vscode.workspace
         .getConfiguration("chatgpt")
         .get("response.autoScroll");
     }

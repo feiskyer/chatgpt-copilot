@@ -1,28 +1,28 @@
 // src/modelManager.ts
 
-import ChatGptViewProvider from './chatgpt-view-provider';
-import { defaultSystemPrompt } from "./config/configuration";
+import { ChatGptViewProvider } from './chatgpt-view-provider';
+import { defaultSystemPrompt, getApiKey } from "./config/configuration";
 import { initClaudeModel } from './llm_models/anthropic';
 import { initGeminiModel } from './llm_models/gemini';
 import { initGptModel } from './llm_models/openai';
 import { initGptLegacyModel } from './llm_models/openai-legacy';
 import { LogLevel, Logger } from "./logger";
 import { ModelConfig } from "./model-config";
-import { getApiKey } from "./utils/api-key";
 
 export class ModelManager {
-    private viewProvider: ChatGptViewProvider;
     public model?: string;
     public modelConfig!: ModelConfig;
 
-    constructor(viewProvider: ChatGptViewProvider) {
-        this.viewProvider = viewProvider;
-    }
+    constructor() { }
 
-    public async prepareModelForConversation(modelChanged = false, logger: Logger): Promise<boolean> {
+    public async prepareModelForConversation(
+        modelChanged = false,
+        logger: Logger,
+        viewProvider: ChatGptViewProvider,
+    ): Promise<boolean> {
         logger.log(LogLevel.Info, "loading configuration from vscode workspace");
-        const configuration = this.viewProvider.getWorkspaceConfiguration();
 
+        const configuration = viewProvider.getWorkspaceConfiguration();
 
         if (this.model === "custom") {
             logger.log(LogLevel.Info, "custom model, retrieving model name");
@@ -30,10 +30,10 @@ export class ModelManager {
         }
 
         if (
-            (this.isGpt35Model && !this.viewProvider.apiChat) ||
-            (this.isClaude && !this.viewProvider.apiChat) ||
-            (this.isGemini && !this.viewProvider.apiChat) ||
-            (!this.isGpt35Model && !this.isClaude && !this.isGemini && !this.viewProvider.apiCompletion) ||
+            (this.isGpt35Model && !viewProvider.apiChat) ||
+            (this.isClaude && !viewProvider.apiChat) ||
+            (this.isGemini && !viewProvider.apiChat) ||
+            (!this.isGpt35Model && !this.isClaude && !this.isGemini && !viewProvider.apiCompletion) ||
             modelChanged
         ) {
             logger.log(LogLevel.Info, "getting API key");
@@ -78,21 +78,21 @@ export class ModelManager {
             });
 
             logger.log(LogLevel.Info, "initializing model");
-            await this.initModels();
+            await this.initModels(viewProvider);
         }
 
         return true;
     }
 
-    private async initModels(): Promise<void> {
+    private async initModels(viewProvider: ChatGptViewProvider): Promise<void> {
         if (this.isGpt35Model) {
-            await initGptModel(this.viewProvider, this.modelConfig);
+            await initGptModel(viewProvider, this.modelConfig);
         } else if (this.isClaude) {
-            await initClaudeModel(this.viewProvider, this.modelConfig);
+            await initClaudeModel(viewProvider, this.modelConfig);
         } else if (this.isGemini) {
-            await initGeminiModel(this.viewProvider, this.modelConfig);
+            await initGeminiModel(viewProvider, this.modelConfig);
         } else {
-            initGptLegacyModel(this.viewProvider, this.modelConfig);
+            initGptLegacyModel(viewProvider, this.modelConfig);
         }
     }
 
