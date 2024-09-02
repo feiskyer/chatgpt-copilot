@@ -9,6 +9,10 @@ import { initGptLegacyModel } from './llm_models/openai-legacy';
 import { LogLevel, Logger } from "./logger";
 import { ModelConfig } from "./model-config";
 
+/**
+ * The ModelManager class is responsible for managing the AI model configuration 
+ * and initializing the appropriate model for conversation based on user settings.
+ */
 export class ModelManager {
     public model?: string;
     public modelConfig!: ModelConfig;
