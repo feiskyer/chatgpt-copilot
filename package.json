@@ -562,7 +562,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^0.0.30",
-    "@ai-sdk/azure": "^0.0.14",
+    "@ai-sdk/azure": "^0.0.33",
     "@ai-sdk/google": "^0.0.27",
     "@ai-sdk/openai": "^0.0.37",
     "@types/minimatch": "^5.1.2",
