@@ -620,6 +620,11 @@
   dependencies:
     undici-types "~5.26.4"
 
+"@types/qs@^6.9.15":
+  version "6.9.15"
+  resolved "https://registry.yarnpkg.com/@types/qs/-/qs-6.9.15.tgz#adde8a060ec9c305a82de1babc1056e73bd64dce"
+  integrity sha512-uXHQKES6DQKKCLh441Xv/dwxOq1TVS3JPUMlEqoEglvlhR6Mxnlew/Xq/LRVHpLyk7iK3zODe1qYHIMltO7XGg==
+
 "@types/unist@*", "@types/unist@^3.0.0":
   version "3.0.2"
   resolved "https://registry.npmjs.org/@types/unist/-/unist-3.0.2.tgz"
@@ -3169,19 +3174,20 @@ open@^8.0.0:
     is-docker "^2.1.1"
     is-wsl "^2.2.0"
 
-openai@^4.52.7:
-  version "4.52.7"
-  resolved "https://registry.npmjs.org/openai/-/openai-4.52.7.tgz"
-  integrity sha512-dgxA6UZHary6NXUHEDj5TWt8ogv0+ibH+b4pT5RrWMjiRZVylNwLcw/2ubDrX5n0oUmHX/ZgudMJeemxzOvz7A==
+openai@^4.57.3:
+  version "4.57.3"
+  resolved "https://registry.yarnpkg.com/openai/-/openai-4.57.3.tgz#e8dc0973c112a348a7cb29a92d59111831db9787"
+  integrity sha512-mTz5/SmulkkeSpqbSr6WNLRU6krkyhnbfRUC8XfaXbj1T6xUorKEELjZvbRSzI714JLOk1MeFkqYS9H4WHhqDQ==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
+    "@types/qs" "^6.9.15"
     abort-controller "^3.0.0"
     agentkeepalive "^4.2.1"
     form-data-encoder "1.7.2"
     formdata-node "^4.3.2"
     node-fetch "^2.6.7"
-    web-streams-polyfill "^3.2.1"
+    qs "^6.10.3"
 
 optionator@^0.9.3:
   version "0.9.4"
@@ -3476,10 +3482,10 @@ puppeteer@^22.13.1:
     devtools-protocol "0.0.1299070"
     puppeteer-core "22.13.1"
 
-qs@^6.9.1:
-  version "6.12.3"
-  resolved "https://registry.npmjs.org/qs/-/qs-6.12.3.tgz"
-  integrity sha512-AWJm14H1vVaO/iNZ4/hO+HyaTehuy9nRqVdkTqlJt0HWvBiBIEXFmb4C0DGeYo3Xes9rrEW+TxHsaigCbN5ICQ==
+qs@^6.10.3, qs@^6.9.1:
+  version "6.13.0"
+  resolved "https://registry.yarnpkg.com/qs/-/qs-6.13.0.tgz#6ca3bd58439f7e245655798997787b0d88a51906"
+  integrity sha512-+38qI9SOr8tfZ4QmJNplMUxqjbe7LKvvZgWdExBOmd+egZTtjLB67Gu0HRX3u/XOq7UU2Nx6nsjvS16Z9uwfpg==
   dependencies:
     side-channel "^1.0.6"
 
@@ -4241,11 +4247,6 @@ web-streams-polyfill@4.0.0-beta.3:
   version "4.0.0-beta.3"
   resolved "https://registry.npmjs.org/web-streams-polyfill/-/web-streams-polyfill-4.0.0-beta.3.tgz"
   integrity sha512-QW95TCTaHmsYfHDybGMwO5IJIM93I/6vTRk+daHTWFPhwh+C8Cg7j7XyKrwrj8Ib6vYXe0ocYNrmzY4xAAN6ug==
-
-web-streams-polyfill@^3.2.1:
-  version "3.3.3"
-  resolved "https://registry.npmjs.org/web-streams-polyfill/-/web-streams-polyfill-3.3.3.tgz"
-  integrity sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==
 
 webidl-conversions@^3.0.0:
   version "3.0.1"
