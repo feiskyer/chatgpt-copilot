@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v4.5.1
+
+* Fix the version compatibility issue
+
 ## v4.5.0
 
 * Add support of Google Generative AI models
