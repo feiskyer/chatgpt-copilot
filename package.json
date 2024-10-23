@@ -576,7 +576,7 @@
     "isomorphic-fetch": "^3.0.0",
     "keyv": "^5.0.1",
     "minimatch": "^10.0.1",
-    "openai": "^4.58.2",
+    "openai": "^4.68.3",
     "p-timeout": "^6.1.2",
     "punycode": "^2.3.1",
     "puppeteer": "^23.3.0",
