@@ -1,0 +1,232 @@
+.container {
+    padding: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.prompt-item {
+    background: var(--vscode-editor-background);
+    border: 1px solid var(--vscode-widget-border);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    transition: all 0.2s;
+    margin-bottom: 1rem;
+}
+
+.prompt-item:hover {
+    border-color: var(--vscode-focusBorder);
+}
+
+.prompt-header {
+    margin-bottom: 0.75rem;
+}
+
+.prompt-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--vscode-foreground);
+}
+
+.prompt-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.prompt-content {
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+    color: var(--vscode-foreground);
+    opacity: 0.8;
+    display: -webkit-box;
+    display: -moz-box;
+    display: box;
+    -webkit-line-clamp: 2;
+    -moz-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.5;
+    max-height: 3em;
+}
+
+.prompt-dialog {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.prompt-dialog-content {
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    max-width: 42rem;
+    width: 100%;
+    margin: 0 1rem;
+    background: var(--vscode-editor-background);
+}
+
+.prompt-dialog-content h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--vscode-foreground);
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--vscode-foreground);
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    background: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    border: 1px solid var(--vscode-input-border);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+button {
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+button.primary {
+    background: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+}
+
+button.primary:hover {
+    background: var(--vscode-button-hoverBackground);
+}
+
+button.secondary {
+    background: var(--vscode-button-secondaryBackground);
+    color: var(--vscode-button-secondaryForeground);
+}
+
+button.secondary:hover {
+    background: var(--vscode-button-secondaryHoverBackground);
+}
+
+.edit-prompt,
+.delete-prompt {
+    font-size: 0.75rem;
+    padding: 0.375rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+}
+
+.edit-prompt:hover,
+.delete-prompt:hover {
+    opacity: 0.8;
+}
+
+.edit-prompt svg,
+.delete-prompt svg {
+    flex-shrink: 0;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    display: -moz-box;
+    display: box;
+    -webkit-line-clamp: 2;
+    -moz-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 添加 flex 相关样式 */
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.w-full {
+    width: 100%;
+}
+
+.h-screen {
+    height: 100vh;
+}
+
+.overflow-hidden {
+    overflow: hidden;
+}
+
+.overflow-y-auto {
+    overflow-y: auto;
+}
+
+.space-y-4>*+* {
+    margin-top: 1rem;
+}
+
+.p-4 {
+    padding: 1rem;
+}
+
+.mb-6 {
+    margin-bottom: 1.5rem;
+}

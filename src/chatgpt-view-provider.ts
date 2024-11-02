@@ -23,6 +23,7 @@ import { initGeminiModel } from "./gemini";
 import { ModelConfig } from "./model-config";
 import { chatGpt, initGptModel } from "./openai";
 import { chatCompletion, initGptLegacyModel } from "./openai-legacy";
+import { PromptStore } from "./types";
 
 export const logger = vscode.window.createOutputChannel("ChatGPT Copilot");
 
@@ -171,6 +172,16 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           break;
         case "stopGenerating":
           this.stopGenerating();
+          break;
+        case "selectPrompt":
+          this.modelConfig.systemPrompt = data.prompt.content;
+          await this.prepareConversation(true);
+          break;
+        case "togglePromptManager":
+          await vscode.commands.executeCommand("chatgpt-copilot.togglePromptManager");
+          break;
+        case "searchPrompts":
+          await this.handlePromptSearch(data.query, data.responseType);
           break;
         default:
           break;
@@ -655,6 +666,14 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 			</head>
 			<body class="overflow-hidden">
 				<div class="flex flex-col h-screen">
+					<div class="absolute top-2 right-2 z-10">
+						<button id="toggle-prompt-manager" class="p-1.5 rounded-lg" title="Manage Prompts">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+							</svg>
+						</button>
+					</div>
+
 					<div id="introduction" class="flex flex-col justify-between h-full justify-center px-6 w-full relative login-screen overflow-auto">
 						<div class="flex items-start text-center features-block my-5">
 							<div class="flex flex-col gap-3.5 flex-1">
@@ -664,6 +683,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 								<h2>Features</h2>
 								<ul class="flex flex-col gap-3.5 text-xs">
 									<li class="features-li w-full border border-zinc-700 p-3 rounded-md">Chat with your code and documents in conversations</li>
+                  <li class="features-li w-full border border-zinc-700 p-3 rounded-md">Prompt manager and chat with your own prompts (use # to search)</li>
 									<li class="features-li w-full border border-zinc-700 p-3 rounded-md">Improve your code, add tests & find bugs</li>
 									<li class="features-li w-full border border-zinc-700 p-3 rounded-md">Copy or create new files automatically</li>
 									<li class="features-li w-full border border-zinc-700 p-3 rounded-md">Syntax highlighting with auto language detection</li>
@@ -755,5 +775,50 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
     return text;
+  }
+
+  private async handlePromptSearch(query: string, responseType?: string) {
+    console.log('Searching prompts:', query);
+    const promptStore = this.context.globalState.get<PromptStore>("prompts", { prompts: [] });
+
+    // 如果提示词列表为空，返回特殊标识
+    if (!promptStore.prompts || promptStore.prompts.length === 0) {
+      if (responseType === "titles") {
+        this.sendMessage({
+          type: "promptTitles",
+          titles: [],
+          isEmpty: true  // 添加标识
+        });
+      } else {
+        this.sendMessage({
+          type: "showPromptPicker",
+          prompts: [],
+          isEmpty: true  // 添加标识
+        });
+      }
+      return;
+    }
+
+    const searchText = query.toLowerCase();
+    const filteredPrompts = promptStore.prompts.filter(p =>
+      p.name.toLowerCase().includes(searchText) ||
+      p.content.toLowerCase().includes(searchText)
+    );
+
+    if (responseType === "titles") {
+      this.sendMessage({
+        type: "promptTitles",
+        titles: filteredPrompts.map(p => ({
+          id: p.id,
+          name: p.name,
+          content: p.content
+        }))
+      });
+    } else {
+      this.sendMessage({
+        type: "showPromptPicker",
+        prompts: filteredPrompts
+      });
+    }
   }
 }

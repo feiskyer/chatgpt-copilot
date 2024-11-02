@@ -13,6 +13,8 @@
 
 import * as vscode from "vscode";
 import ChatGptViewProvider from "./chatgpt-view-provider";
+import PromptManagerProvider from "./prompt-manager-provider";
+import { PromptStore } from "./types";
 
 const menuCommands = [
   "addTests",
@@ -221,6 +223,75 @@ export async function activate(context: vscode.ExtensionContext) {
       }),
     );
 
+  const promptManager = new PromptManagerProvider(context);
+  const promptManagerView = vscode.window.registerWebviewViewProvider(
+    "chatgpt-copilot.promptManager",
+    promptManager
+  );
+
+  const managePrompts = vscode.commands.registerCommand(
+    "chatgpt-copilot.managePrompts",
+    async () => {
+      await vscode.commands.executeCommand("chatgpt-copilot.promptManager.focus");
+    }
+  );
+
+  const debugPrompts = vscode.commands.registerCommand(
+    "chatgpt-copilot.debugPrompts",
+    async () => {
+      const prompts = context.globalState.get<PromptStore>("prompts");
+      console.log('Current stored prompts:', prompts);
+      // 在输出面板显示
+      vscode.window.showInformationMessage(
+        `Stored prompts: ${JSON.stringify(prompts, null, 2)}`
+      );
+    }
+  );
+
+  const togglePromptManager = vscode.commands.registerCommand(
+    "chatgpt-copilot.togglePromptManager",
+    async () => {
+      const panel = vscode.window.createWebviewPanel(
+        'chatgpt-copilot.promptManager',
+        'Prompt Manager',
+        vscode.ViewColumn.Beside,
+        {
+          enableScripts: true,
+          retainContextWhenHidden: true,
+          localResourceRoots: [context.extensionUri]
+        }
+      );
+
+      const promptManager = new PromptManagerProvider(context);
+      promptManager.setPanel(panel);
+      panel.webview.html = promptManager.getWebviewContent(panel.webview);
+
+      panel.webview.onDidReceiveMessage(async (data) => {
+        switch (data.type) {
+          case "addPrompt":
+            promptManager.addPrompt(data.prompt);
+            break;
+          case "updatePrompt":
+            promptManager.updatePrompt(data.prompt);
+            break;
+          case "deletePrompt":
+            promptManager.deletePrompt(data.id);
+            break;
+          case "getPrompts":
+            panel.webview.postMessage({
+              type: "updatePrompts",
+              prompts: promptManager.getPrompts()
+            });
+            break;
+        }
+      });
+
+      panel.onDidDispose(() => {
+        promptManager.setPanel(undefined);
+      });
+    }
+  );
+
   context.subscriptions.push(
     view,
     freeText,
@@ -231,6 +302,10 @@ export async function activate(context: vscode.ExtensionContext) {
     adhocCommand,
     generateCodeCommand,
     ...registeredCommands,
+    promptManagerView,
+    managePrompts,
+    debugPrompts,
+    togglePromptManager
   );
 
   const setContext = () => {

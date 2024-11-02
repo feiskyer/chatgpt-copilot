@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v4.6.0
+
+* Add support of prompt manager and chat with your own prompts (use # to search)
+
 ## v4.5.1
 
 * Fix the version compatibility issue

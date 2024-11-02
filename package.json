@@ -4,13 +4,13 @@
   "displayName": "ChatGPT Copilot",
   "icon": "images/ai-logo.png",
   "description": "An VS Code ChatGPT Copilot Extension",
-  "version": "4.5.1",
+  "version": "4.6.0",
   "aiKey": "",
   "repository": {
     "url": "https://github.com/feiskyer/chatgpt-copilot"
   },
   "engines": {
-    "vscode": "^1.93.0"
+    "vscode": "^1.95.0"
   },
   "categories": [
     "AI",
@@ -224,6 +224,18 @@
       {
         "command": "chatgpt-copilot.exportConversation",
         "title": "ChatGPT: Export conversation"
+      },
+      {
+        "command": "chatgpt-copilot.managePrompts",
+        "title": "ChatGPT: Manage Prompts"
+      },
+      {
+        "command": "chatgpt-copilot.debugPrompts",
+        "title": "ChatGPT: Debug Stored Prompts"
+      },
+      {
+        "command": "chatgpt-copilot.togglePromptManager",
+        "title": "ChatGPT: Toggle Prompt Manager"
       }
     ],
     "viewsContainers": {
@@ -240,7 +252,7 @@
         {
           "type": "webview",
           "id": "chatgpt-copilot.view",
-          "name": "Conversation window"
+          "name": "ChatGPT"
         }
       ]
     },

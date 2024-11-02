@@ -457,14 +457,50 @@
 
             return;
         }
+
+        if (targetButton?.id === "toggle-prompt-manager") {
+            e.preventDefault();
+            vscode.postMessage({
+                type: "togglePromptManager"
+            });
+            return;
+        }
     });
 
     $(function () {
-        const availableCommands = ["/clear", "/settings"];
+        const availableCommands = ["/clear", "/settings", "/manage-prompt"];
 
         $("#question-input").autocomplete({
             source: function (request, response) {
-                if (request.term.startsWith("/")) {
+                if (request.term.startsWith('#')) {
+                    vscode.postMessage({
+                        type: "searchPrompts",
+                        query: request.term.substring(1),
+                        responseType: "titles"
+                    });
+                    window.addEventListener('message', function promptTitlesHandler(event) {
+                        const message = event.data;
+                        if (message.type === "promptTitles") {
+                            window.removeEventListener('message', promptTitlesHandler);
+
+                            if (message.isEmpty) {
+                                response([{
+                                    label: "No prompts found. Click to manage prompts...",
+                                    value: "/manage-prompt",
+                                    isManagePrompt: true
+                                }]);
+                                $('#question-input').val("");
+                                return;
+                            }
+
+                            response(message.titles.map(title => ({
+                                label: title.name,
+                                value: title.content,
+                                promptId: title.id
+                            })));
+                        }
+                    });
+                } else if (request.term.startsWith("/")) {
                     response(availableCommands.filter(command => command.startsWith(request.term)));
                 } else {
                     response([]);
@@ -476,21 +512,164 @@
                 $(this).data("ui-autocomplete").menu.focus(null, $(".ui-menu-item").first());
             },
             select: function (event, ui) {
-                if (ui.item.value === "/clear") {
-                    clearConversation();
-                }
-
-                if (ui.item.value === "/settings") {
+                if (ui.item.isManagePrompt) {
+                    vscode.postMessage({ type: "togglePromptManager" });
+                } else if (ui.item.promptId) {
                     vscode.postMessage({
-                        type: "openSettings",
+                        type: "addFreeTextQuestion",
+                        value: ui.item.value
                     });
+                } else if (ui.item.value === "/clear") {
+                    clearConversation();
+                } else if (ui.item.value === "/settings") {
+                    vscode.postMessage({ type: "openSettings" });
+                } else if (ui.item.value === "/manage-prompt") {
+                    vscode.postMessage({ type: "togglePromptManager" });
                 }
-
                 $('#question-input').val("");
                 return false;
             }
         });
-
     });
+
+    function showPromptPicker(prompts) {
+        // 移除现有的 picker
+        document.querySelector('.prompt-picker')?.remove();
+
+        const list = document.getElementById("qa-list");
+        if (prompts.length === 0) {
+            const pickerHtml = `
+                <div class="prompt-picker">
+                    <div class="prompt-empty">
+                        <p>No prompts found. Would you like to add some?</p>
+                        <button onclick="openPromptManager()" class="manage-prompts-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                            Manage Prompts
+                        </button>
+                    </div>
+                </div>
+            `;
+            list.insertAdjacentHTML('beforeend', pickerHtml);
+        } else {
+            const pickerHtml = `
+                <div class="prompt-picker">
+                    <div class="prompt-list">
+                        ${prompts.map((p, index) => `
+                            <div class="prompt-item ${index === 0 ? 'active' : ''}" 
+                                 data-content="${encodeURIComponent(p.content)}"
+                                 onclick="selectPrompt('${encodeURIComponent(p.content)}')">
+                                <div class="prompt-name">${p.name}</div>
+                                <div class="prompt-preview">${p.content.substring(0, 100)}...</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            list.insertAdjacentHTML('beforeend', pickerHtml);
+        }
+    }
+
+    function selectPrompt(content) {
+        // 移除提示词选择器
+        document.querySelector('.prompt-picker')?.remove();
+
+        // 发送提示词内容
+        vscode.postMessage({
+            type: "addFreeTextQuestion",
+            value: content
+        });
+    }
+
+    function openPromptManager() {
+        document.querySelector('.prompt-picker')?.remove();
+        vscode.postMessage({
+            type: "togglePromptManager"
+        });
+    }
+
+    // 添加样式
+    const style = document.createElement('style');
+    style.textContent = `
+    .prompt-picker {
+        position: absolute;
+        bottom: 60px;
+        left: 0;
+        right: 0;
+        background: var(--vscode-editor-background);
+        border: 1px solid var(--vscode-widget-border);
+        border-radius: 6px;
+        margin: 0 1rem;
+        max-height: 300px;
+        overflow-y: auto;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .prompt-list {
+        padding: 0.5rem;
+    }
+
+    .prompt-item {
+        padding: 0.75rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .prompt-item:hover {
+        background: var(--vscode-list-hoverBackground);
+    }
+
+    .prompt-name {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .prompt-preview {
+        font-size: 0.875rem;
+        color: var(--vscode-descriptionForeground);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .prompt-empty {
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .prompt-empty p {
+        margin-bottom: 1rem;
+        color: var(--vscode-descriptionForeground);
+    }
+
+    .manage-prompts-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: var(--vscode-button-background);
+        color: var(--vscode-button-foreground);
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .manage-prompts-btn:hover {
+        background: var(--vscode-button-hoverBackground);
+    }
+
+    .prompt-item.active {
+        background: var(--vscode-list-activeSelectionBackground);
+        color: var(--vscode-list-activeSelectionForeground);
+    }
+
+    .prompt-item.active .prompt-preview {
+        color: var(--vscode-list-activeSelectionForeground);
+        opacity: 0.8;
+    }
+    `;
+    document.head.appendChild(style);
 
 })();

@@ -22,6 +22,7 @@ Unfortunately, the original author has decided to stop maintaining the project, 
 
 - 🤖 Supports GPT-4, GPT-3.5, Claude, Gemini or OpenAI-compatible local models with your API key from OpenAI, Azure OpenAI Service, Google, Anthropic or other providers.
 - 📃 Streaming Answers: Receive real-time responses to your prompts in the sidebar conversation window.
+- 📖 Prompt Manager: Chat with your own prompts (use # to search).
 - 🔥 Stop Responses: Interrupt responses at any time to save your tokens.
 - 📝 Code Assistance: Create files or fix your code with one click or keyboard shortcuts.
 - ➡️ Export Conversations: Export all your conversation history at once in Markdown format.
