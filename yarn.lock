@@ -10,14 +10,14 @@
     "@ai-sdk/provider" "0.0.23"
     "@ai-sdk/provider-utils" "1.0.18"
 
-"@ai-sdk/azure@^0.0.36":
-  version "0.0.36"
-  resolved "https://registry.npmjs.org/@ai-sdk/azure/-/azure-0.0.36.tgz"
-  integrity sha512-k8wcJDOQAK9qp8KjzB1E5gfGe2UkSat7RaKaObfxWee8Ec5vFpyI9mT3KewkDaS0iNtcpz3uZxkbLEw60WFbEA==
+"@ai-sdk/azure@^0.0.51":
+  version "0.0.51"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/azure/-/azure-0.0.51.tgz#980e3f8810e63c39bc493b65aa5a73a05879cee5"
+  integrity sha512-DMPuWURdgoweDlSLTj6o3Yx6+hnfr9idvHaTBwgPY+mayvEwlLZp3l08juMn/d/gKgHheQpUEgCQNhCzk6ZJ5w==
   dependencies:
-    "@ai-sdk/openai" "0.0.58"
-    "@ai-sdk/provider" "0.0.23"
-    "@ai-sdk/provider-utils" "1.0.18"
+    "@ai-sdk/openai" "0.0.71"
+    "@ai-sdk/provider" "0.0.26"
+    "@ai-sdk/provider-utils" "1.0.22"
 
 "@ai-sdk/google@^0.0.47":
   version "0.0.47"
@@ -28,15 +28,7 @@
     "@ai-sdk/provider-utils" "1.0.18"
     json-schema "0.4.0"
 
-"@ai-sdk/openai@0.0.58":
-  version "0.0.58"
-  resolved "https://registry.npmjs.org/@ai-sdk/openai/-/openai-0.0.58.tgz"
-  integrity sha512-Eao1L0vzfXdymgvc5FDHwV2g2A7BCWml1cShNA+wliY1RL7NNREGcuQvBDNoggB9PM24fawzZyk0ZJ5jlo9Q0w==
-  dependencies:
-    "@ai-sdk/provider" "0.0.23"
-    "@ai-sdk/provider-utils" "1.0.18"
-
-"@ai-sdk/openai@^0.0.71":
+"@ai-sdk/openai@0.0.71", "@ai-sdk/openai@^0.0.71":
   version "0.0.71"
   resolved "https://registry.yarnpkg.com/@ai-sdk/openai/-/openai-0.0.71.tgz#76211ea98a4bea1a7675da3b205ff5ec519f8fc0"
   integrity sha512-ds7u3sWEnKyHxM3lAL9xTs72228HEKcPZCAEFaxmgrexKPJe2tyLBtvS/Kg39SPKPtY9EeaKqi/nbx1AmnXK6A==
