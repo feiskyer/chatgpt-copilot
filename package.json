@@ -13,26 +13,29 @@
     "vscode": "^1.93.0"
   },
   "categories": [
+    "AI",
+    "Machine Learning",
     "Testing",
     "Data Science",
     "Formatters",
     "Programming Languages",
-    "Linters"
+    "Linters",
+    "Chat"
   ],
   "keywords": [
+    "AI",
     "chatgpt",
-    "lamda",
-    "bard",
-    "gpt",
-    "gpt3",
-    "gpt3.5",
-    "gpt4",
-    "codex",
-    "openai",
-    "testing",
-    "find bugs",
     "copilot",
-    "ai"
+    "agent",
+    "Claude",
+    "gpt",
+    "gpt4",
+    "llm",
+    "openai",
+    "Gemini",
+    "Llama",
+    "testing",
+    "find bugs"
   ],
   "activationEvents": [
     "onStartupFinished"
