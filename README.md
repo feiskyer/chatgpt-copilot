@@ -12,25 +12,32 @@
     </a>
 </p>
 
-## The most loved opensourced ChatGPT extension for VS Code
+## The Most Loved Open-Source ChatGPT Extension for VS Code
 
-The project is built on the most loved ChatGPT extension [gencay/vscode-chatgpt](https://github.com/gencay/vscode-chatgpt), which has downloaded by ~500,000 developers.
+ChatGPT Copilot is a powerful extension for Visual Studio Code, bringing the capabilities of ChatGPT directly into your coding environment. Built on the popular [gencay/vscode-chatgpt](https://github.com/gencay/vscode-chatgpt), which has been downloaded by over 500,000 developers.
 
-But unfortunately, the original author has decided to stop maintaining the project, and the new recommended Genie AI extension on the original project is not opensourced. So I decided to fork it and continue the development.
+Unfortunately, the original author has decided to stop maintaining the project, and the new recommended Genie AI extension is not open-source. This fork continues the development to keep the project open and accessible to everyone.
 
 ## Features
 
-- ➕ Use GPT-4, GPT-3.5, Claude 3 or OpenAI compatible local models with your API Key from OpenAI, Azure OpenAI Service or Anthropic.
-- 📃 Get streaming answers to your prompts in sidebar conversation window
-- 🔥 Stop the responses to save your tokens.
-- 📝 Create files or fix your code with one click or with keyboard shortcuts.
-- ➡️ Export all your conversation history at once in Markdown format.
-- Automatic partial code response detection. Continues and combines automatically, when response is cut off.
-- Ad-hoc prompt prefixes for you to customize what you are asking ChatGPT
-- Edit and resend a previous prompt
-- Copy, insert or create new file from the code, ChatGPT is suggesting right into your editor.
+- 🤖 Supports GPT-4, GPT-3.5, Claude, Gemini or OpenAI-compatible local models with your API key from OpenAI, Azure OpenAI Service, Google, Anthropic or other providers.
+- 📃 Streaming Answers: Receive real-time responses to your prompts in the sidebar conversation window.
+- 🔥 Stop Responses: Interrupt responses at any time to save your tokens.
+- 📝 Code Assistance: Create files or fix your code with one click or keyboard shortcuts.
+- ➡️ Export Conversations: Export all your conversation history at once in Markdown format.
+- 🐛 Automatic Partial Code Detection: Automatically continues and combines responses when they are cut off.
+- 📰 Custom Prompt Prefixes: Customize what you are asking ChatGPT with ad-hoc prompt prefixes.
+- ➕ Editable Prompts: Edit and resend previous prompts.
+- 💻 Seamless Code Integration: Copy, insert, or create new files directly from ChatGPT's code suggestions.
+
+## Installation
+
+- Install the extension from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=feiskyer.chatgpt-copilot) or search `ChatGPT Copilot` in VScode Extensions and click install.
+- Reload Visual Studio Code after installation.
 
 ## Configurations
+
+Configure the extension by setting your API keys and preferences in the settings.
 
 | Configuration | Description |
 | ------------- | ----------- |
@@ -38,7 +45,7 @@ But unfortunately, the original author has decided to stop maintaining the proje
 | chatgpt.gpt3.apiBaseUrl | Optional, default to "<https://api.openai.com/v1>".<br>For Azure OpenAI Service, it should be set to "https://[YOUR-ENDPOINT-NAME].openai.azure.com/openai/deployments/[YOUR-DEPLOYMENT-NAME]". |
 | chatgpt.gpt3.model      | Optional, default to "gpt-3.5-turbo". |
 
-Refer following sections for more details of how to configure various openai services.
+Refer to the following sections for more details on configuring various OpenAI services.
 
 ### OpenAI
 
@@ -70,7 +77,7 @@ Refer following sections for more details of how to configure various openai ser
     "chatgpt.gpt3.apiBaseUrl": "<base-url>",
 ```
 
-### Configuring Custom Model Names
+### Custom Model Names
 
 To use a custom model name for local or self-hosted LLMs compatible with OpenAI, set the `chatgpt.gpt3.model` configuration to `"custom"` and specify your custom model name in the `chatgpt.gpt3.customModel` configuration.
 
