@@ -631,11 +631,6 @@
   dependencies:
     undici-types "~5.26.4"
 
-"@types/qs@^6.9.15":
-  version "6.9.15"
-  resolved "https://registry.npmjs.org/@types/qs/-/qs-6.9.15.tgz"
-  integrity sha512-uXHQKES6DQKKCLh441Xv/dwxOq1TVS3JPUMlEqoEglvlhR6Mxnlew/Xq/LRVHpLyk7iK3zODe1qYHIMltO7XGg==
-
 "@types/unist@*", "@types/unist@^3.0.0":
   version "3.0.2"
   resolved "https://registry.npmjs.org/@types/unist/-/unist-3.0.2.tgz"
@@ -3211,20 +3206,18 @@ open@^8.0.0:
     is-docker "^2.1.1"
     is-wsl "^2.2.0"
 
-openai@^4.58.2:
-  version "4.58.2"
-  resolved "https://registry.npmjs.org/openai/-/openai-4.58.2.tgz"
-  integrity sha512-hIalypYELt7/PcryFpz4Gi1z/8ZDzukWyOhr+jKM6L/GVE+t4NseaENXKt+OxnkkIm/1R2EkdGxgnHrZ0kB5bQ==
+openai@^4.70.2:
+  version "4.70.2"
+  resolved "https://registry.yarnpkg.com/openai/-/openai-4.70.2.tgz#dfe54b2b13996b76d93f2aaac07203d2660d6e65"
+  integrity sha512-Q2ymi/KPUYv+LJ9rFxeYxpkVAhcrZFTVvnJbdF1pUHg9eMC6lY8PU4TO1XOK5UZzOZuuVicouRwVMi1iDrT4qw==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
-    "@types/qs" "^6.9.15"
     abort-controller "^3.0.0"
     agentkeepalive "^4.2.1"
     form-data-encoder "1.7.2"
     formdata-node "^4.3.2"
     node-fetch "^2.6.7"
-    qs "^6.10.3"
 
 optionator@^0.9.3:
   version "0.9.4"
@@ -3534,7 +3527,7 @@ puppeteer@^23.3.0:
     puppeteer-core "23.3.0"
     typed-query-selector "^2.12.0"
 
-qs@^6.10.3, qs@^6.9.1:
+qs@^6.9.1:
   version "6.12.3"
   resolved "https://registry.npmjs.org/qs/-/qs-6.12.3.tgz"
   integrity sha512-AWJm14H1vVaO/iNZ4/hO+HyaTehuy9nRqVdkTqlJt0HWvBiBIEXFmb4C0DGeYo3Xes9rrEW+TxHsaigCbN5ICQ==
