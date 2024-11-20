@@ -576,7 +576,7 @@
     "webpack": "^5.96.1"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^0.0.53",
+    "@ai-sdk/anthropic": "^1.0.1",
     "@ai-sdk/azure": "^0.0.51",
     "@ai-sdk/google": "^0.0.55",
     "@ai-sdk/openai": "^0.0.71",
