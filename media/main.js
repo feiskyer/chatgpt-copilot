@@ -231,12 +231,6 @@
                 return;
             }
 
-            // if (input.value === "/clear") {
-            //     clearConversation();
-            //     input.value = "";
-            //     return;
-            // }
-
             vscode.postMessage({
                 type: "addFreeTextQuestion",
                 value: input.value,
