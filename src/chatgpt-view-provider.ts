@@ -781,19 +781,18 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     console.log('Searching prompts:', query);
     const promptStore = this.context.globalState.get<PromptStore>("prompts", { prompts: [] });
 
-    // 如果提示词列表为空，返回特殊标识
     if (!promptStore.prompts || promptStore.prompts.length === 0) {
       if (responseType === "titles") {
         this.sendMessage({
           type: "promptTitles",
           titles: [],
-          isEmpty: true  // 添加标识
+          isEmpty: true
         });
       } else {
         this.sendMessage({
           type: "showPromptPicker",
           prompts: [],
-          isEmpty: true  // 添加标识
+          isEmpty: true
         });
       }
       return;
