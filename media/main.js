@@ -505,6 +505,10 @@
             open: function () {
                 $(this).data("ui-autocomplete").menu.focus(null, $(".ui-menu-item").first());
             },
+            focus: function (event, ui) {
+                event.preventDefault();
+                $(this).val(ui.item.value);
+            },
             select: function (event, ui) {
                 if (ui.item.isManagePrompt) {
                     vscode.postMessage({ type: "togglePromptManager" });
@@ -520,6 +524,7 @@
                 } else if (ui.item.value === "/manage-prompt") {
                     vscode.postMessage({ type: "togglePromptManager" });
                 }
+
                 $('#question-input').val("");
                 return false;
             }
@@ -551,7 +556,7 @@
                 <div class="prompt-picker">
                     <div class="prompt-list">
                         ${prompts.map((p, index) => `
-                            <div class="prompt-item ${index === 0 ? 'active' : ''}" 
+                            <div class="prompt-item ${index === 0 ? 'active' : ''}"
                                  data-content="${encodeURIComponent(p.content)}"
                                  onclick="selectPrompt('${encodeURIComponent(p.content)}')">
                                 <div class="prompt-name">${p.name}</div>
