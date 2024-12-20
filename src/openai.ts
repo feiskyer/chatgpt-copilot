@@ -13,14 +13,14 @@
 */
 import { createAzure } from '@ai-sdk/azure';
 import { createOpenAI } from '@ai-sdk/openai';
-import { streamText } from 'ai';
+import { generateText, streamText } from 'ai';
 import ChatGptViewProvider, { logger } from "./chatgpt-view-provider";
 import { ModelConfig } from "./model-config";
 
 // initGptModel initializes the GPT model.
 export async function initGptModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {
     // AzureOpenAI
-    if (config.apiBaseUrl?.includes("azure")) {
+    if (config.apiBaseUrl?.includes("openai.azure.com")) {
         const instanceName = config.apiBaseUrl.split(".")[0].split("//")[1];
         const deployName = config.apiBaseUrl.split("/")[config.apiBaseUrl.split("/").length - 1];
 
@@ -49,9 +49,27 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, u
 
     try {
         logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question}`);
-        provider.chatHistory.push({ role: "user", content: question });
+
+        if (provider.model?.startsWith("o1")) {
+            // streaming not supported for o1 models
+            if (provider.chatHistory.length <= 1) {
+                provider.chatHistory.push({ role: "user", content: question });
+            }
+            provider.chatHistory.push({ role: "user", content: provider.modelConfig.systemPrompt });
+            const result = await generateText({
+                model: provider.apiChat,
+                messages: provider.chatHistory,
+            });
+
+            updateResponse(result.text);
+            provider.response = result.text;
+            provider.chatHistory.push({ role: "assistant", content: result.text });
+            logger.appendLine(`INFO: chatgpt.response: ${provider.response}`);
+            return;
+        }
 
         const chunks = [];
+        provider.chatHistory.push({ role: "user", content: question });
         const result = await streamText({
             system: provider.modelConfig.systemPrompt,
             model: provider.apiChat,

@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v4.6.1
+
+* Add a set of new models from OpenAI, Gemini and Claude
+
 ## v4.6.0
 
 * Add support of prompt manager and chat with your own prompts (use # to search)

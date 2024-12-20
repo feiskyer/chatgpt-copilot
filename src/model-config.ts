@@ -20,8 +20,9 @@ export class ModelConfig {
     topP: number;
     organization: string;
     systemPrompt: string;
+    searchGrounding: boolean;
 
-    constructor({ apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, systemPrompt }: { apiKey: string; apiBaseUrl: string; maxTokens: number; temperature: number; topP: number; organization: string; systemPrompt: string; }) {
+    constructor({ apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, systemPrompt, searchGrounding }: { apiKey: string; apiBaseUrl: string; maxTokens: number; temperature: number; topP: number; organization: string; systemPrompt: string; searchGrounding?: boolean; }) {
         this.apiKey = apiKey;
         this.apiBaseUrl = apiBaseUrl;
         this.maxTokens = maxTokens;
@@ -29,5 +30,6 @@ export class ModelConfig {
         this.topP = topP;
         this.organization = organization;
         this.systemPrompt = systemPrompt;
+        this.searchGrounding = searchGrounding ?? false;
     }
 }

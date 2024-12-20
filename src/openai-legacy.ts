@@ -19,7 +19,7 @@ import { ModelConfig } from "./model-config";
 
 // initGptLegacyModel initializes the GPT legacy model.
 export function initGptLegacyModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {
-    if (config.apiBaseUrl?.includes("azure")) {
+    if (config.apiBaseUrl?.includes("openai.azure.com")) {
         const instanceName = config.apiBaseUrl.split(".")[0].split("//")[1];
         const deployName = config.apiBaseUrl.split("/")[config.apiBaseUrl.split("/").length - 1];
 

@@ -4,13 +4,13 @@
   "displayName": "ChatGPT Copilot",
   "icon": "images/ai-logo.png",
   "description": "An VS Code ChatGPT Copilot Extension",
-  "version": "4.6.0",
+  "version": "4.6.1",
   "aiKey": "",
   "repository": {
     "url": "https://github.com/feiskyer/chatgpt-copilot"
   },
   "engines": {
-    "vscode": "^1.95.0"
+    "vscode": "^1.96.0"
   },
   "categories": [
     "AI",
@@ -259,135 +259,21 @@
     "configuration": {
       "title": "ChatGPT",
       "properties": {
-        "chatgpt.systemPrompt": {
-          "type": "string",
-          "default": "",
-          "description": "System prompts for the copilot.",
-          "order": 3
-        },
-        "chatgpt.gpt3.generateCode-enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable the code generation context menu item for the selected comment/code for Codex. Only available with code-* models",
-          "order": 7
-        },
-        "chatgpt.promptPrefix.addTests": {
-          "type": "string",
-          "default": "Implement tests for the following code",
-          "description": "The prompt prefix used for adding tests for the selected code",
-          "order": 8
-        },
-        "chatgpt.promptPrefix.addTests-enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable the prompt prefix used for adding tests for the selected code in the context menu",
-          "order": 9
-        },
-        "chatgpt.promptPrefix.findProblems": {
-          "type": "string",
-          "default": "Find problems with the following code",
-          "description": "The prompt prefix used for finding problems for the selected code",
-          "order": 10
-        },
-        "chatgpt.promptPrefix.findProblems-enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable the prompt prefix used for finding problems for the selected code in the context menu",
-          "order": 11
-        },
-        "chatgpt.promptPrefix.optimize": {
-          "type": "string",
-          "default": "Optimize the following code",
-          "description": "The prompt prefix used for optimizing the selected code",
-          "order": 12
-        },
-        "chatgpt.promptPrefix.optimize-enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable the prompt prefix used for optimizing the selected code in the context menu",
-          "order": 13
-        },
-        "chatgpt.promptPrefix.explain": {
-          "type": "string",
-          "default": "Explain the following code",
-          "description": "The prompt prefix used for explaining the selected code",
-          "order": 14
-        },
-        "chatgpt.promptPrefix.explain-enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable the prompt prefix used for explaining the selected code in the context menu",
-          "order": 15
-        },
-        "chatgpt.promptPrefix.addComments": {
-          "type": "string",
-          "default": "Add comments for the following code",
-          "description": "The prompt prefix used for adding comments for the selected code",
-          "order": 16
-        },
-        "chatgpt.promptPrefix.addComments-enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable the prompt prefix used for adding comments for the selected code in the context menu",
-          "order": 17
-        },
-        "chatgpt.promptPrefix.completeCode": {
-          "type": "string",
-          "default": "Complete the following code",
-          "description": "The prompt prefix used for completing the selected code",
-          "order": 18
-        },
-        "chatgpt.promptPrefix.completeCode-enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable the prompt prefix used for completing the selected code in the context menu",
-          "order": 19
-        },
-        "chatgpt.promptPrefix.customPrompt1": {
-          "type": "string",
-          "default": "",
-          "description": "Your custom prompt. It's disabled by default, please set to a custom prompt and enable it if you prefer using customized prompt",
-          "order": 20
-        },
-        "chatgpt.promptPrefix.customPrompt1-enabled": {
-          "type": "boolean",
-          "default": false,
-          "markdownDescription": "Enable the prompt prefix used for your custom prompt. The default value is empty, if you enable this item make sure to set this `chatgpt.promptPrefix.customPrompt1`",
-          "order": 21
-        },
-        "chatgpt.promptPrefix.customPrompt2": {
-          "type": "string",
-          "default": "",
-          "description": "Your custom prompt. It's disabled by default, please set to a custom prompt and enable it if you prefer using customized prompt",
-          "order": 22
-        },
-        "chatgpt.promptPrefix.customPrompt2-enabled": {
-          "type": "boolean",
-          "default": false,
-          "markdownDescription": "Enable the prompt prefix used for your custom prompt. The default value is empty, if you enable this item make sure to set this `chatgpt.promptPrefix.customPrompt2`",
-          "order": 23
-        },
-        "chatgpt.promptPrefix.adhoc-enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable the prompt prefix used for adhoc command for the selected code in the context menu",
-          "order": 24
-        },
         "chatgpt.gpt3.apiKey": {
           "type": "string",
-          "markdownDescription": "OpenAI API key. [Get your API Key from OpenAI](https://beta.openai.com/account/api-keys). \n\n**Please enable OpenAI API Key method to use this setting.**",
-          "order": 30
+          "markdownDescription": "OpenAI API key. [Get your API Key from OpenAI](https://beta.openai.com/account/api-keys).**",
+          "order": 1
         },
         "chatgpt.gpt3.apiBaseUrl": {
           "type": "string",
           "default": "https://api.openai.com/v1",
           "markdownDescription": "Optional override for the OpenAI API base URL. If you customize it, please make sure you have the same format. e.g. starts with `https://` without a trailing slash. The completions endpoint suffix is added internally, e.g. for reference: `${apiBaseUrl}/v1/completions`",
-          "order": 31
+          "order": 2
         },
         "chatgpt.gpt3.organization": {
           "type": "string",
-          "markdownDescription": "OpenAI Organization ID. [Documentation](https://beta.openai.com/docs/api-reference/requesting-organization). \n\n**Please enable OpenAI API Key method to use this setting.**",
-          "order": 32
+          "markdownDescription": "OpenAI Organization ID. [Documentation](https://beta.openai.com/docs/api-reference/requesting-organization).**",
+          "order": 3
         },
         "chatgpt.gpt3.model": {
           "type": "string",
@@ -402,6 +288,7 @@
             "gpt-3.5-turbo-instruct",
             "gpt-4",
             "gpt-4o",
+            "gpt-4o-mini",
             "gpt-4-0314",
             "gpt-4-0613",
             "gpt-4-1106-preview",
@@ -411,6 +298,10 @@
             "gpt-4-32k",
             "gpt-4-32k-0314",
             "gpt-4-32k-0613",
+            "gpt-4-turbo",
+            "o1",
+            "o1-mini",
+            "o1-preview",
             "text-davinci-003",
             "text-curie-001",
             "text-babbage-001",
@@ -420,48 +311,71 @@
             "claude-3-opus-20240229",
             "claude-3-sonnet-20240229",
             "claude-3-haiku-20240307",
+            "claude-3-opus-latest",
             "claude-3-5-sonnet-20240620",
+            "claude-3-5-sonnet-20241022",
+            "claude-3-5-sonnet-latest",
+            "claude-3-5-haiku-20241022",
+            "claude-3-5-haiku-latest",
             "gemini-1.5-flash-latest",
             "gemini-1.5-pro-latest",
             "gemini-1.0-pro-latest",
+            "gemini-2.0-flash-exp",
+            "gemini-exp-1206",
+            "gemini-2.0-flash-thinking-exp-1219",
+            "learnlm-1.5-pro-experimental",
             "custom"
           ],
           "default": "gpt-3.5-turbo",
-          "markdownDescription": "OpenAI models to use for your prompts. [Documentation](https://beta.openai.com/docs/models/models). \n\n**If you face 400 Bad Request please make sure you are using the right model for your integration method.** \n\nFor local or self-hosted LLMs compatible with OpenAI, you can select `custom` and specify your custom model name in `chatgpt.gpt3.customModel`.",
-          "order": 33,
+          "markdownDescription": "OpenAI models to use for your prompts. [Documentation](https://beta.openai.com/docs/models/models). \n\n**If you face 400 Bad Request please make sure you are using the right model for your integration method.** \n\nFor local or self-hosted LLMs compatible with OpenAI, you can select `custom` and specify your custom model name in `#chatgpt.gpt3.customModel#`.",
+          "order": 4,
           "enumItemLabels": [
-            "OpenAI API Key - gpt-3.5-turbo",
-            "OpenAI API Key - gpt-3.5-turbo-0301",
-            "OpenAI API Key - gpt-3.5-turbo-0613",
-            "OpenAI API Key - gpt-3.5-turbo-1106",
-            "OpenAI API Key - gpt-3.5-turbo-0125",
-            "OpenAI API Key - gpt-3.5-turbo-16k",
-            "OpenAI API Key - gpt-3.5-turbo-16k-0613",
-            "OpenAI API Key - gpt-3.5-turbo-instruct",
-            "OpenAI API Key - gpt-4",
-            "OpenAI API Key - gpt-4o",
-            "OpenAI API Key - gpt-4-0314",
-            "OpenAI API Key - gpt-4-0613",
-            "OpenAI API Key - gpt-4-1106-preview",
-            "OpenAI API Key - gpt-4-vision-preview",
-            "OpenAI API Key - gpt-4-0125-preview",
-            "OpenAI API Key - gpt-4-turbo-preview",
-            "OpenAI API Key - gpt-4-32k",
-            "OpenAI API Key - gpt-4-32k-0314",
-            "OpenAI API Key - gpt-4-32k-0613",
-            "OpenAI API Key - text-davinci-003",
-            "OpenAI API Key - text-curie-001",
-            "OpenAI API Key - text-babbage-001",
-            "OpenAI API Key - text-ada-001",
-            "OpenAI API Key - code-davinci-002",
-            "OpenAI API Key - code-cushman-001",
-            "Claude 3 - claude-3-opus-20240229",
-            "Claude 3 - claude-3-sonnet-20240229",
-            "Claude 3 - claude-3-haiku-20240307",
-            "Claude 3 - claude-3-5-sonnet-20240620",
+            "OpenAI/Azure OpenAI - gpt-3.5-turbo",
+            "OpenAI/Azure OpenAI - gpt-3.5-turbo-0301",
+            "OpenAI/Azure OpenAI - gpt-3.5-turbo-0613",
+            "OpenAI/Azure OpenAI - gpt-3.5-turbo-1106",
+            "OpenAI/Azure OpenAI - gpt-3.5-turbo-0125",
+            "OpenAI/Azure OpenAI - gpt-3.5-turbo-16k",
+            "OpenAI/Azure OpenAI - gpt-3.5-turbo-16k-0613",
+            "OpenAI/Azure OpenAI - gpt-3.5-turbo-instruct",
+            "OpenAI/Azure OpenAI - gpt-4",
+            "OpenAI/Azure OpenAI - gpt-4o",
+            "OpenAI/Azure OpenAI - gpt-4o-mini",
+            "OpenAI/Azure OpenAI - gpt-4-0314",
+            "OpenAI/Azure OpenAI - gpt-4-0613",
+            "OpenAI/Azure OpenAI - gpt-4-1106-preview",
+            "OpenAI/Azure OpenAI - gpt-4-vision-preview",
+            "OpenAI/Azure OpenAI - gpt-4-0125-preview",
+            "OpenAI/Azure OpenAI - gpt-4-turbo-preview",
+            "OpenAI/Azure OpenAI - gpt-4-32k",
+            "OpenAI/Azure OpenAI - gpt-4-32k-0314",
+            "OpenAI/Azure OpenAI - gpt-4-32k-0613",
+            "OpenAI/Azure OpenAI - gpt-4-turbo",
+            "OpenAI/Azure OpenAI - o1",
+            "OpenAI/Azure OpenAI - o1-mini",
+            "OpenAI/Azure OpenAI - o1-preview",
+            "OpenAI/Azure OpenAI - text-davinci-003",
+            "OpenAI/Azure OpenAI - text-curie-001",
+            "OpenAI/Azure OpenAI - text-babbage-001",
+            "OpenAI/Azure OpenAI - text-ada-001",
+            "OpenAI/Azure OpenAI - code-davinci-002",
+            "OpenAI/Azure OpenAI - code-cushman-001",
+            "Claude - claude-3-opus-20240229",
+            "Claude - claude-3-sonnet-20240229",
+            "Claude - claude-3-haiku-20240307",
+            "Claude - claude-3-opus-latest",
+            "Claude - claude-3-5-sonnet-20240620",
+            "Claude - claude-3-5-sonnet-20241022",
+            "Claude - claude-3-5-sonnet-latest",
+            "Claude - claude-3-5-haiku-20241022",
+            "Claude - claude-3-5-haiku-latest",
             "Google Gemini - gemini-1.5-flash-latest",
             "Google Gemini - gemini-1.5-pro-latest",
             "Google Gemini - gemini-1.0-pro-latest",
+            "Google Gemini - gemini-2.0-flash-exp",
+            "Google Gemini - gemini-exp-1206",
+            "Google Gemini - gemini-2.0-flash-thinking-exp-1219",
+            "Google Gemini - learnlm-1.5-pro-experimental",
             "Custom Model"
           ],
           "markdownEnumDescriptions": [
@@ -475,6 +389,7 @@
             "gpt-3.5-turbo-instruct",
             "gpt-4",
             "gpt-4o",
+            "gpt-4o-mini",
             "gpt-4-0314",
             "gpt-4-0613",
             "gpt-4-1106-preview",
@@ -484,6 +399,10 @@
             "gpt-4-32k",
             "gpt-4-32k-0314",
             "gpt-4-32k-0613",
+            "gpt-4-turbo",
+            "o1",
+            "o1-mini",
+            "o1-preview",
             "text-davinci-003",
             "text-curie-001",
             "text-babbage-001",
@@ -493,54 +412,177 @@
             "claude-3-opus-20240229",
             "claude-3-sonnet-20240229",
             "claude-3-haiku-20240307",
+            "claude-3-opus-latest",
             "claude-3-5-sonnet-20240620",
+            "claude-3-5-sonnet-20241022",
+            "claude-3-5-sonnet-latest",
+            "claude-3-5-haiku-20241022",
+            "claude-3-5-haiku-latest",
             "gemini-1.5-flash-latest",
             "gemini-1.5-pro-latest",
             "gemini-1.0-pro-latest",
-            "Custom model name set by `chatgpt.gpt3.customModel`"
+            "gemini-2.0-flash-exp",
+            "gemini-exp-1206",
+            "gemini-2.0-flash-thinking-exp-1219",
+            "learnlm-1.5-pro-experimental",
+            "Custom model name set by 'Custom Model'"
           ]
         },
         "chatgpt.gpt3.customModel": {
           "type": "string",
           "default": "",
-          "markdownDescription": "Specify your custom model name here if you selected `custom` in `chatgpt.gpt3.model`. This allows you to use a custom model name for local or self-hosted LLMs compatible with OpenAI.",
-          "order": 34
+          "markdownDescription": "Specify your custom model name here if you selected `custom` in `#chatgpt.gpt3.model#`. This allows you to use a custom model name for local or self-hosted LLMs compatible with OpenAI.",
+          "order": 5
         },
         "chatgpt.gpt3.maxTokens": {
           "type": "number",
           "default": 1024,
-          "markdownDescription": "The maximum number of tokens to generate in the completion. \n\nThe token count of your prompt plus max_tokens cannot exceed the model's context length. Most models have a context length of 2048 tokens (except for the newest models, which support 4096). [Documentation](https://beta.openai.com/docs/api-reference/completions/create#completions/create-max_tokens) \n\n**Please enable OpenAI API Key method to use this setting.**",
-          "order": 35
+          "markdownDescription": "The maximum number of tokens to generate in the completion. \n\nThe token count of your prompt plus max_tokens cannot exceed the model's context length. Most models have a context length of 2048 tokens (except for the newest models, which support 4096). [Documentation](https://beta.openai.com/docs/api-reference/completions/create#completions/create-max_tokens)**",
+          "order": 6
         },
         "chatgpt.gpt3.temperature": {
           "type": "number",
           "default": 1,
-          "markdownDescription": "What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.\n\nIt is recommended altering this or top_p but not both. [Documentation](https://beta.openai.com/docs/api-reference/completions/create#completions/create-temperature) \n\n**Please enable OpenAI API Key method to use this setting.**",
-          "order": 36
+          "markdownDescription": "What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.\n\nIt is recommended altering this or top_p but not both. [Documentation](https://beta.openai.com/docs/api-reference/completions/create#completions/create-temperature)**",
+          "order": 7
         },
         "chatgpt.gpt3.top_p": {
           "type": "number",
           "default": 1,
-          "markdownDescription": "An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered. \n\nIt is recommended altering this or temperature but not both. [Documentation](https://beta.openai.com/docs/api-reference/completions/create#completions/create-top_p) \n\n**Please enable OpenAI API Key method to use this setting.**",
+          "markdownDescription": "An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered. \n\nIt is recommended altering this or temperature but not both. [Documentation](https://beta.openai.com/docs/api-reference/completions/create#completions/create-top_p)**",
+          "order": 8
+        },
+        "chatgpt.systemPrompt": {
+          "type": "string",
+          "default": "",
+          "description": "System prompts for the copilot.",
+          "order": 9
+        },
+        "chatgpt.gpt3.generateCode-enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable the code generation context menu item for the selected comment/code for Codex. Only available with code-* models.",
+          "order": 10
+        },
+        "chatgpt.gpt3.searchGrounding.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable search grounding for Gemini model. Only available for Google Gemini models.",
+          "order": 11
+        },
+        "chatgpt.promptPrefix.addTests": {
+          "type": "string",
+          "default": "Implement tests for the following code",
+          "description": "The prompt prefix used for adding tests for the selected code",
+          "order": 31
+        },
+        "chatgpt.promptPrefix.addTests-enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable the prompt prefix used for adding tests for the selected code in the context menu",
+          "order": 32
+        },
+        "chatgpt.promptPrefix.findProblems": {
+          "type": "string",
+          "default": "Find problems with the following code",
+          "description": "The prompt prefix used for finding problems for the selected code",
+          "order": 33
+        },
+        "chatgpt.promptPrefix.findProblems-enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable the prompt prefix used for finding problems for the selected code in the context menu",
+          "order": 34
+        },
+        "chatgpt.promptPrefix.optimize": {
+          "type": "string",
+          "default": "Optimize the following code",
+          "description": "The prompt prefix used for optimizing the selected code",
+          "order": 35
+        },
+        "chatgpt.promptPrefix.optimize-enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable the prompt prefix used for optimizing the selected code in the context menu",
+          "order": 36
+        },
+        "chatgpt.promptPrefix.explain": {
+          "type": "string",
+          "default": "Explain the following code",
+          "description": "The prompt prefix used for explaining the selected code",
           "order": 37
+        },
+        "chatgpt.promptPrefix.explain-enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable the prompt prefix used for explaining the selected code in the context menu",
+          "order": 38
+        },
+        "chatgpt.promptPrefix.addComments": {
+          "type": "string",
+          "default": "Add comments for the following code",
+          "description": "The prompt prefix used for adding comments for the selected code",
+          "order": 39
+        },
+        "chatgpt.promptPrefix.addComments-enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable the prompt prefix used for adding comments for the selected code in the context menu",
+          "order": 40
+        },
+        "chatgpt.promptPrefix.completeCode": {
+          "type": "string",
+          "default": "Complete the following code",
+          "description": "The prompt prefix used for completing the selected code",
+          "order": 41
+        },
+        "chatgpt.promptPrefix.completeCode-enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable the prompt prefix used for completing the selected code in the context menu",
+          "order": 42
+        },
+        "chatgpt.promptPrefix.adhoc-enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable the prompt prefix used for adhoc command for the selected code in the context menu",
+          "order": 43
+        },
+        "chatgpt.promptPrefix.customPrompt1": {
+          "type": "string",
+          "default": "",
+          "description": "Your custom prompt 1. It's disabled by default, please set to a custom prompt and enable it if you prefer using customized prompt",
+          "order": 71
+        },
+        "chatgpt.promptPrefix.customPrompt1-enabled": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Enable custom prompt 1. If you enable this item make sure to set this `#chatgpt.promptPrefix.customPrompt1#`",
+          "order": 72
+        },
+        "chatgpt.promptPrefix.customPrompt2": {
+          "type": "string",
+          "default": "",
+          "description": "Your custom prompt 2. It's disabled by default, please set to a custom prompt and enable it if you prefer using customized prompt",
+          "order": 73
+        },
+        "chatgpt.promptPrefix.customPrompt2-enabled": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Enable custom prompt 2. If you enable this item make sure to set this `#chatgpt.promptPrefix.customPrompt2#`",
+          "order": 74
         },
         "chatgpt.response.showNotification": {
           "type": "boolean",
           "default": false,
           "description": "Choose whether you'd like to receive a notification when ChatGPT bot responds to your query.",
-          "order": 38
+          "order": 91
         },
         "chatgpt.response.autoScroll": {
           "type": "boolean",
           "default": true,
-          "description": "Whenever there is a new question or response added to the conversation window, extension will automatically scroll to the bottom. You can change that behavior by disabling this setting.",
-          "order": 39
-        },
-        "chatgpt.telemetry.disable": {
-          "type": "boolean",
-          "default": false,
-          "markdownDescription": "Specify if you want to disable the telemetry. This extension also respects your default vs-code telemetry setting `telemetry.telemetryLevel`. We check both settings for telemetry. **Important**: No user data is tracked, we only use telemetry to see what is used, and what isn't. This allows us to make accurate decisions on what to add or enhance to the extension.",
-          "order": 40
+          "description": "Whenever there is a new question or response added to the conversation window, extension will automatically scroll to the bottom. You can change that behaviour by disabling this setting.",
+          "order": 92
         }
       }
     }
@@ -560,14 +602,14 @@
     "@types/glob": "^8.1.0",
     "@types/isomorphic-fetch": "^0.0.39",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^22.10.1",
+    "@types/node": "^22.10.2",
     "@types/uuid": "^10.0.0",
-    "@types/vscode": "^1.95.0",
+    "@types/vscode": "^1.96.0",
     "@types/vscode-webview": "^1.57.5",
     "@vscode/test-electron": "^2.4.1",
     "@vscode/vsce": "^3.2.1",
     "esbuild": "^0.24.0",
-    "eslint": "^9.16.0",
+    "eslint": "^9.17.0",
     "glob": "^11.0.0",
     "mocha": "^11.0.1",
     "prettier": "^3.4.2",
@@ -576,12 +618,12 @@
     "webpack": "^5.97.1"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^1.0.4",
-    "@ai-sdk/azure": "^1.0.9",
-    "@ai-sdk/google": "^1.0.5",
-    "@ai-sdk/openai": "^1.0.7",
+    "@ai-sdk/anthropic": "^1.0.5",
+    "@ai-sdk/azure": "^1.0.12",
+    "@ai-sdk/google": "^1.0.11",
+    "@ai-sdk/openai": "^1.0.10",
     "@types/minimatch": "^5.1.2",
-    "ai": "^4.0.13",
+    "ai": "^4.0.20",
     "ajv": "^8.17.1",
     "axios": "^1.7.9",
     "cheerio": "^1.0.0",
@@ -589,12 +631,12 @@
     "eventsource-parser": "^3.0.0",
     "gpt3-tokenizer": "^1.1.5",
     "isomorphic-fetch": "^3.0.0",
-    "keyv": "^5.2.1",
+    "keyv": "^5.2.2",
     "minimatch": "^10.0.1",
-    "openai": "^4.76.0",
+    "openai": "^4.77.0",
     "p-timeout": "^6.1.3",
     "punycode": "^2.3.1",
-    "puppeteer": "^23.10.1",
+    "puppeteer": "^23.11.1",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "puppeteer-extra-plugin-user-data-dir": "^2.4.1",
@@ -604,7 +646,7 @@
     "strip-markdown": "^6.0.0",
     "uri-js": "^4.4.1",
     "uuid": "^11.0.3",
-    "zod": "^3.23.8"
+    "zod": "^3.24.1"
   },
   "resolutions": {
     "punycode": "2.3.1",

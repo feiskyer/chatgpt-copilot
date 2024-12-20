@@ -17,10 +17,16 @@ import { ModelConfig } from "./model-config";
 
 // initGeminiModel initializes the Gemini model with the given parameters.
 export async function initGeminiModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {
-    const gemini = createGoogleGenerativeAI({
+    let gemini = createGoogleGenerativeAI({
         baseURL: config.apiBaseUrl,
         apiKey: config.apiKey,
     });
     const model = viewProvider.model ? viewProvider.model : "gemini-1.5-flash-latest";
-    viewProvider.apiChat = gemini("models/" + model);
+    viewProvider.apiChat = gemini(model);
+
+    if (config.searchGrounding) {
+        viewProvider.apiChat = gemini(model, {
+            useSearchGrounding: config.searchGrounding,
+        });
+    }
 }
