@@ -2,7 +2,8 @@
 
 ## v4.6.1
 
-* Add a set of new models from OpenAI, Gemini and Claude
+* Add a set of new models from OpenAI, Gemini and Claude, including o1, claude 3.5 and gemini-2.0-flash-thinking models.
+* Bump default model to gpt-4o from gpt-3.5-turbo.
 
 ## v4.6.0
 

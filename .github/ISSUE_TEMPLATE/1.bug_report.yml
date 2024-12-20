@@ -20,7 +20,7 @@ body:
   - type: textarea
     attributes:
       label: "Please tell us if you have customized any of the extension settings or whether you are using the defaults."
-      description: Please list whether you use `Browser Auto-login` or `OpenAI API Key` method. Which model you are using i.e. `gpt-3.5-turbo` and the parameters you may have customized in your settings. You could find all of the customized settings in your `Settings.json`
+      description: Please list whether you use `Browser Auto-login` or `OpenAI API Key` method. Which model you are using i.e. `gpt-4o` and the parameters you may have customized in your settings. You could find all of the customized settings in your `Settings.json`
     validations:
       required: true
   - type: textarea

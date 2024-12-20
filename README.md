@@ -18,7 +18,7 @@ ChatGPT Copilot is a powerful and telemetry-free extension for Visual Studio Cod
 
 ## Features
 
-- 🤖 Supports GPT-4, GPT-3.5, Claude, Gemini, Ollama and other OpenAI-compatible local models with your API key from OpenAI, Azure OpenAI Service, Google, Anthropic or other providers.
+- 🤖 Supports GPT-4, o1, Claude, Gemini, Ollama, Github and other OpenAI-compatible local models with your API key from OpenAI, Azure OpenAI Service, Google, Anthropic or other providers.
 - 📃 Streaming Answers: Receive real-time responses to your prompts in the sidebar conversation window.
 - 📖 Prompt Manager: Chat with your own prompts (use # to search).
 - 🔥 Stop Responses: Interrupt responses at any time to save your tokens.
@@ -43,7 +43,7 @@ Configure the extension by setting your API keys and preferences in the settings
 | ------------- | ----------- |
 | chatgpt.gpt3.apiKey     | Required, get from [OpenAI](https://platform.openai.com/account/api-keys), [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service) or [Anthropic](https://console.anthropic.com/settings/keys)|
 | chatgpt.gpt3.apiBaseUrl | Optional, default to "<https://api.openai.com/v1>" |
-| chatgpt.gpt3.model      | Optional, default to "gpt-3.5-turbo" |
+| chatgpt.gpt3.model      | Optional, default to "gpt-4o" |
 
 Refer to the following sections for more details on configuring various AI services.
 
@@ -56,13 +56,24 @@ API Key is required for OpenAI:
     "chatgpt.gpt3.apiBaseUrl": "https://api.openai.com/v1", // Optional
 ```
 
+### Ollama
+
+Pull your image first from Ollama [library](https://ollama.com/library) and then setup the base URL and custom model, e.g.
+
+```json
+    "chatgpt.gpt3.apiKey": "ollama",  // Optional
+    "chatgpt.gpt3.apiBaseUrl": "http://localhost:11434/v1/",
+    "chatgpt.gpt3.model": "custom",
+    "chatgpt.gpt3.customModel": "qwen2.5",
+```
+
 ### Azure OpenAI Service
 
 For Azure OpenAI Service, apiBaseUrl should be set to format `https://[YOUR-ENDPOINT-NAME].openai.azure.com/openai/deployments/[YOUR-DEPLOYMENT-NAME]`, e.g.
 
 ```json
     "chatgpt.gpt3.apiKey": "<api-key>",
-    "chatgpt.gpt3.model": "gpt-3.5-turbo",
+    "chatgpt.gpt3.model": "gpt-4o",
     "chatgpt.gpt3.apiBaseUrl": "https://<endpoint-name>.openai.azure.com/openai/deployments/<deployment-name>"
 ```
 
@@ -74,7 +85,17 @@ For Azure OpenAI Service, apiBaseUrl should be set to format `https://[YOUR-ENDP
     "chatgpt.gpt3.apiBaseUrl": "https://api.anthropic.com/v1", // Optional
 ```
 
-### Local or self-hosted LLM compatible with OpenAI
+### Github Models
+
+For [Github Models](https://github.com/marketplace/models), get your Github token from [here](https://github.com/settings/tokens) and then setup:
+
+```json
+    "chatgpt.gpt3.apiBaseUrl": "https://models.inference.ai.azure.com",
+    "chatgpt.gpt3.apiKey": "<GITHUB_TOKEN>",
+    "chatgpt.gpt3.model": "o1",
+```
+
+### OpenAI compatible APIs
 
 ```json
     "chatgpt.gpt3.apiKey": "<api-key>",
@@ -89,7 +110,7 @@ Example configuration for a custom model name with [groq](https://console.groq.c
 
 ```json
     "chatgpt.gpt3.model": "custom",
-    "chatgpt.gpt3.apiKey": "<your-custom-key>",
+    "chatgpt.gpt3.apiKey": "<your-groq-key>",
     "chatgpt.gpt3.customModel":  "mixtral-8x7b-32768",
     "chatgpt.gpt3.apiBaseUrl": "https://api.groq.com/openai/v1",
 ```
@@ -105,7 +126,7 @@ Example configuration for a custom model name with [groq](https://console.groq.c
 | `chatgpt.gpt3.apiKey`                        |                                          | OpenAI API key. [Get your API Key from OpenAI](https://beta.openai.com/account/api-keys). |
 | `chatgpt.gpt3.apiBaseUrl`                    | `https://api.openai.com/v1`              | Optional override for the OpenAI API base URL. If you customize it, please make sure you have the same format. e.g. starts with `https://` without a trailing slash. The completions endpoint suffix is added internally, e.g. for reference: `${apiBaseUrl}/v1/completions` |
 | `chatgpt.gpt3.organization`                  |                                          | OpenAI Organization ID.                                      |
-| `chatgpt.gpt3.model`                         | `gpt-3.5-turbo`                          | OpenAI models to use for your prompts. [Documentation](https://beta.openai.com/docs/models/models).  **If you face 400 Bad Request please make sure you are using the right model for your integration method.**  For local or self-hosted LLMs compatible with OpenAI, you can select `custom` and specify your custom model name in `#chatgpt.gpt3.customModel#`. |
+| `chatgpt.gpt3.model`                         | `gpt-4o`                          | OpenAI models to use for your prompts. [Documentation](https://beta.openai.com/docs/models/models).  **If you face 400 Bad Request please make sure you are using the right model for your integration method.**  For local or self-hosted LLMs compatible with OpenAI, you can select `custom` and specify your custom model name in `#chatgpt.gpt3.customModel#`. |
 | `chatgpt.gpt3.customModel`                   |                                          | Specify your custom model name here if you selected `custom` in `#chatgpt.gpt3.model#`. This allows you to use a custom model name for local or self-hosted LLMs compatible with OpenAI. |
 | `chatgpt.gpt3.maxTokens`                     | `1024`                                   | The maximum number of tokens to generate in the completion.  |
 | `chatgpt.gpt3.temperature`                   | `1`                                      | What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer. |

@@ -34,6 +34,7 @@
     "openai",
     "Gemini",
     "Llama",
+    "Ollama",
     "testing",
     "find bugs"
   ],
@@ -326,7 +327,7 @@
             "learnlm-1.5-pro-experimental",
             "custom"
           ],
-          "default": "gpt-3.5-turbo",
+          "default": "gpt-4o",
           "markdownDescription": "OpenAI models to use for your prompts. [Documentation](https://beta.openai.com/docs/models/models). \n\n**If you face 400 Bad Request please make sure you are using the right model for your integration method.** \n\nFor local or self-hosted LLMs compatible with OpenAI, you can select `custom` and specify your custom model name in `#chatgpt.gpt3.customModel#`.",
           "order": 4,
           "enumItemLabels": [
