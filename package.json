@@ -624,7 +624,7 @@
     "@ai-sdk/google": "^1.0.11",
     "@ai-sdk/openai": "^1.0.10",
     "@types/minimatch": "^5.1.2",
-    "ai": "^4.0.20",
+    "ai": "^4.0.22",
     "ajv": "^8.17.1",
     "axios": "^1.7.9",
     "cheerio": "^1.0.0",
