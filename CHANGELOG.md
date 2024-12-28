@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v4.6.2
+
+* feat: set selected prompt as system prompt
+* fix markdown rendering issue
+* bump dependencies for security fixes
+
 ## v4.6.1
 
 * Add a set of new models from OpenAI, Gemini and Claude, including o1, claude 3.5 and gemini-2.0-flash-thinking models.

@@ -30,7 +30,24 @@ body {
 
 ol,
 ul {
-    padding-left: var(--container-padding);
+    padding-left: 2em;
+    margin-left: 0;
+}
+
+ol ol,
+ul ul,
+ol ul,
+ul ol {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+li {
+    margin-bottom: 0.25em;
+}
+
+li:last-child {
+    margin-bottom: 0;
 }
 
 body>*,
@@ -266,8 +283,13 @@ textarea::placeholder {
 
 .code-actions-wrapper {
     opacity: 0.70;
-    font-size: 12px;
+    font-size: 11px;
     margin-top: 1rem;
+    background-color: var(--vscode-textCodeBlock-background, var(--vscode-editor-background));
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    padding: 0.5rem;
+    margin-bottom: -0.5rem;
 }
 
 .code-actions-wrapper:hover {
@@ -368,4 +390,98 @@ textarea::placeholder {
 .answer-element-ext a {
     text-decoration-line: underline;
     text-underline-offset: 2px;
+}
+
+.task-list-item {
+    list-style: none;
+    margin-left: -1.5em;
+}
+
+.task-list-item input[type="checkbox"] {
+    margin-right: 0.5em;
+    vertical-align: middle;
+}
+
+.answer-element-ext ul {
+    list-style-type: disc;
+    margin-bottom: 1em;
+}
+
+.answer-element-ext ol {
+    list-style-type: decimal;
+    margin-bottom: 1em;
+}
+
+.answer-element-ext ul ul,
+.answer-element-ext ol ul {
+    list-style-type: circle;
+}
+
+.answer-element-ext ul ul ul,
+.answer-element-ext ol ul ul {
+    list-style-type: square;
+}
+
+.answer-element-ext li {
+    margin-left: 1em;
+    margin-bottom: 0.5em;
+}
+
+.answer-element-ext li:last-child {
+    margin-bottom: 0;
+}
+
+.answer-element-ext li>p {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.answer-element-ext li>p+p {
+    margin-top: 0.5em !important;
+}
+
+.code-element-ext,
+.edit-element-ext,
+.new-code-element-ext {
+    font-size: 11px;
+    padding: 2px 6px !important;
+}
+
+.code-element-ext svg,
+.edit-element-ext svg,
+.new-code-element-ext svg {
+    width: 12px;
+    height: 12px;
+    margin-right: 3px;
+}
+
+// Add styling for code blocks
+pre {
+    background-color: var(--vscode-textCodeBlock-background, var(--vscode-editor-background));
+    border-radius: 6px;
+    margin: 1em 0;
+}
+
+pre>code {
+    display: block;
+    padding: 1em;
+    background-color: transparent !important;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+:not(pre)>code {
+    background-color: var(--vscode-textCodeBlock-background, rgba(127, 127, 127, 0.1));
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--vscode-textPreformat-foreground, inherit);
+}
+
+.pre-code-element {
+    background-color: var(--vscode-textCodeBlock-background, var(--vscode-editor-background));
+    border-radius: 6px;
+    margin: 1em 0;
 }

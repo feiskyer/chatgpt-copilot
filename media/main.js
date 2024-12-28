@@ -16,6 +16,25 @@
 (function () {
     const vscode = acquireVsCodeApi();
 
+    marked.use({
+        gfm: true,
+        breaks: true,
+        listItemIndent: 'one',
+        renderer: {
+            listitem(text, task, checked) {
+                if (task) {
+                    return `<li class="task-list-item"><input type="checkbox" ${checked ? 'checked' : ''} disabled> ${text}</li>`;
+                }
+                return `<li>${text}</li>`;
+            },
+            list(body, ordered, start) {
+                const type = ordered ? 'ol' : 'ul';
+                const startAttr = (ordered && start !== 1) ? ` start="${start}"` : '';
+                return `<${type}${startAttr} class="list-${ordered ? 'decimal' : 'disc'}">${body}</${type}>`;
+            }
+        }
+    });
+
     marked.setOptions({
         renderer: new marked.Renderer(),
         highlight: function (code, _lang) {
@@ -125,7 +144,7 @@
                     updatedValue = message.value.split("```").length % 2 === 1 ? message.value : message.value + "\n\n```\n\n";
                 }
 
-                const markedResponse = marked.parse(updatedValue);
+                const markedResponse = marked.parse(updatedValue.trim().replace(/^\s+|\s+$/g, ''));
 
                 if (existingMessage) {
                     existingMessage.innerHTML = markedResponse;
