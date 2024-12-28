@@ -41,79 +41,88 @@ Configure the extension by setting your API keys and preferences in the settings
 
 | Configuration | Description |
 | ------------- | ----------- |
-| chatgpt.gpt3.apiKey     | Required, get from [OpenAI](https://platform.openai.com/account/api-keys), [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service) or [Anthropic](https://console.anthropic.com/settings/keys)|
-| chatgpt.gpt3.apiBaseUrl | Optional, default to "<https://api.openai.com/v1>" |
-| chatgpt.gpt3.model      | Optional, default to "gpt-4o" |
+| API Key     | Required, get from [OpenAI](https://platform.openai.com/account/api-keys), [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service), [Anthropic](https://console.anthropic.com/settings/keys) or other AI services |
+| API Base URL | Optional, default to "<https://api.openai.com/v1>" |
+| Model      | Optional, default to "gpt-4o" |
 
 Refer to the following sections for more details on configuring various AI services.
 
 ### OpenAI
 
-API Key is required for OpenAI:
-
-```json
-    "chatgpt.gpt3.apiKey": "<api-key>",
-    "chatgpt.gpt3.apiBaseUrl": "https://api.openai.com/v1", // Optional
-```
+| Configuration | Example |
+| ------------- | ----------- |
+| API Key     | your-api-key |
+| Model      | gpt-4o |
+| API Base URL | <https://api.openai.com/v1> (Optional) |
 
 ### Ollama
 
-Pull your image first from Ollama [library](https://ollama.com/library) and then setup the base URL and custom model, e.g.
+Pull your image first from Ollama [library](https://ollama.com/library) and then setup the base URL and custom model.
 
-```json
-    "chatgpt.gpt3.apiKey": "ollama",  // Optional
-    "chatgpt.gpt3.apiBaseUrl": "http://localhost:11434/v1/",
-    "chatgpt.gpt3.model": "custom",
-    "chatgpt.gpt3.customModel": "qwen2.5",
-```
+| Configuration | Example |
+| ------------- | ----------- |
+| API Key     | ollama (Optional) |
+| Model      | custom |
+| Custom Model | qwen2.5 |
+| API Base URL | <http://localhost:11434/v1/> |
+
+### Anthropic Claude
+
+| Configuration | Example |
+| ------------- | ----------- |
+| API Key     | your-api-key |
+| Model      | claude-3-sonnet-20240229 |
+| API Base URL | <https://api.anthropic.com/v1> (Optional) |
+
+### Google Gemini
+
+| Configuration | Example |
+| ------------- | ----------- |
+| API Key     | your-api-key |
+| Model      | gemini-2.0-flash-thinking-exp-1219 |
+| API Base URL | <https://generativelanguage.googleapis.com/v1beta> (Optional) |
 
 ### Azure OpenAI Service
 
-For Azure OpenAI Service, apiBaseUrl should be set to format `https://[YOUR-ENDPOINT-NAME].openai.azure.com/openai/deployments/[YOUR-DEPLOYMENT-NAME]`, e.g.
+For Azure OpenAI Service, apiBaseUrl should be set to format `https://[YOUR-ENDPOINT-NAME].openai.azure.com/openai/deployments/[YOUR-DEPLOYMENT-NAME]`.
 
-```json
-    "chatgpt.gpt3.apiKey": "<api-key>",
-    "chatgpt.gpt3.model": "gpt-4o",
-    "chatgpt.gpt3.apiBaseUrl": "https://<endpoint-name>.openai.azure.com/openai/deployments/<deployment-name>"
-```
-
-### Anthropic Claude 3
-
-```json
-    "chatgpt.gpt3.model": "claude-3-sonnet-20240229",
-    "chatgpt.gpt3.apiKey": "<api-key>",
-    "chatgpt.gpt3.apiBaseUrl": "https://api.anthropic.com/v1", // Optional
-```
+| Configuration | Example |
+| ------------- | ----------- |
+| API Key     | your-api-key |
+| Model      | gpt-4o |
+| API Base URL | <https://endpoint-name.openai.azure.com/openai/deployments/deployment-name> |
 
 ### Github Models
 
-For [Github Models](https://github.com/marketplace/models), get your Github token from [here](https://github.com/settings/tokens) and then setup:
+For [Github Models](https://github.com/marketplace/models), get your Github token from [here](https://github.com/settings/tokens).
 
-```json
-    "chatgpt.gpt3.apiBaseUrl": "https://models.inference.ai.azure.com",
-    "chatgpt.gpt3.apiKey": "<GITHUB_TOKEN>",
-    "chatgpt.gpt3.model": "o1",
-```
+| Configuration | Example |
+| ------------- | ----------- |
+| API Key     | your-github-token |
+| Model      | o1 |
+| API Base URL | <https://models.inference.ai.azure.com> |
 
 ### OpenAI compatible APIs
 
-```json
-    "chatgpt.gpt3.apiKey": "<api-key>",
-    "chatgpt.gpt3.apiBaseUrl": "<base-url>",
-```
+To use OpenAI compatible APIs, you need to set a custom model name: set model to `"custom"` and then specify your custom model name.
 
-### Custom Model Names
+Example for [groq](https://console.groq.com/):
 
-To use a custom model name for local or self-hosted LLMs compatible with OpenAI, set the `chatgpt.gpt3.model` configuration to `"custom"` and specify your custom model name in the `chatgpt.gpt3.customModel` configuration.
+| Configuration | Example |
+| ------------- | ----------- |
+| API Key     | your-groq-key |
+| Model      | custom |
+| Custom Model | mixtral-8x7b-32768 |
+| API Base URL | <https://api.groq.com/openai/v1> |
 
-Example configuration for a custom model name with [groq](https://console.groq.com/):
+Another example for [DeepSeek](https://www.deepseek.com/):
 
-```json
-    "chatgpt.gpt3.model": "custom",
-    "chatgpt.gpt3.apiKey": "<your-groq-key>",
-    "chatgpt.gpt3.customModel":  "mixtral-8x7b-32768",
-    "chatgpt.gpt3.apiBaseUrl": "https://api.groq.com/openai/v1",
-```
+| Configuration | Example |
+| ------------- | ----------- |
+| API Key     | your-deepseek-key |
+| Model      | custom |
+| Custom Model | deepseek-chat|
+| API Base URL | <https://api.deepseek.com> |
 
 ## Configurations
 

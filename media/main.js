@@ -1,9 +1,8 @@
 /**
- * @author Ali Gençay
- * https://github.com/gencay/vscode-chatgpt
  *
  * @license
- * Copyright (c) 2022 - Present, Ali Gençay
+ * Copyright (c) 2022 - 2023, Ali Gençay
+ * Copyright (c) 2024 - Present, Pengfei Ni
  *
  * All rights reserved. Code licensed under the ISC license
  *

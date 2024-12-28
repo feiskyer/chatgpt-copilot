@@ -1,10 +1,7 @@
 /**
- * @author Ali Gençay
- * https://github.com/gencay/vscode-chatgpt
- *
  * @license
- * Copyright (c) 2022 - Present, Ali Gençay
- *
+ * Copyright (c) 2022 - 2023, Ali Gençay
+ * Copyright (c) 2024 - Present, Pengfei Ni
  * All rights reserved. Code licensed under the ISC license
  *
  * The above copyright notice and this permission notice shall be included in all
@@ -455,7 +452,6 @@ textarea::placeholder {
     margin-right: 3px;
 }
 
-// Add styling for code blocks
 pre {
     background-color: var(--vscode-textCodeBlock-background, var(--vscode-editor-background));
     border-radius: 6px;
