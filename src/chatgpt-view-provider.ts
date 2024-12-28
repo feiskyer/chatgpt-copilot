@@ -42,6 +42,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public model?: string;
   private apiBaseUrl?: string;
   public modelConfig!: ModelConfig;
+  public systemPromptOverride: string = "";
   public apiCompletion?: OpenAICompletionLanguageModel | LanguageModelV1;
   public apiChat?: OpenAIChatLanguageModel | LanguageModelV1;
   public conversationId?: string;
@@ -174,14 +175,36 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           this.stopGenerating();
           break;
         case "selectPrompt":
-          this.modelConfig.systemPrompt = data.prompt.content;
-          await this.prepareConversation(true);
+          try {
+            this.systemPromptOverride = data.prompt.content;
+            await this.prepareConversation(true);
+            this.sendMessage({
+              type: "setActivePrompt",
+              name: data.prompt.name
+            });
+          } catch (error: any) {
+            vscode.window.showErrorMessage("Failed to set prompt: " + error.message);
+            this.logError("failed-to-set-prompt");
+          }
           break;
         case "togglePromptManager":
           await vscode.commands.executeCommand("chatgpt-copilot.togglePromptManager");
           break;
         case "searchPrompts":
           await this.handlePromptSearch(data.query, data.responseType);
+          break;
+        case "resetPrompt":
+          try {
+            this.systemPromptOverride = "";
+            await this.prepareConversation(true);
+            this.sendMessage({
+              type: "setActivePrompt",
+              name: ""
+            });
+          } catch (error: any) {
+            vscode.window.showErrorMessage("Failed to reset prompt: " + error.message);
+            this.logError("failed-to-reset-prompt");
+          }
           break;
         default:
           break;
@@ -267,6 +290,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       let systemPrompt = configuration.get("systemPrompt") as string;
       if (!systemPrompt) {
         systemPrompt = defaultSystemPrompt;
+      }
+      if (this.systemPromptOverride != "") {
+        systemPrompt = this.systemPromptOverride;
       }
 
       let apiBaseUrl = configuration.get("gpt3.apiBaseUrl") as string;
@@ -775,7 +801,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   }
 
   private async handlePromptSearch(query: string, responseType?: string) {
-    console.log('Searching prompts:', query);
     const promptStore = this.context.globalState.get<PromptStore>("prompts", { prompts: [] });
 
     if (!promptStore.prompts || promptStore.prompts.length === 0) {
