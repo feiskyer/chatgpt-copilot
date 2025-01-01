@@ -176,12 +176,13 @@ input:not([type='checkbox']),
 textarea {
     display: block;
     width: 100%;
-    border: none;
     font-family: var(--vscode-font-family);
     padding: var(--input-padding-vertical) var(--input-padding-horizontal);
     color: var(--vscode-input-foreground);
     outline-color: var(--vscode-input-border);
     background-color: var(--vscode-input-background);
+    border: 1px solid var(--vscode-input-border);
+    border-width: 1px;
 }
 
 input::placeholder,
@@ -250,28 +251,83 @@ textarea::placeholder {
 
 .textarea-wrapper {
     display: grid;
-    max-height: 20rem;
-    font-size: var(--vscode-font-size);
+    position: relative;
+    width: 100%;
+}
+
+.textarea-wrapper>textarea {
+    resize: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    min-height: 40px;
+    max-height: 240px;
+    line-height: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    color: var(--vscode-input-foreground);
+    background-color: var(--vscode-input-background);
+    display: block;
+    outline: none;
+    box-sizing: border-box;
+    border: 1px solid var(--vscode-focusBorder);
+    border-radius: 2px;
+    padding: 6px 8px;
+    padding-right: 76px;
+    white-space: nowrap;
+    grid-area: 1 / 1 / 2 / 2;
 }
 
 .textarea-wrapper::after {
     content: attr(data-replicated-value) " ";
     white-space: pre-wrap;
     visibility: hidden;
+    grid-area: 1 / 1 / 2 / 2;
+    border: 1px solid transparent;
+    padding: 6px 8px;
+    padding-right: 76px;
+    box-sizing: border-box;
+}
+
+.input-container {
+    position: relative;
+    width: 100%;
+    display: grid;
+}
+
+/* 文件引用样式 */
+.file-reference {
+    display: inline-block;
+    background-color: rgba(24, 119, 232, 0.2);
+    color: var(--vscode-input-foreground);
+    padding: 2px 4px;
+    margin: 0 2px;
+    border-radius: 3px;
+    font-size: inherit;
+    white-space: nowrap;
+    cursor: default;
+    user-select: none;
+}
+
+/* 输入框容器样式 */
+.scrollable-input-container {
+    width: 100%;
+    min-height: 40px;
+    max-height: 240px;
+    overflow-y: auto;
+    background-color: var(--vscode-input-background);
+    border: 1px solid var(--vscode-input-border);
+    border-radius: 2px;
+}
+
+/* 隐藏滚动条但保持功能 */
+.textarea-wrapper>textarea::-webkit-scrollbar {
+    height: 0;
+    width: 0;
 }
 
 .textarea-wrapper>textarea {
-    resize: none;
-    overflow: hidden auto;
-    max-height: 20rem;
-}
-
-.textarea-wrapper>textarea,
-.textarea-wrapper::after {
-    border: 1px solid black;
-    padding: .5rem 5rem .5rem .5rem;
-    font: inherit;
-    grid-area: 1 / 1 / 2 / 2;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 .pre-code-element:not(:last-child) {
@@ -480,4 +536,89 @@ pre>code {
     background-color: var(--vscode-textCodeBlock-background, var(--vscode-editor-background));
     border-radius: 6px;
     margin: 1em 0;
+}
+
+.file-references-container {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 4px;
+    padding: 4px 8px;
+    min-height: 32px;
+    border-bottom: 1px solid var(--vscode-input-border);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.file-references-container::-webkit-scrollbar {
+    display: none;
+}
+
+.file-references-container:empty {
+    display: none;
+}
+
+.file-reference-tag {
+    display: inline-flex;
+    align-items: center;
+    background-color: rgba(24, 119, 232, 0.2);
+    color: var(--vscode-input-foreground);
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: inherit;
+    white-space: nowrap;
+    user-select: none;
+    gap: 4px;
+}
+
+.file-reference-tag .remove-file {
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.file-reference-tag .remove-file:hover {
+    opacity: 1;
+}
+
+/* 修改按钮容器的定位和对齐 */
+#question-input-buttons {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    pointer-events: auto;
+    z-index: 1;
+}
+
+/* 调整按钮样式 */
+#question-input-buttons button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+    padding: 0;
+    border-radius: 4px;
+    background: var(--vscode-button-secondaryBackground);
+}
+
+#question-input-buttons svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* 添加悬停和焦点状态 */
+.textarea-wrapper>textarea:hover {
+    border-color: var(--vscode-input-border);
+    border-width: 1px;
+}
+
+.textarea-wrapper>textarea:focus {
+    border-color: var(--vscode-focusBorder);
+    border-width: 1px;
 }

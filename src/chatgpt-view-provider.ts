@@ -17,6 +17,7 @@ import { OpenAIChatLanguageModel, OpenAICompletionLanguageModel } from "@ai-sdk/
 import { LanguageModelV1 } from "@ai-sdk/provider";
 import { CoreMessage } from "ai";
 import delay from "delay";
+import path from "path";
 import * as vscode from "vscode";
 import { initClaudeModel } from "./anthropic";
 import { initGeminiModel } from "./gemini";
@@ -58,6 +59,20 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
    * in time before resolveWebviewView is called.
    */
   private leftOverMessage?: any;
+  private conversationContext: {
+    files: {
+      [filepath: string]: {
+        content: string;
+        isAuto?: boolean;
+        isImage?: boolean;
+      };
+    };
+    filesSent: boolean;
+  } = {
+      files: {},
+      filesSent: false
+    };
+
   constructor(private context: vscode.ExtensionContext) {
     this.subscribeToResponse =
       vscode.workspace
@@ -99,6 +114,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     webviewView.webview.html = this.getWebviewHtml(webviewView.webview);
 
     webviewView.webview.onDidReceiveMessage(async (data) => {
+
       switch (data.type) {
         case "addFreeTextQuestion":
           this.sendApiRequest(data.value, { command: "freeText" });
@@ -125,6 +141,13 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         case "clearConversation":
           this.conversationId = undefined;
           this.chatHistory = [];
+          this.conversationContext = {
+            files: {},
+            filesSent: false
+          };
+          this.sendMessage({
+            type: "clearFileReferences"
+          });
           this.logEvent("conversation-cleared");
           break;
         case "clearBrowser":
@@ -133,6 +156,13 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         case "cleargpt3":
           this.apiCompletion = undefined;
           this.apiChat = undefined;
+          this.conversationContext = {
+            files: {},
+            filesSent: false
+          };
+          this.sendMessage({
+            type: "clearFileReferences"
+          });
           this.logEvent("gpt3-cleared");
           break;
         case "login":
@@ -206,6 +236,12 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
             this.logError("failed-to-reset-prompt");
           }
           break;
+        case "searchFile":
+          await this.handleFileSearch();
+          break;
+        case "removeFileReference":
+          this.handleRemoveFileReference(data.fileName);
+          break;
         default:
           break;
       }
@@ -215,6 +251,53 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       // If there were any messages that wasn't delivered, render after resolveWebView is called.
       this.sendMessage(this.leftOverMessage);
       this.leftOverMessage = null;
+    }
+
+    // Subscribe to editor changes
+    this.context.subscriptions.push(
+      vscode.window.onDidChangeActiveTextEditor((editor) => {
+        const autoAddEnabled = vscode.workspace
+          .getConfiguration("chatgpt")
+          .get<boolean>("autoAddCurrentFile");
+
+        if (autoAddEnabled) {
+          // Force cleanup if no editor or if editor is output/debug panel
+          if (!editor || (editor.document.uri.scheme !== 'file' && !editor.document.uri.path.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i))) {
+            Object.entries(this.conversationContext.files).forEach(([key, value]) => {
+              if (value.isAuto) {
+                this.handleRemoveFileReference(key);
+              }
+            });
+            return;
+          }
+
+          this.addCurrentFileToContext();
+        }
+      }),
+
+      // Add subscription for document close events
+      vscode.workspace.onDidCloseTextDocument((document) => {
+        console.log('Document closed:', document.uri);
+        if ((document.uri.scheme === 'file' || document.uri.path.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) && !vscode.window.activeTextEditor) {
+          Object.entries(this.conversationContext.files).forEach(([key, value]) => {
+            if (value.isAuto) {
+              this.handleRemoveFileReference(key);
+            }
+          });
+        }
+      })
+    );
+
+    // Initial file check
+    const activeEditor = vscode.window.activeTextEditor;
+    if (activeEditor) {
+      const autoAddEnabled = vscode.workspace
+        .getConfiguration("chatgpt")
+        .get<boolean>("autoAddCurrentFile");
+
+      if (autoAddEnabled) {
+        this.addCurrentFileToContext();
+      }
     }
   }
 
@@ -449,10 +532,30 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       });
     };
     try {
+      const imageFiles: Record<string, string> = {};
+      if (!this.conversationContext.filesSent && Object.keys(this.conversationContext.files).length > 0) {
+        const textFiles = Object.entries(this.conversationContext.files)
+          .filter(([filepath, file]) => {
+            if (file.isImage) {
+              imageFiles[filepath] = file.content;
+              return false;
+            }
+            return true;
+          })
+          .map(([filepath, file]) => `File: ${filepath}\n\`\`\`\n${file.content}\n\`\`\``)
+          .join('\n\n');
+
+        if (textFiles) {
+          question = `${question}\n\nReferenced files:\n${textFiles}`;
+        }
+
+        this.conversationContext.filesSent = true;
+      }
+
       if (this.isGpt35Model || this.isClaude || this.isGemini) {
-        await chatGpt(this, question, updateResponse);
+        await chatGpt(this, question, imageFiles, updateResponse);
       } else {
-        await chatCompletion(this, question, updateResponse);
+        await chatCompletion(this, question, imageFiles, updateResponse);
       }
 
       if (options.previousAnswer != null) {
@@ -672,10 +775,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     const nonce = this.getRandomId();
 
     return `<!DOCTYPE html>
-			<html lang="en">
-			<head>
-				<meta charset="UTF-8">
-				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 				<link href="${stylesMainUri}" rel="stylesheet">
 				<link href="${vendorHighlightCss}" rel="stylesheet">
@@ -686,8 +789,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 				<script src="${vendorTurndownJs}"></script>
         <script src="${vendorJqueryJs}"></script>
         <script src="${vendorJqueryUIMinJs}"></script>
-			</head>
-			<body class="overflow-hidden">
+       </head>
+      <body class="overflow-hidden">
 				<div class="flex flex-col h-screen">
 					<div class="absolute top-2 right-2 z-10">
 						<button id="toggle-prompt-manager" class="p-1.5 rounded-lg" title="Manage Prompts">
@@ -761,26 +864,28 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
 					<div class="p-4 flex items-center pt-2">
 						<div class="flex-1 textarea-wrapper">
-							<textarea
-								type="text"
-								rows="1"
-								id="question-input"
-								placeholder="Ask a question..."
-								onInput="this.parentNode.dataset.replicatedValue = this.value"></textarea>
+							<div id="file-references" class="file-references-container"></div>
+							<div class="input-container">
+								<textarea
+									type="text"
+									rows="3"
+									id="question-input"
+									placeholder="Ask a question..."
+									onInput="this.parentNode.dataset.replicatedValue = this.value"></textarea>
+								<div id="question-input-buttons">
+									<button id="more-button" title="More actions" class="rounded-lg p-0.5">
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" /></svg>
+									</button>
+									<button id="ask-button" title="Submit prompt" class="ask-button rounded-lg p-0.5">
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+									</button>
+								</div>
+							</div>
 						</div>
 						<div id="chat-button-wrapper" class="absolute bottom-14 items-center more-menu right-8 border border-gray-200 shadow-xl hidden text-xs">
 							<button class="flex gap-2 items-center justify-start p-2 w-full" id="clear-button"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" /></svg>&nbsp;New chat</button>
 							<button class="flex gap-2 items-center justify-start p-2 w-full" id="settings-button"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>&nbsp;Update settings</button>
 							<button class="flex gap-2 items-center justify-start p-2 w-full" id="export-button"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>&nbsp;Export to markdown</button>
-						</div>
-						<div id="question-input-buttons" class="right-6 absolute p-0.5 ml-5 flex items-center gap-2">
-							<button id="more-button" title="More actions" class="rounded-lg p-0.5">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" /></svg>
-							</button>
-
-							<button id="ask-button" title="Submit prompt" class="ask-button rounded-lg p-0.5">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
-							</button>
 						</div>
 					</div>
 				</div>
@@ -841,5 +946,115 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         prompts: filteredPrompts
       });
     }
+  }
+
+  private async handleFileSearch() {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders) {
+      return [];
+    }
+
+    try {
+      // Exclude node_modules, .git, and other common ignored directories
+      const files = await vscode.workspace.findFiles(
+        '**/*',
+        '{**/node_modules/**,**/.git/**}'
+      );
+
+      // Sort files by name and convert to QuickPick items
+      const fileItems = files
+        .map(file => ({
+          label: vscode.workspace.asRelativePath(file),
+          uri: file,
+          description: file.fsPath
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label));
+
+
+      const selectedItem = await vscode.window.showQuickPick(fileItems, {
+        placeHolder: 'Select a file to reference',
+        matchOnDescription: true,
+        matchOnDetail: true
+      });
+
+      if (selectedItem) {
+        try {
+          const fileContent = await vscode.workspace.fs.readFile(selectedItem.uri);
+          const isImage = selectedItem.label.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i);
+
+          const content = isImage
+            ? Buffer.from(fileContent).toString('base64')
+            : Buffer.from(fileContent).toString('utf8');
+
+          this.conversationContext.files[selectedItem.label] = {
+            content,
+            isAuto: true,
+            isImage: !!isImage
+          };
+          this.conversationContext.filesSent = false;
+
+          this.sendMessage({
+            type: "insertFileReference",
+            fileName: selectedItem.label,
+            displayName: selectedItem.label.split('/').pop() || selectedItem.label
+          });
+        } catch (error) {
+          console.error('Error reading file:', error);
+          vscode.window.showErrorMessage(`Failed to read file: ${selectedItem.label}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error in handleFileSearch:', error); // Debug log
+      vscode.window.showErrorMessage('Failed to search files');
+    }
+  }
+
+  public handleRemoveFileReference(fileName: string) {
+    delete this.conversationContext.files[fileName];
+    if (Object.keys(this.conversationContext.files).length > 0) {
+      this.conversationContext.filesSent = false;
+    }
+    this.sendMessage({
+      type: "removeFileReference",
+      fileName: fileName
+    });
+  }
+
+  public async addCurrentFileToContext() {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+      Object.entries(this.conversationContext.files).forEach(([key, value]) => {
+        if (value.isAuto) {
+          this.handleRemoveFileReference(key);
+        }
+      });
+      return;
+    }
+
+    const fileName = editor.document.fileName;
+    const displayName = path.basename(fileName);
+    const content = editor.document.getText();
+    const isImage = displayName.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i);
+
+    if (isImage) {
+      const fileContent = await vscode.workspace.fs.readFile(editor.document.uri);
+      this.conversationContext.files[displayName] = {
+        content: Buffer.from(fileContent).toString('base64'),
+        isImage: true
+      };
+    } else {
+      this.conversationContext.files[displayName] = {
+        content,
+        isImage: false
+      };
+    }
+
+    this.conversationContext.filesSent = false;
+    this.sendMessage({
+      type: "insertFileReference",
+      fileName: fileName,
+      displayName: fileName.split('/').pop() || fileName,
+      isAuto: true
+    });
   }
 }

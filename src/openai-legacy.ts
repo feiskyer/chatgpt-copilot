@@ -13,7 +13,7 @@
 */
 import { createAzure } from '@ai-sdk/azure';
 import { createOpenAI } from '@ai-sdk/openai';
-import { streamText } from 'ai';
+import { CoreMessage, streamText } from 'ai';
 import ChatGptViewProvider, { logger } from "./chatgpt-view-provider";
 import { ModelConfig } from "./model-config";
 
@@ -41,13 +41,29 @@ export function initGptLegacyModel(viewProvider: ChatGptViewProvider, config: Mo
 }
 
 // chatCompletion is a function that completes the chat.
-export async function chatCompletion(provider: ChatGptViewProvider, question: string, updateResponse: (message: string) => void) {
+export async function chatCompletion(provider: ChatGptViewProvider, question: string, images: Record<string, string>, updateResponse: (message: string) => void) {
     if (!provider.apiCompletion) {
         throw new Error("apiCompletion is not defined");
     }
 
+    var chatMessage: CoreMessage = {
+        role: "user",
+        content: [
+            {
+                type: "text",
+                text: question
+            }
+        ]
+    };
+    Object.entries(images).forEach(([_, content]) => {
+        (chatMessage.content as any[]).push({
+            type: "image",
+            image: content
+        });
+    });
+
     logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question}`);
-    provider.chatHistory.push({ role: "user", content: question });
+    provider.chatHistory.push(chatMessage);
     let prompt = "";
     for (const message of provider.chatHistory) {
         prompt += `${message.role === "user" ? "Human:" : "AI:"} ${message.content}\n`;
@@ -64,9 +80,6 @@ export async function chatCompletion(provider: ChatGptViewProvider, question: st
     });
     const chunks = [];
     for await (const textPart of result.textStream) {
-        // logger.appendLine(
-        //     `INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question} response: ${JSON.stringify(textPart, null, 2)}`
-        // );
         updateResponse(textPart);
         chunks.push(textPart);
     }

@@ -142,7 +142,6 @@
             }
 
             if (button.classList.contains('delete-prompt')) {
-                console.log('Sending delete message for prompt:', promptId);
                 vscode.postMessage({
                     type: 'deletePrompt',
                     id: promptId

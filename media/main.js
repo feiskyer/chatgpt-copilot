@@ -248,6 +248,53 @@
             case "setActivePrompt":
                 showActivePrompt(message.name);
                 break;
+            case "insertFileReference":
+                const input = document.getElementById("question-input");
+                const fileRefsContainer = document.getElementById("file-references");
+
+                if (message.isAuto) {
+                    const autoTags = fileRefsContainer.querySelectorAll('.file-reference-tag[data-auto="true"]');
+                    autoTags.forEach(tag => tag.remove());
+                }
+
+                // Add file type icon based on extension
+                const isImage = message.fileName.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i);
+                const fileIcon = isImage ?
+                    '<svg xmlns="http://www.w3.org/2000/svg" class="file-icon" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M4 5h13v7h2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h8v-2H4V5zm16 14v-3h2v3c0 1.1-.9 2-2 2h-3v-2h3zM14 17h2v3h-2zM10 17h2v3h-2zM21 11v2h-2v-2z"/></svg>' :
+                    '<svg xmlns="http://www.w3.org/2000/svg" class="file-icon" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>';
+
+                const fileTag = document.createElement('span');
+                fileTag.className = 'file-reference-tag';
+                if (message.isAuto) {
+                    fileTag.setAttribute('data-auto', 'true');
+                }
+
+                fileTag.innerHTML = `
+                    ${fileIcon}
+                    ${message.displayName}
+                    <span class="remove-file" data-filepath="${message.fileName}">×</span>
+                `;
+
+                fileTag.querySelector('.remove-file').addEventListener('click', function () {
+                    const filepath = this.getAttribute('data-filepath');
+                    this.parentElement.remove();
+                    vscode.postMessage({
+                        type: "removeFileReference",
+                        fileName: filepath
+                    });
+                });
+
+                fileRefsContainer.appendChild(fileTag);
+
+                if (!message.isAuto) {
+                    const cursorPos = input.selectionStart;
+                    input.value = input.value.substring(0, cursorPos - 1) + input.value.substring(cursorPos);
+                    input.setSelectionRange(cursorPos - 1, cursorPos - 1);
+                }
+                break;
+            case "clearFileReferences":
+                document.getElementById('file-references').innerHTML = '';
+                break;
             default:
                 break;
         }
@@ -255,15 +302,16 @@
 
     const addFreeTextQuestion = () => {
         const input = document.getElementById("question-input");
-        if (input.value?.length > 0) {
-            // Ignore if input starts with / or #
-            if (input.value.startsWith("/") || input.value.startsWith("#")) {
-                return;
-            }
+        const value = input.value;
 
+        if (value.startsWith('/') || value.startsWith('#') || value.startsWith('@')) {
+            return;
+        }
+
+        if (value?.length > 0) {
             vscode.postMessage({
                 type: "addFreeTextQuestion",
-                value: input.value,
+                value: value,
             });
 
             input.value = "";
@@ -294,9 +342,26 @@
     };
 
     document.getElementById('question-input').addEventListener("keydown", function (event) {
-        if (event.key == "Enter" && !event.shiftKey && !event.isComposing) {
+        if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
             event.preventDefault();
+            // 如果是命令，不阻止默认行为
+            if (this.value.startsWith('/') || this.value.startsWith('#') || this.value.startsWith('@')) {
+                return;
+            }
             addFreeTextQuestion();
+        }
+    });
+
+    document.getElementById('question-input').addEventListener("keyup", function (event) {
+        if (event.key === "@") {
+            const cursorPos = this.selectionStart;
+            const textBeforeCursor = this.value.substring(0, cursorPos);
+
+            if (cursorPos === 1 || textBeforeCursor.charAt(cursorPos - 2) === ' ') {
+                vscode.postMessage({
+                    type: "searchFile"
+                });
+            }
         }
     });
 
@@ -496,6 +561,11 @@
 
         $("#question-input").autocomplete({
             source: function (request, response) {
+                if (request.term.startsWith('@')) {
+                    response([]);
+                    return;
+                }
+
                 if (request.term.startsWith('#')) {
                     vscode.postMessage({
                         type: "searchPrompts",
@@ -518,7 +588,7 @@
 
                             response(message.titles.map(title => ({
                                 label: title.name,
-                                value: title.content,  // Store the content in value
+                                value: title.content,
                                 promptId: title.id,
                                 name: title.name
                             })));
@@ -546,7 +616,6 @@
                 if (ui.item.isManagePrompt) {
                     vscode.postMessage({ type: "togglePromptManager" });
                 } else if (ui.item.promptId) {
-                    // Send the prompt selection message
                     vscode.postMessage({
                         type: "selectPrompt",
                         prompt: {
@@ -567,12 +636,12 @@
                 // Clear the input after selection
                 $(this).val("");
                 return false;
-            }
+            },
         });
 
-        // Add keydown handler to prevent sending when # is typed
+        // Add keydown handler to prevent sending when # or @ is typed
         $("#question-input").on("keydown", function (event) {
-            if (event.key === "Enter" && this.value.startsWith("#")) {
+            if (event.key === "Enter" && (this.value.startsWith("#") || this.value.startsWith("@"))) {
                 event.preventDefault();
                 return false;
             }
@@ -775,6 +844,16 @@
         #qa-list, #introduction, #conversation-list {
             margin-top: 20px;
         }
-    `;
 
+        .file-reference-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .file-icon {
+            display: inline-block;
+            vertical-align: middle;
+        }
+    `;
 })();

@@ -4,7 +4,7 @@
   "displayName": "ChatGPT Copilot",
   "icon": "images/ai-logo.png",
   "description": "An VS Code ChatGPT Copilot Extension",
-  "version": "4.6.2",
+  "version": "4.6.3",
   "aiKey": "",
   "repository": {
     "url": "https://github.com/feiskyer/chatgpt-copilot"
@@ -237,6 +237,11 @@
       {
         "command": "chatgpt-copilot.togglePromptManager",
         "title": "ChatGPT: Toggle Prompt Manager"
+      },
+      {
+        "command": "chatgpt-copilot.addCurrentFile",
+        "title": "Add Current File to Chat Context",
+        "category": "ChatGPT"
       }
     ],
     "viewsContainers": {
@@ -260,6 +265,12 @@
     "configuration": {
       "title": "ChatGPT",
       "properties": {
+        "chatgpt.autoAddCurrentFile": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically add current file to chat context when switching files",
+          "order": 122
+        },
         "chatgpt.gpt3.apiKey": {
           "type": "string",
           "markdownDescription": "OpenAI API key. [Get your API Key from OpenAI](https://beta.openai.com/account/api-keys).**",

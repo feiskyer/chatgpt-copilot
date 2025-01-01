@@ -13,7 +13,7 @@
 */
 import { createAzure } from '@ai-sdk/azure';
 import { createOpenAI } from '@ai-sdk/openai';
-import { generateText, streamText } from 'ai';
+import { CoreMessage, generateText, streamText } from 'ai';
 import ChatGptViewProvider, { logger } from "./chatgpt-view-provider";
 import { ModelConfig } from "./model-config";
 
@@ -42,7 +42,7 @@ export async function initGptModel(viewProvider: ChatGptViewProvider, config: Mo
 }
 
 // chatGpt is a function that completes the chat.
-export async function chatGpt(provider: ChatGptViewProvider, question: string, updateResponse: (message: string) => void) {
+export async function chatGpt(provider: ChatGptViewProvider, question: string, images: Record<string, string>, updateResponse: (message: string) => void) {
     if (!provider.apiChat) {
         throw new Error("apiChat is undefined");
     }
@@ -50,10 +50,26 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, u
     try {
         logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question}`);
 
+        var chatMessage: CoreMessage = {
+            role: "user",
+            content: [
+                {
+                    type: "text",
+                    text: question
+                }
+            ]
+        };
+        Object.entries(images).forEach(([_, content]) => {
+            (chatMessage.content as any[]).push({
+                type: "image",
+                image: content
+            });
+        });
+
         if (provider.model?.startsWith("o1")) {
             // streaming not supported for o1 models
             if (provider.chatHistory.length <= 1) {
-                provider.chatHistory.push({ role: "user", content: question });
+                provider.chatHistory.push(chatMessage);
             }
             provider.chatHistory.push({ role: "user", content: provider.modelConfig.systemPrompt });
             const result = await generateText({
@@ -69,7 +85,7 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, u
         }
 
         const chunks = [];
-        provider.chatHistory.push({ role: "user", content: question });
+        provider.chatHistory.push(chatMessage);
         const result = await streamText({
             system: provider.modelConfig.systemPrompt,
             model: provider.apiChat,

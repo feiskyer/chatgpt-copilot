@@ -240,8 +240,6 @@ export async function activate(context: vscode.ExtensionContext) {
     "chatgpt-copilot.debugPrompts",
     async () => {
       const prompts = context.globalState.get<PromptStore>("prompts");
-      console.log('Current stored prompts:', prompts);
-      // 在输出面板显示
       vscode.window.showInformationMessage(
         `Stored prompts: ${JSON.stringify(prompts, null, 2)}`
       );
@@ -292,6 +290,13 @@ export async function activate(context: vscode.ExtensionContext) {
     }
   );
 
+  let addCurrentFileCommand = vscode.commands.registerCommand(
+    'chatgpt-copilot.addCurrentFile',
+    () => {
+      provider.addCurrentFileToContext();
+    }
+  );
+
   context.subscriptions.push(
     view,
     freeText,
@@ -305,7 +310,8 @@ export async function activate(context: vscode.ExtensionContext) {
     promptManagerView,
     managePrompts,
     debugPrompts,
-    togglePromptManager
+    togglePromptManager,
+    addCurrentFileCommand
   );
 
   const setContext = () => {

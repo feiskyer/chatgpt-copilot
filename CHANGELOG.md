@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v4.6.3
+
+* feat: chat with files (including text files and images)
+
 ## v4.6.2
 
 * feat: set selected prompt as system prompt

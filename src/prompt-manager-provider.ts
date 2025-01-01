@@ -26,7 +26,6 @@ export default class PromptManagerProvider implements vscode.WebviewViewProvider
     }
 
     private savePrompts() {
-        console.log('Saving prompts:', this.store);
         this.context.globalState.update("prompts", this.store);
     }
 
@@ -44,7 +43,6 @@ export default class PromptManagerProvider implements vscode.WebviewViewProvider
         webviewView.webview.html = this.getWebviewContent(webviewView.webview);
 
         webviewView.webview.onDidReceiveMessage(async (data) => {
-            console.log('Received message:', data);
             switch (data.type) {
                 case "addPrompt":
                     this.addPrompt(data.prompt);
@@ -96,7 +94,6 @@ export default class PromptManagerProvider implements vscode.WebviewViewProvider
             createdAt: now,
             updatedAt: now
         };
-        console.log('Adding new prompt:', newPrompt);
         this.store.prompts.push(newPrompt);
         this.savePrompts();
         this.sendPromptsToAll(this.store.prompts);
