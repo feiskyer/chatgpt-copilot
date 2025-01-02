@@ -614,7 +614,7 @@
     "@types/glob": "^8.1.0",
     "@types/isomorphic-fetch": "^0.0.39",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^22.10.2",
+    "@types/node": "^22.10.4",
     "@types/uuid": "^10.0.0",
     "@types/vscode": "^1.96.0",
     "@types/vscode-webview": "^1.57.5",
