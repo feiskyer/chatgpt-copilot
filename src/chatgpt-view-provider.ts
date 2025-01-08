@@ -808,12 +808,11 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 								</svg>
 								<h2>Features</h2>
 								<ul class="flex flex-col gap-3.5 text-xs">
-									<li class="features-li w-full border border-zinc-700 p-3 rounded-md">Chat with your code and documents in conversations</li>
-                  <li class="features-li w-full border border-zinc-700 p-3 rounded-md">Prompt manager and chat with your own prompts (use # to search)</li>
-									<li class="features-li w-full border border-zinc-700 p-3 rounded-md">Improve your code, add tests & find bugs</li>
-									<li class="features-li w-full border border-zinc-700 p-3 rounded-md">Copy or create new files automatically</li>
-									<li class="features-li w-full border border-zinc-700 p-3 rounded-md">Syntax highlighting with auto language detection</li>
-								</ul>
+                  <li class="features-li w-full border border-zinc-700 p-3 rounded-md">Seamlessly chat with code & docs (@ to add).</li>
+                  <li class="features-li w-full border border-zinc-700 p-3 rounded-md">Manage prompts & search custom ones (# to search).</li>
+                  <li class="features-li w-full border border-zinc-700 p-3 rounded-md">Enhance code: add tests, fix bugs, and optimize.</li>
+                  <li class="features-li w-full border border-zinc-700 p-3 rounded-md">Auto-detect language with syntax highlighting.</li>
+                  </ul>
 							</div>
 						</div>
 						<div class="flex flex-col gap-4 h-full items-center justify-end text-center">

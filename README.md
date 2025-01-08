@@ -19,6 +19,7 @@ ChatGPT Copilot is a powerful and telemetry-free extension for Visual Studio Cod
 ## Features
 
 - 🤖 Supports GPT-4, o1, Claude, Gemini, Ollama, Github and other OpenAI-compatible local models with your API key from OpenAI, Azure OpenAI Service, Google, Anthropic or other providers.
+- 📂 Chat with your Files: Add multiple files and images to your chat using `@` for seamless collaboration.
 - 📃 Streaming Answers: Receive real-time responses to your prompts in the sidebar conversation window.
 - 📖 Prompt Manager: Chat with your own prompts (use # to search).
 - 🔥 Stop Responses: Interrupt responses at any time to save your tokens.
