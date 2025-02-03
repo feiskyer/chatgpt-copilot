@@ -66,8 +66,8 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
             });
         });
 
-        if (provider.model?.startsWith("o1")) {
-            // streaming not supported for o1 models
+        if (provider.model?.startsWith("o1") || provider.model?.startsWith("o3")) {
+            // streaming not supported for o1/o3 models
             if (provider.chatHistory.length <= 1) {
                 provider.chatHistory.push(chatMessage);
             }
@@ -93,14 +93,37 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
             maxTokens: provider.modelConfig.maxTokens,
             topP: provider.modelConfig.topP,
             temperature: provider.modelConfig.temperature,
+            // experimental_transform: smoothStream(),
         });
-        for await (const textPart of result.textStream) {
+        // for await (const textPart of result.textStream) {
+        //     logger.appendLine(
+        //         `INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question} response: ${JSON.stringify(textPart, null, 2)}`
+        //     );
+        //     updateResponse(textPart);
+        //     chunks.push(textPart);
+        // }
+        for await (const part of result.fullStream) {
             // logger.appendLine(
-            //     `INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question} response: ${JSON.stringify(textPart, null, 2)}`
+            //     `INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question} response: ${JSON.stringify(part, null, 2)}`
             // );
-            updateResponse(textPart);
-            chunks.push(textPart);
+            switch (part.type) {
+                case 'text-delta': {
+                    updateResponse(part.textDelta);
+                    chunks.push(part.textDelta);
+                    break;
+                }
+                case 'reasoning': {
+                    updateResponse(part.textDelta);
+                    chunks.push(part.textDelta);
+                    break;
+                }
+                default: {
+                    // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question} response: ${JSON.stringify(part, null, 2)}`);
+                    break;
+                }
+            }
         }
+
         provider.response = chunks.join("");
         provider.chatHistory.push({ role: "assistant", content: chunks.join("") });
         logger.appendLine(`INFO: chatgpt.response: ${provider.response}`);

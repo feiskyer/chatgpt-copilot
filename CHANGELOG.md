@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v4.6.5
+
+* feat: add support for reasoning models (DeepSeek R1 and o3-mini)
+
+## v4.6.4
+
+* doc: refine startup doc
+
 ## v4.6.3
 
 * feat: chat with files (including text files and images)

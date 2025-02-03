@@ -48,7 +48,9 @@ Configure the extension by setting your API keys and preferences in the settings
 
 Refer to the following sections for more details on configuring various AI services.
 
-### OpenAI
+<details>
+
+<summary> OpenAI </summary>
 
 | Configuration | Example |
 | ------------- | ----------- |
@@ -56,7 +58,10 @@ Refer to the following sections for more details on configuring various AI servi
 | Model      | gpt-4o |
 | API Base URL | <https://api.openai.com/v1> (Optional) |
 
-### Ollama
+</details>
+
+<details>
+<summary> Ollama </summary>
 
 Pull your image first from Ollama [library](https://ollama.com/library) and then setup the base URL and custom model.
 
@@ -67,7 +72,49 @@ Pull your image first from Ollama [library](https://ollama.com/library) and then
 | Custom Model | qwen2.5 |
 | API Base URL | <http://localhost:11434/v1/> |
 
-### Anthropic Claude
+</details>
+
+<details>
+<summary> DeepSeek </summary>
+
+Ollama provider:
+
+| Configuration | Example                      |
+| ------------- | ---------------------------- |
+| API Key       | ollama (Optional)            |
+| Model         | custom                       |
+| Custom Model  | deepseek-r1                  |
+| API Base URL  | <http://localhost:11434/v1/> |
+
+DeepSeek provider:
+
+| Configuration | Example                    |
+| ------------- | -------------------------- |
+| API Key       | your-deepseek-key          |
+| Model         | deepseek-reasoner          |
+| API Base URL  | <https://api.deepseek.com> |
+
+SiliconFlow (SiliconCloud) provider:
+
+| Configuration | Example                       |
+| ------------- | ----------------------------- |
+| API Key       | your-siliconflow-key          |
+| Model         | custom                        |
+| Custom Model  | deepseek-ai/DeepSeek-R1       |
+| API Base URL  | <https://api.siliconflow.cn/v1> |
+
+Azure AI Foundry provider:
+
+| Configuration | Example                                              |
+| ------------- | ---------------------------------------------------- |
+| API Key       | your-azure-ai-key                                    |
+| Model         | DeepSeek-R1                                          |
+| API Base URL  | https://[endpoint-name].[region].models.ai.azure.com |
+
+</details>
+
+<details>
+<summary> Anthropic Claude </summary>
 
 | Configuration | Example |
 | ------------- | ----------- |
@@ -75,7 +122,10 @@ Pull your image first from Ollama [library](https://ollama.com/library) and then
 | Model      | claude-3-sonnet-20240229 |
 | API Base URL | <https://api.anthropic.com/v1> (Optional) |
 
-### Google Gemini
+</details>
+
+<details>
+<summary> Google Gemini </summary>
 
 | Configuration | Example |
 | ------------- | ----------- |
@@ -83,7 +133,10 @@ Pull your image first from Ollama [library](https://ollama.com/library) and then
 | Model      | gemini-2.0-flash-thinking-exp-1219 |
 | API Base URL | <https://generativelanguage.googleapis.com/v1beta> (Optional) |
 
-### Azure OpenAI Service
+</details>
+
+<details>
+<summary> Azure OpenAI </summary>
 
 For Azure OpenAI Service, apiBaseUrl should be set to format `https://[YOUR-ENDPOINT-NAME].openai.azure.com/openai/deployments/[YOUR-DEPLOYMENT-NAME]`.
 
@@ -93,7 +146,10 @@ For Azure OpenAI Service, apiBaseUrl should be set to format `https://[YOUR-ENDP
 | Model      | gpt-4o |
 | API Base URL | <https://endpoint-name.openai.azure.com/openai/deployments/deployment-name> |
 
-### Github Models
+</details>
+
+<details>
+<summary> Github Models </summary>
 
 For [Github Models](https://github.com/marketplace/models), get your Github token from [here](https://github.com/settings/tokens).
 
@@ -103,7 +159,10 @@ For [Github Models](https://github.com/marketplace/models), get your Github toke
 | Model      | o1 |
 | API Base URL | <https://models.inference.ai.azure.com> |
 
-### OpenAI compatible APIs
+</details>
+
+<details>
+<summary> OpenAI compatible Models </summary>
 
 To use OpenAI compatible APIs, you need to set a custom model name: set model to `"custom"` and then specify your custom model name.
 
@@ -116,14 +175,7 @@ Example for [groq](https://console.groq.com/):
 | Custom Model | mixtral-8x7b-32768 |
 | API Base URL | <https://api.groq.com/openai/v1> |
 
-Another example for [DeepSeek](https://www.deepseek.com/):
-
-| Configuration | Example |
-| ------------- | ----------- |
-| API Key     | your-deepseek-key |
-| Model      | custom |
-| Custom Model | deepseek-chat|
-| API Base URL | <https://api.deepseek.com> |
+</details>
 
 ## Configurations
 

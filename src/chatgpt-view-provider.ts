@@ -330,7 +330,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       return false;
     }
 
-    return this.model.includes("instruct") || this.model.includes("code-");
+    return this.model.includes("instruct-") || this.model.includes("code-");
   }
 
   private get isGpt35Model(): boolean {
