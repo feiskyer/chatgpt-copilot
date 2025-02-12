@@ -41,7 +41,7 @@ export function initGptLegacyModel(viewProvider: ChatGptViewProvider, config: Mo
 }
 
 // chatCompletion is a function that completes the chat.
-export async function chatCompletion(provider: ChatGptViewProvider, question: string, images: Record<string, string>, updateResponse: (message: string) => void) {
+export async function chatCompletion(provider: ChatGptViewProvider, question: string, images: Record<string, string>, startResponse: () => void, updateResponse: (message: string) => void) {
     if (!provider.apiCompletion) {
         throw new Error("apiCompletion is not defined");
     }
@@ -62,7 +62,10 @@ export async function chatCompletion(provider: ChatGptViewProvider, question: st
         });
     });
 
+    /* placeholder for response */
+    startResponse();
     logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question}`);
+
     provider.chatHistory.push(chatMessage);
     let prompt = "";
     for (const message of provider.chatHistory) {

@@ -4,7 +4,7 @@
   "displayName": "ChatGPT Copilot",
   "icon": "images/ai-logo.png",
   "description": "An VS Code ChatGPT Copilot Extension",
-  "version": "4.6.5",
+  "version": "4.6.6",
   "aiKey": "",
   "repository": {
     "url": "https://github.com/feiskyer/chatgpt-copilot"
@@ -265,27 +265,57 @@
     "configuration": {
       "title": "ChatGPT",
       "properties": {
-        "chatgpt.autoAddCurrentFile": {
-          "type": "boolean",
-          "default": true,
-          "description": "Automatically add current file to chat context when switching files",
-          "order": 122
+        "chatgpt.gpt3.provider": {
+          "type": "string",
+          "markdownDescription": "Provider of LLM.",
+          "enum": [
+            "Auto",
+            "OpenAI",
+            "Ollama",
+            "Azure",
+            "Anthropic",
+            "Google",
+            "Mistral",
+            "xAI",
+            "Together",
+            "DeepSeek",
+            "Groq",
+            "Perplexity",
+            "OpenRouter"
+          ],
+          "markdownEnumDescriptions": [
+            "Auto - Infer provider from model",
+            "OpenAI - OpenAI and OpenAI-compatible providers",
+            "Ollama - Ollama local provider",
+            "Azure - Azure OpenAI AI",
+            "Anthropic - Anthropic claude provider",
+            "Google - Google Generative AI",
+            "Mistral",
+            "xAI",
+            "Together",
+            "DeepSeek",
+            "Groq",
+            "Perplexity",
+            "OpenRouter"
+          ],
+          "default": "Auto",
+          "order": 0
         },
         "chatgpt.gpt3.apiKey": {
           "type": "string",
-          "markdownDescription": "OpenAI API key. [Get your API Key from OpenAI](https://beta.openai.com/account/api-keys).**",
+          "markdownDescription": "API key of your LLM provider",
           "order": 1
         },
         "chatgpt.gpt3.apiBaseUrl": {
           "type": "string",
           "default": "https://api.openai.com/v1",
-          "markdownDescription": "Optional override for the OpenAI API base URL. If you customize it, please make sure you have the same format. e.g. starts with `https://` without a trailing slash. The completions endpoint suffix is added internally, e.g. for reference: `${apiBaseUrl}/v1/completions`",
+          "markdownDescription": "Optional override for the API base URL. Please start with `https://` without a trailing slash. The completions endpoint suffix is added internally, e.g. for reference: `${apiBaseUrl}/v1/completions`",
           "order": 2
         },
         "chatgpt.gpt3.organization": {
           "type": "string",
-          "markdownDescription": "OpenAI Organization ID. [Documentation](https://beta.openai.com/docs/api-reference/requesting-organization).**",
-          "order": 3
+          "markdownDescription": "OpenAI Organization ID. [Documentation](https://beta.openai.com/docs/api-reference/requesting-organization).",
+          "order": 8
         },
         "chatgpt.gpt3.model": {
           "type": "string",
@@ -613,6 +643,12 @@
           "default": true,
           "description": "Whenever there is a new question or response added to the conversation window, extension will automatically scroll to the bottom. You can change that behaviour by disabling this setting.",
           "order": 92
+        },
+        "chatgpt.autoAddCurrentFile": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically add current file to chat context when switching files",
+          "order": 122
         }
       }
     }
@@ -632,17 +668,17 @@
     "@types/glob": "^8.1.0",
     "@types/isomorphic-fetch": "^0.0.39",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^22.13.0",
+    "@types/node": "^22.13.1",
     "@types/uuid": "^10.0.0",
     "@types/vscode": "^1.96.0",
     "@types/vscode-webview": "^1.57.5",
     "@vscode/test-electron": "^2.4.1",
     "@vscode/vsce": "^3.2.2",
-    "esbuild": "^0.24.2",
-    "eslint": "^9.19.0",
+    "esbuild": "^0.25.0",
+    "eslint": "^9.20.0",
     "glob": "^11.0.1",
     "mocha": "^11.1.0",
-    "prettier": "^3.4.2",
+    "prettier": "^3.5.0",
     "ts-loader": "^9.5.2",
     "typescript": "^5.7.3",
     "webpack": "^5.97.1"
@@ -650,10 +686,17 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^1.1.6",
     "@ai-sdk/azure": "^1.1.9",
-    "@ai-sdk/google": "^1.1.8",
+    "@ai-sdk/deepseek": "^0.1.8",
+    "@ai-sdk/google": "^1.1.11",
+    "@ai-sdk/groq": "^1.1.7",
+    "@ai-sdk/mistral": "^1.1.8",
     "@ai-sdk/openai": "^1.1.9",
+    "@ai-sdk/perplexity": "^0.0.7",
+    "@ai-sdk/togetherai": "^0.1.9",
+    "@ai-sdk/xai": "^1.1.8",
+    "@openrouter/ai-sdk-provider": "^0.2.1",
     "@types/minimatch": "^5.1.2",
-    "ai": "^4.1.17",
+    "ai": "^4.1.34",
     "ajv": "^8.17.1",
     "axios": "^1.7.9",
     "cheerio": "^1.0.0",
@@ -663,10 +706,11 @@
     "isomorphic-fetch": "^3.0.0",
     "keyv": "^5.2.3",
     "minimatch": "^10.0.1",
-    "openai": "^4.82.0",
+    "ollama-ai-provider": "^1.2.0",
+    "openai": "^4.83.0",
     "p-timeout": "^6.1.4",
     "punycode": "^2.3.1",
-    "puppeteer": "^24.1.1",
+    "puppeteer": "^24.2.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "puppeteer-extra-plugin-user-data-dir": "^2.4.1",

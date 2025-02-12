@@ -19,8 +19,12 @@ import { CoreMessage } from "ai";
 import delay from "delay";
 import path from "path";
 import * as vscode from "vscode";
-import { initClaudeModel } from "./anthropic";
-import { initGeminiModel } from "./gemini";
+import {
+  initClaudeModel, initDeepSeekModel, initGeminiModel,
+  initGroqModel, initMistralModel, initOllamaModel,
+  initOpenRouterModel, initPerplexityModel,
+  initTogetherModel, initXAIModel
+} from "./llms";
 import { ModelConfig } from "./model-config";
 import { chatGpt, initGptModel } from "./openai";
 import { chatCompletion, initGptLegacyModel } from "./openai-legacy";
@@ -40,6 +44,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
   public subscribeToResponse: boolean;
   public autoScroll: boolean;
+  public provider: string = "Auto";
   public model?: string;
   private apiBaseUrl?: string;
   public modelConfig!: ModelConfig;
@@ -51,6 +56,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public inProgress: boolean = false;
   public abortController?: AbortController;
   public currentMessageId: string = "";
+  public reasoning: string = "";
   public response: string = "";
   public chatHistory: CoreMessage[] = [];
 
@@ -89,6 +95,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         .getConfiguration("chatgpt")
         .get("gpt3.customModel") as string;
     }
+    this.provider = vscode.workspace
+      .getConfiguration("chatgpt")
+      .get("gpt3.provider") as string;
     this.apiBaseUrl = vscode.workspace
       .getConfiguration("chatgpt")
       .get("gpt3.apiBaseUrl") as string;
@@ -333,7 +342,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     return this.model.includes("instruct-") || this.model.includes("code-");
   }
 
-  private get isGpt35Model(): boolean {
+  private get isOpenAIModel(): boolean {
     return !this.isCodexModel && !this.isClaude && !this.isGemini;
   }
 
@@ -345,20 +354,41 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     return !!this.model?.startsWith("gemini-") || !!this.model?.startsWith("learnlm");
   }
 
+  private get aiProvider(): string {
+    if (this.provider == "Auto") {
+      if (this.isOpenAIModel) {
+        return "OpenAI";
+      }
+
+      if (this.isClaude) {
+        return "Anthropic";
+      }
+
+      if (this.isGemini) {
+        return "Google";
+      }
+
+      return "OpenAILegacy";
+    }
+
+    return this.provider;
+  }
+
   public async prepareConversation(modelChanged = false): Promise<boolean> {
     this.conversationId = this.conversationId || this.getRandomId();
     const state = this.context.globalState;
     const configuration = vscode.workspace.getConfiguration("chatgpt");
+    let provider = configuration.get("gpt3.provider") as string;
 
     if (this.model == "custom") {
       this.model = configuration.get("gpt3.customModel") as string;
     }
 
     if (
-      (this.isGpt35Model && !this.apiChat) ||
+      (this.isOpenAIModel && !this.apiChat) ||
       (this.isClaude && !this.apiChat) ||
       (this.isGemini && !this.apiChat) ||
-      (!this.isGpt35Model && !this.isClaude && !this.isGemini && !this.apiCompletion) ||
+      (!this.isOpenAIModel && !this.isClaude && !this.isGemini && !this.apiCompletion) ||
       modelChanged
     ) {
       let apiKey =
@@ -379,7 +409,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       }
 
       let apiBaseUrl = configuration.get("gpt3.apiBaseUrl") as string;
-      if (!apiBaseUrl && this.isGpt35Model) {
+      if (!apiBaseUrl && this.isOpenAIModel) {
         apiBaseUrl = "https://api.openai.com/v1";
       }
       if (!apiBaseUrl || apiBaseUrl == "https://api.openai.com/v1") {
@@ -438,16 +468,60 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       }
 
       this.modelConfig = new ModelConfig(
-        { apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, systemPrompt, searchGrounding },
+        { provider, apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, systemPrompt, searchGrounding },
       );
-      if (this.isGpt35Model) {
-        await initGptModel(this, this.modelConfig);
-      } else if (this.isClaude) {
-        await initClaudeModel(this, this.modelConfig);
-      } else if (this.isGemini) {
-        await initGeminiModel(this, this.modelConfig);
-      } else {
-        initGptLegacyModel(this, this.modelConfig);
+      switch (this.aiProvider) {
+        case "OpenAI":
+          await initGptModel(this, this.modelConfig);
+          break;
+
+        case "Azure":
+          await initGptModel(this, this.modelConfig);
+          break;
+
+        case "Anthropic":
+          await initClaudeModel(this, this.modelConfig);
+          break;
+
+        case "Google":
+          await initGeminiModel(this, this.modelConfig);
+          break;
+
+        case "Ollama":
+          await initOllamaModel(this, this.modelConfig);
+          break;
+
+        case "Mistral":
+          await initMistralModel(this, this.modelConfig);
+          break;
+
+        case "xAI":
+          await initXAIModel(this, this.modelConfig);
+          break;
+
+        case "Together":
+          await initTogetherModel(this, this.modelConfig);
+          break;
+
+        case "DeepSeek":
+          await initDeepSeekModel(this, this.modelConfig);
+          break;
+
+        case "Groq":
+          await initGroqModel(this, this.modelConfig);
+          break;
+
+        case "Perplexity":
+          await initPerplexityModel(this, this.modelConfig);
+          break;
+
+        case "OpenRouter":
+          await initOpenRouterModel(this, this.modelConfig);
+          break;
+
+        default:
+          initGptLegacyModel(this, this.modelConfig);
+          break;
       }
     }
 
@@ -520,11 +594,32 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     });
 
     const responseInMarkdown = !this.isCodexModel;
+    const startResponse = () => {
+      this.sendMessage({
+        type: "startResponse",
+        value: this.response,
+        id: this.currentMessageId,
+        messageId: this.currentMessageId,
+        autoScroll: this.autoScroll,
+        responseInMarkdown,
+      });
+    };
     const updateResponse = (message: string) => {
       this.response += message;
       this.sendMessage({
         type: "addResponse",
         value: this.response,
+        id: this.currentMessageId,
+        messageId: this.currentMessageId,
+        autoScroll: this.autoScroll,
+        responseInMarkdown,
+      });
+    };
+    const updateReasoning = (message: string) => {
+      this.reasoning += message;
+      this.sendMessage({
+        type: "addReasoning",
+        value: this.reasoning,
         id: this.currentMessageId,
         messageId: this.currentMessageId,
         autoScroll: this.autoScroll,
@@ -552,10 +647,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         this.conversationContext.filesSent = true;
       }
 
-      if (this.isGpt35Model || this.isClaude || this.isGemini) {
-        await chatGpt(this, question, imageFiles, updateResponse);
+      if (this.provider != "OpenAILegacy") {
+        await chatGpt(this, question, imageFiles, startResponse, updateResponse, updateReasoning);
       } else {
-        await chatCompletion(this, question, imageFiles, updateResponse);
+        await chatCompletion(this, question, imageFiles, startResponse, updateResponse);
       }
 
       if (options.previousAnswer != null) {
@@ -586,6 +681,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         value: this.response,
         done: true,
         id: this.currentMessageId,
+        messageId: this.currentMessageId,
         autoScroll: this.autoScroll,
         responseInMarkdown,
       });
@@ -720,7 +816,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         this.context.extensionUri,
         "media",
         "vendor",
-        "hjquery-ui.css",
+        "jquery-ui.css",
       ),
     );
     const vendorHighlightJs = webview.asWebviewUri(

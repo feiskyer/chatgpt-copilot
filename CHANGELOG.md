@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v4.6.6
+
+* Add support for more AI/LLM providers
+* Show reasoning response for deepseek/o1/o3
+
 ## v4.6.5
 
 * feat: add support for reasoning models (DeepSeek R1 and o3-mini)

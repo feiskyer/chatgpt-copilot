@@ -13,9 +13,10 @@
 */
 import { createAzure } from '@ai-sdk/azure';
 import { createOpenAI } from '@ai-sdk/openai';
-import { CoreMessage, generateText, streamText } from 'ai';
+import { CoreMessage, extractReasoningMiddleware, generateText, streamText, wrapLanguageModel } from 'ai';
 import ChatGptViewProvider, { logger } from "./chatgpt-view-provider";
 import { ModelConfig } from "./model-config";
+import { isReasoningModel } from "./types";
 
 // initGptModel initializes the GPT model.
 export async function initGptModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {
@@ -29,7 +30,15 @@ export async function initGptModel(viewProvider: ChatGptViewProvider, config: Mo
             resourceName: instanceName,
             apiKey: config.apiKey,
         });
-        viewProvider.apiChat = azure.chat(deployName);
+        if (isReasoningModel(deployName)) {
+            viewProvider.apiChat = wrapLanguageModel({
+                model: azure.chat(deployName),
+                middleware: extractReasoningMiddleware({ tagName: 'think' }),
+            });
+        } else {
+            viewProvider.apiChat = azure.chat(deployName);
+        }
+
     } else {
         // OpenAI
         const openai = createOpenAI({
@@ -37,12 +46,20 @@ export async function initGptModel(viewProvider: ChatGptViewProvider, config: Mo
             apiKey: config.apiKey,
             organization: config.organization,
         });
-        viewProvider.apiChat = openai.chat(viewProvider.model ? viewProvider.model : "gpt-4o");
+        const model = viewProvider.model ? viewProvider.model : "gpt-4o";
+        if (isReasoningModel(model)) {
+            viewProvider.apiChat = wrapLanguageModel({
+                model: openai.chat(model),
+                middleware: extractReasoningMiddleware({ tagName: 'think' }),
+            });
+        } else {
+            viewProvider.apiChat = openai.chat(model);
+        }
     }
 }
 
 // chatGpt is a function that completes the chat.
-export async function chatGpt(provider: ChatGptViewProvider, question: string, images: Record<string, string>, updateResponse: (message: string) => void) {
+export async function chatGpt(provider: ChatGptViewProvider, question: string, images: Record<string, string>, startResponse: () => void, updateResponse: (message: string) => void, updateReasoning: (message: string) => void) {
     if (!provider.apiChat) {
         throw new Error("apiChat is undefined");
     }
@@ -66,6 +83,9 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
             });
         });
 
+        /* placeholder for response */
+        startResponse();
+
         if (provider.model?.startsWith("o1") || provider.model?.startsWith("o3")) {
             // streaming not supported for o1/o3 models
             if (provider.chatHistory.length <= 1) {
@@ -77,7 +97,9 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
                 messages: provider.chatHistory,
             });
 
+            updateReasoning(result.reasoning ?? "");
             updateResponse(result.text);
+            provider.reasoning = result.reasoning ?? "";
             provider.response = result.text;
             provider.chatHistory.push({ role: "assistant", content: result.text });
             logger.appendLine(`INFO: chatgpt.response: ${provider.response}`);
@@ -85,6 +107,7 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
         }
 
         const chunks = [];
+        const reasonChunks = [];
         provider.chatHistory.push(chatMessage);
         const result = await streamText({
             system: provider.modelConfig.systemPrompt,
@@ -93,19 +116,9 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
             maxTokens: provider.modelConfig.maxTokens,
             topP: provider.modelConfig.topP,
             temperature: provider.modelConfig.temperature,
-            // experimental_transform: smoothStream(),
         });
-        // for await (const textPart of result.textStream) {
-        //     logger.appendLine(
-        //         `INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question} response: ${JSON.stringify(textPart, null, 2)}`
-        //     );
-        //     updateResponse(textPart);
-        //     chunks.push(textPart);
-        // }
         for await (const part of result.fullStream) {
-            // logger.appendLine(
-            //     `INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question} response: ${JSON.stringify(part, null, 2)}`
-            // );
+            // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question} response: ${JSON.stringify(part, null, 2)}`);
             switch (part.type) {
                 case 'text-delta': {
                     updateResponse(part.textDelta);
@@ -113,10 +126,18 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
                     break;
                 }
                 case 'reasoning': {
-                    updateResponse(part.textDelta);
-                    chunks.push(part.textDelta);
+                    updateReasoning(part.textDelta);
+                    reasonChunks.push(part.textDelta);
                     break;
                 }
+                case 'error':
+                    provider.sendMessage({
+                        type: "addError",
+                        value: part.error,
+                        autoScroll: provider.autoScroll,
+                    });
+                    break;
+
                 default: {
                     // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question} response: ${JSON.stringify(part, null, 2)}`);
                     break;
@@ -125,6 +146,7 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
         }
 
         provider.response = chunks.join("");
+        provider.reasoning = reasonChunks.join("");
         provider.chatHistory.push({ role: "assistant", content: chunks.join("") });
         logger.appendLine(`INFO: chatgpt.response: ${provider.response}`);
     } catch (error) {

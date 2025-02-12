@@ -13,6 +13,7 @@
 */
 
 export class ModelConfig {
+    public provider;
     public apiKey: string;
     public apiBaseUrl: string;
     public maxTokens: number;
@@ -23,7 +24,8 @@ export class ModelConfig {
     public systemPromptOverride: string;
     public searchGrounding: boolean;
 
-    constructor({ apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, systemPrompt, systemPromptOverride, searchGrounding }: { apiKey: string; apiBaseUrl: string; maxTokens: number; temperature: number; topP: number; organization: string; systemPrompt: string; systemPromptOverride?: string; searchGrounding?: boolean; }) {
+    constructor({ provider, apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, systemPrompt, systemPromptOverride, searchGrounding }: { provider: string; apiKey: string; apiBaseUrl: string; maxTokens: number; temperature: number; topP: number; organization: string; systemPrompt: string; systemPromptOverride?: string; searchGrounding?: boolean; }) {
+        this.provider = provider;
         this.apiKey = apiKey;
         this.apiBaseUrl = apiBaseUrl;
         this.maxTokens = maxTokens;

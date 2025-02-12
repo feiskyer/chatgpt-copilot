@@ -113,6 +113,7 @@ export async function activate(context: vscode.ExtensionContext) {
     }
 
     if (
+      e.affectsConfiguration("chatgpt.gpt3.provider") ||
       e.affectsConfiguration("chatgpt.gpt3.apiBaseUrl") ||
       e.affectsConfiguration("chatgpt.gpt3.model") ||
       e.affectsConfiguration("chatgpt.gpt3.apiKey") ||

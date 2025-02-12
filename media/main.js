@@ -129,6 +129,14 @@
                     list.lastChild?.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
                 }
                 break;
+
+            case "startResponse":
+                const startElement = document.getElementById(`${message.id}-start`);
+                if (!startElement) {
+                    list.innerHTML += `<div class="p-4 self-end mt-2 pb-4"><h2 class="mb-3 flex">${aiSvg}ChatGPT</h2></div>`;
+                }
+                break;
+
             case "addResponse":
                 let existingMessage = message.id && document.getElementById(message.id);
                 let updatedValue = "";
@@ -149,14 +157,18 @@
                     existingMessage.innerHTML = markedResponse;
                 } else {
                     list.innerHTML +=
-                        `<div class="p-4 self-end mt-4 pb-8 answer-element-ext">
-                        <h2 class="mb-5 flex">${aiSvg}ChatGPT</h2>
+                        `<div class="p-4 self-end mt-2 pb-4 answer-element-ext">
                         <div class="result-streaming" id="${message.id}">${markedResponse}</div>
                     </div>`;
                 }
 
                 if (message.done) {
                     const preCodeList = list.lastChild.querySelectorAll("pre > code");
+
+                    const responseElement = document.getElementById(message.id);
+                    if (responseElement) {
+                        responseElement.classList.remove("result-streaming");
+                    }
 
                     preCodeList.forEach((preCode) => {
                         preCode.classList.add("input-background", "p-4", "pb-2", "block", "whitespace-pre", "overflow-x-scroll");
@@ -192,12 +204,9 @@
                             preCode.parentNode.parentNode.prepend(buttonWrapper);
                         }
                     });
-
-                    existingMessage = document.getElementById(message.id);
-                    existingMessage.classList.remove("result-streaming");
                 }
 
-                if (message.autoScroll && (message.done || markedResponse.endsWith("\n"))) {
+                if (message.autoScroll) {
                     list.lastChild?.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
                 }
 
@@ -292,8 +301,34 @@
                     input.setSelectionRange(cursorPos - 1, cursorPos - 1);
                 }
                 break;
+
             case "clearFileReferences":
                 document.getElementById('file-references').innerHTML = '';
+                break;
+
+            case "addReasoning":
+                const reasoningElement = document.getElementById(`${message.id}-reasoning`);
+
+                if (reasoningElement) {
+                    reasoningElement.innerHTML = marked.parse(message.value);
+                } else {
+                    list.innerHTML += `
+                            <div class="reasoning-block" style="margin: 0.5rem 0;">
+                                <div class="reasoning-header" style="margin-bottom: 0.25rem;">
+                                    <svg class="reasoning-caret" viewBox="0 0 24 24" width="12" height="12">
+                                        <path fill="currentColor" d="M7 10l5 5 5-5z"/>
+                                    </svg>
+                                    <span>Reasoning</span>
+                                </div>
+                                <div class="reasoning-content" id="${message.id}-reasoning" style="line-height: 1.6;">
+                                    ${marked.parse(message.value)}
+                                </div>
+                            </div>`;
+                }
+
+                if (message.autoScroll) {
+                    list.lastChild?.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+                }
                 break;
             default:
                 break;
@@ -553,6 +588,11 @@
                 type: "togglePromptManager"
             });
             return;
+        }
+
+        if (e.target.closest('.reasoning-header')) {
+            const block = e.target.closest('.reasoning-block');
+            block.classList.toggle('reasoning-collapsed');
         }
     });
 

@@ -19,4 +19,9 @@ export interface Prompt {
 
 export interface PromptStore {
     prompts: Prompt[];
-} 
+}
+
+export function isReasoningModel(model: string) {
+    const m = model.toLowerCase();
+    return m.includes("o1") || m.includes("o3") || m.includes("deepseek-r1") || m.includes("reason");
+};

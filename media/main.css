@@ -538,6 +538,86 @@ pre>code {
     margin: 1em 0;
 }
 
+.reasoning-block {
+    background: var(--vscode-textCodeBlock-background);
+    border-radius: 6px;
+    margin: 1em 0;
+    border: 1px solid var(--vscode-input-border);
+}
+
+.reasoning-header {
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px 6px 0 0;
+}
+
+.reasoning-header:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.reasoning-content {
+    padding: 12px;
+}
+
+.reasoning-collapsed .reasoning-content {
+    display: none;
+}
+
+.reasoning-caret {
+    transition: transform 0.2s ease;
+    width: 12px;
+    height: 12px;
+}
+
+.reasoning-collapsed .reasoning-caret {
+    transform: rotate(-90deg);
+}
+
+.reasoning-block {
+    background: var(--vscode-textCodeBlock-background);
+    border-radius: 6px;
+    margin: 1em 0;
+    border: 1px solid var(--vscode-input-border);
+}
+
+.reasoning-header {
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px 6px 0 0;
+}
+
+.reasoning-header:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.reasoning-content {
+    padding: 12px;
+}
+
+.reasoning-collapsed .reasoning-content {
+    display: none;
+}
+
+.reasoning-caret {
+    transition: transform 0.2s ease;
+    width: 12px;
+    height: 12px;
+}
+
+.reasoning-collapsed .reasoning-caret {
+    transform: rotate(-90deg);
+}
+
 .file-references-container {
     display: flex;
     flex-wrap: nowrap;
