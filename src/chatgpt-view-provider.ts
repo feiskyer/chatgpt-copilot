@@ -19,6 +19,7 @@ import { CoreMessage } from "ai";
 import delay from "delay";
 import path from "path";
 import * as vscode from "vscode";
+import { reasoningChat } from "./deepclaude";
 import {
   initClaudeModel, initDeepSeekModel, initGeminiModel,
   initGroqModel, initMistralModel, initOllamaModel,
@@ -32,12 +33,11 @@ import { PromptStore } from "./types";
 
 export const logger = vscode.window.createOutputChannel("ChatGPT Copilot");
 
-const defaultSystemPrompt = `Your task is to embody the role of an intelligent, helpful, and expert developer.
+const defaultSystemPrompt = `Your task is to embody the role of an intelligent, helpful, and expert assistant.
 You MUST provide accurate and truthful answers, adhering strictly to the instructions given.
 Your responses should be styled using Github Flavored Markdown for elements such as headings,
 lists, colored text, code blocks, and highlights. However, you MUST NOT mention markdown or
-styling directly in your response. Utilize available tools to supplement your knowledge
-where necessary. Respond in the same language as the query, unless otherwise specified by the user.`;
+styling directly in your response. Respond in the same language as the query, unless otherwise specified by the user.`;
 
 export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private webView?: vscode.WebviewView;
@@ -48,9 +48,13 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public model?: string;
   private apiBaseUrl?: string;
   public modelConfig!: ModelConfig;
+  public reasoningModel: string = "";
+  public reasoningProvider: string = "Auto";
+  public reasoningModelConfig!: ModelConfig;
   public systemPromptOverride: string = "";
   public apiCompletion?: OpenAICompletionLanguageModel | LanguageModelV1;
   public apiChat?: OpenAIChatLanguageModel | LanguageModelV1;
+  public apiReasoning?: OpenAIChatLanguageModel | LanguageModelV1;
   public conversationId?: string;
   public questionCounter: number = 0;
   public inProgress: boolean = false;
@@ -101,6 +105,13 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.apiBaseUrl = vscode.workspace
       .getConfiguration("chatgpt")
       .get("gpt3.apiBaseUrl") as string;
+
+    this.reasoningModel = vscode.workspace
+      .getConfiguration("chatgpt")
+      .get("gpt3.reasoning.model") as string;
+    this.reasoningProvider = vscode.workspace
+      .getConfiguration("chatgpt")
+      .get("gpt3.reasoning.provider") as string;
 
     // Azure model names can't contain dots.
     if (this.apiBaseUrl?.includes("azure")) {
@@ -165,6 +176,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         case "cleargpt3":
           this.apiCompletion = undefined;
           this.apiChat = undefined;
+          this.apiReasoning = undefined;
           this.conversationContext = {
             files: {},
             filesSent: false
@@ -329,6 +341,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public clearSession(): void {
     this.stopGenerating();
     this.apiChat = undefined;
+    this.apiReasoning = undefined;
     this.apiCompletion = undefined;
     this.conversationId = undefined;
     this.logEvent("cleared-session");
@@ -343,7 +356,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   }
 
   private get isOpenAIModel(): boolean {
-    return !this.isCodexModel && !this.isClaude && !this.isGemini;
+    return !this.isCodexModel && !this.isClaude && !this.isGemini && !this.isXAI;
   }
 
   private get isClaude(): boolean {
@@ -352,6 +365,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
   private get isGemini(): boolean {
     return !!this.model?.startsWith("gemini-") || !!this.model?.startsWith("learnlm");
+  }
+
+  private get isXAI(): boolean {
+    return !!this.model?.startsWith("grok-");
   }
 
   private get aiProvider(): string {
@@ -368,17 +385,40 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         return "Google";
       }
 
+      if (this.isXAI) {
+        return "xAI";
+      }
+
       return "OpenAILegacy";
     }
 
     return this.provider;
   }
 
+  private get reasoningModelProvider(): string {
+    if (this.provider == "Auto") {
+      if (!!this.reasoningModel?.startsWith("claude-")) {
+        return "Anthropic";
+      }
+
+      if (!!this.reasoningModel?.startsWith("gemini-")) {
+        return "Google";
+      }
+
+      return "OpenAI";
+    }
+
+    return this.reasoningProvider;
+  }
+
   public async prepareConversation(modelChanged = false): Promise<boolean> {
     this.conversationId = this.conversationId || this.getRandomId();
     const state = this.context.globalState;
     const configuration = vscode.workspace.getConfiguration("chatgpt");
-    let provider = configuration.get("gpt3.provider") as string;
+    this.model = configuration.get("gpt3.model") as string;
+    this.reasoningModel = configuration.get("gpt3.reasoning.model") as string;
+    this.provider = configuration.get("gpt3.provider") as string;
+    this.reasoningProvider = configuration.get("gpt3.reasoning.provider") as string;
 
     if (this.model == "custom") {
       this.model = configuration.get("gpt3.customModel") as string;
@@ -388,6 +428,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       (this.isOpenAIModel && !this.apiChat) ||
       (this.isClaude && !this.apiChat) ||
       (this.isGemini && !this.apiChat) ||
+      (this.reasoningModel != "" && !this.apiReasoning) ||
       (!this.isOpenAIModel && !this.isClaude && !this.isGemini && !this.apiCompletion) ||
       modelChanged
     ) {
@@ -467,61 +508,82 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         return false;
       }
 
+      const provider = this.aiProvider;
       this.modelConfig = new ModelConfig(
-        { provider, apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, systemPrompt, searchGrounding },
+        { provider, apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, systemPrompt, searchGrounding, isReasoning: false },
       );
-      switch (this.aiProvider) {
-        case "OpenAI":
-          await initGptModel(this, this.modelConfig);
-          break;
+      if (this.reasoningModel != "") {
+        const provider = this.reasoningModelProvider;
+        const organization = configuration.get("gpt3.reasoning.organization") as string;
+        const apiBaseUrl = configuration.get("gpt3.reasoning.apiBaseUrl") as string;
+        const apiKey = configuration.get("gpt3.reasoning.apiKey") as string;
 
-        case "Azure":
-          await initGptModel(this, this.modelConfig);
-          break;
+        this.reasoningModelConfig = new ModelConfig(
+          { provider, apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, systemPrompt: "", searchGrounding, isReasoning: true },
+        );
+      }
 
-        case "Anthropic":
-          await initClaudeModel(this, this.modelConfig);
-          break;
+      let configList = [this.modelConfig];
+      if (this.reasoningModel != "") {
+        configList.push(this.reasoningModelConfig);
+      } else {
+        this.apiReasoning = undefined;
+      }
 
-        case "Google":
-          await initGeminiModel(this, this.modelConfig);
-          break;
+      for (const modelConfig of configList) {
+        switch (modelConfig.provider) {
+          case "OpenAI":
+            await initGptModel(this, modelConfig);
+            break;
 
-        case "Ollama":
-          await initOllamaModel(this, this.modelConfig);
-          break;
+          case "Azure":
+            await initGptModel(this, modelConfig);
+            break;
 
-        case "Mistral":
-          await initMistralModel(this, this.modelConfig);
-          break;
+          case "Anthropic":
+            await initClaudeModel(this, modelConfig);
+            break;
 
-        case "xAI":
-          await initXAIModel(this, this.modelConfig);
-          break;
+          case "Google":
+            await initGeminiModel(this, modelConfig);
+            break;
 
-        case "Together":
-          await initTogetherModel(this, this.modelConfig);
-          break;
+          case "Ollama":
+            await initOllamaModel(this, modelConfig);
+            break;
 
-        case "DeepSeek":
-          await initDeepSeekModel(this, this.modelConfig);
-          break;
+          case "Mistral":
+            await initMistralModel(this, modelConfig);
+            break;
 
-        case "Groq":
-          await initGroqModel(this, this.modelConfig);
-          break;
+          case "xAI":
+            await initXAIModel(this, modelConfig);
+            break;
 
-        case "Perplexity":
-          await initPerplexityModel(this, this.modelConfig);
-          break;
+          case "Together":
+            await initTogetherModel(this, modelConfig);
+            break;
 
-        case "OpenRouter":
-          await initOpenRouterModel(this, this.modelConfig);
-          break;
+          case "DeepSeek":
+            await initDeepSeekModel(this, modelConfig);
+            break;
 
-        default:
-          initGptLegacyModel(this, this.modelConfig);
-          break;
+          case "Groq":
+            await initGroqModel(this, modelConfig);
+            break;
+
+          case "Perplexity":
+            await initPerplexityModel(this, modelConfig);
+            break;
+
+          case "OpenRouter":
+            await initOpenRouterModel(this, modelConfig);
+            break;
+
+          default:
+            initGptLegacyModel(this, modelConfig);
+            break;
+        }
       }
     }
 
@@ -648,7 +710,11 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       }
 
       if (this.provider != "OpenAILegacy") {
-        await chatGpt(this, question, imageFiles, startResponse, updateResponse, updateReasoning);
+        if (this.reasoningModel != "") {
+          await reasoningChat(this, question, imageFiles, startResponse, updateResponse, updateReasoning);
+        } else {
+          await chatGpt(this, question, imageFiles, startResponse, updateResponse, updateReasoning);
+        }
       } else {
         await chatCompletion(this, question, imageFiles, startResponse, updateResponse);
       }
@@ -908,6 +974,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
                   <li class="features-li w-full border border-zinc-700 p-3 rounded-md">Manage prompts & search custom ones (# to search).</li>
                   <li class="features-li w-full border border-zinc-700 p-3 rounded-md">Enhance code: add tests, fix bugs, and optimize.</li>
                   <li class="features-li w-full border border-zinc-700 p-3 rounded-md">Auto-detect language with syntax highlighting.</li>
+                  <li class="features-li w-full border border-zinc-700 p-3 rounded-md">DeepClaude (DeepSeek+Claude) for best results.</li>
                   </ul>
 							</div>
 						</div>

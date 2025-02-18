@@ -23,8 +23,9 @@ export class ModelConfig {
     public systemPrompt: string;
     public systemPromptOverride: string;
     public searchGrounding: boolean;
+    public isReasoning: boolean;
 
-    constructor({ provider, apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, systemPrompt, systemPromptOverride, searchGrounding }: { provider: string; apiKey: string; apiBaseUrl: string; maxTokens: number; temperature: number; topP: number; organization: string; systemPrompt: string; systemPromptOverride?: string; searchGrounding?: boolean; }) {
+    constructor({ provider, apiKey, apiBaseUrl, maxTokens, temperature, topP, organization, systemPrompt, systemPromptOverride, searchGrounding, isReasoning }: { provider: string; apiKey: string; apiBaseUrl: string; maxTokens: number; temperature: number; topP: number; organization: string; systemPrompt: string; systemPromptOverride?: string; searchGrounding?: boolean; isReasoning?: boolean; }) {
         this.provider = provider;
         this.apiKey = apiKey;
         this.apiBaseUrl = apiBaseUrl;
@@ -35,5 +36,6 @@ export class ModelConfig {
         this.systemPrompt = systemPrompt;
         this.systemPromptOverride = systemPromptOverride ?? "";
         this.searchGrounding = searchGrounding ?? false;
+        this.isReasoning = isReasoning ?? false;
     }
 }

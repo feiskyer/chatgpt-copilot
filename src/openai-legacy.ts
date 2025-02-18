@@ -28,7 +28,11 @@ export function initGptLegacyModel(viewProvider: ChatGptViewProvider, config: Mo
             resourceName: instanceName,
             apiKey: config.apiKey,
         });
-        viewProvider.apiCompletion = azure.completion(deployName);
+        if (config.isReasoning) {
+            viewProvider.apiReasoning = azure.completion(deployName);
+        } else {
+            viewProvider.apiCompletion = azure.completion(deployName);
+        }
     } else {
         // OpenAI
         const openai = createOpenAI({
@@ -36,7 +40,11 @@ export function initGptLegacyModel(viewProvider: ChatGptViewProvider, config: Mo
             apiKey: config.apiKey,
             organization: config.organization,
         });
-        viewProvider.apiCompletion = openai.completion(viewProvider.model ? viewProvider.model : "gpt-4o");
+        if (config.isReasoning) {
+            viewProvider.apiReasoning = openai.completion(viewProvider.model ? viewProvider.model : "o1-mini");
+        } else {
+            viewProvider.apiCompletion = openai.completion(viewProvider.model ? viewProvider.model : "gpt-4o");
+        }
     }
 }
 

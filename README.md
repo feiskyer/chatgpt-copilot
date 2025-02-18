@@ -19,6 +19,7 @@ ChatGPT Copilot is a powerful and telemetry-free extension for Visual Studio Cod
 ## Features
 
 - 🤖 Supports GPT-4, o1, Claude, Gemini, Ollama, Github and other OpenAI-compatible local models with your API key from OpenAI, Azure OpenAI Service, Google, Anthropic or other providers.
+- 💥 DeepClaude (DeepSeek + Claude) mode for best AI responses (need set reasoning model to deepseek R1).
 - 📂 Chat with your Files: Add multiple files and images to your chat using `@` for seamless collaboration.
 - 📃 Streaming Answers: Receive real-time responses to your prompts in the sidebar conversation window.
 - 📖 Prompt Manager: Chat with your own prompts (use # to search).
@@ -30,6 +31,15 @@ ChatGPT Copilot is a powerful and telemetry-free extension for Visual Studio Cod
 - 💻 Seamless Code Integration: Copy, insert, or create new files directly from ChatGPT's code suggestions.
 - ➕ Editable Prompts: Edit and resend previous prompts.
 - 🛡️ Telemetry Free: No usage data is collected.
+
+## Recent Release Highlights
+
+* **v4.6.7**: Added DeepClaude mode (DeepSeek + Claude) for best AI responses.
+* **v4.6.6**: Added reasoning response for reasoning models (e.g. DeepSeek R1).
+* **v4.6.5**: Added reasoning models (DeepSeek R1 and o3-mini)
+* **v4.6.3**: Added chatting with files (including text files and images)
+* **v4.6.0**: Added flexible prompt management with `/manage-prompt` command and use prompts with `#promptname`.
+* **v4.5.0**: Added support of Google Generative AI models and reduce extension size.
 
 ## Installation
 
@@ -174,6 +184,20 @@ Example for [groq](https://console.groq.com/):
 | Model      | custom |
 | Custom Model | mixtral-8x7b-32768 |
 | API Base URL | <https://api.groq.com/openai/v1> |
+
+</details>
+
+<details>
+<summary> DeepClaude (DeepSeek + Claude) </summary>
+
+| Configuration | Example |
+| ------------- | ----------- |
+| API Key     | your-api-key |
+| Model      | claude-3-sonnet-20240229 |
+| API Base URL | <https://api.anthropic.com/v1> (Optional) |
+| Reasoning API Key | your-deepseek-api-key|
+| Reasoning Model | deepseek-reasoner (or deepseek-r1 regarding to your provider) |
+| Reasoning API Base URL | <https://api.deepseek.com> (or your own base URL) |
 
 </details>
 

@@ -121,6 +121,11 @@ export async function activate(context: vscode.ExtensionContext) {
       e.affectsConfiguration("chatgpt.gpt3.organization") ||
       e.affectsConfiguration("chatgpt.gpt3.maxTokens") ||
       e.affectsConfiguration("chatgpt.gpt3.temperature") ||
+      e.affectsConfiguration("chatgpt.gpt3.reasoning.provider") ||
+      e.affectsConfiguration("chatgpt.gpt3.reasoning.model") ||
+      e.affectsConfiguration("chatgpt.gpt3.reasoning.apiKey") ||
+      e.affectsConfiguration("chatgpt.gpt3.reasoning.apiBaseUrl") ||
+      e.affectsConfiguration("chatgpt.gpt3.reasoning.organization") ||
       e.affectsConfiguration("chatgpt.systemPrompt") ||
       e.affectsConfiguration("chatgpt.gpt3.top_p")
     ) {

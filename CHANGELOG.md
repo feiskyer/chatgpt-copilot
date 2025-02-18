@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v4.6.7
+
+* Add new reasoning model configurations and added support of DeepClaude mode (DeepSeek + Claude).
+
 ## v4.6.6
 
 * Add support for more AI/LLM providers

@@ -2,85 +2,84 @@
 # yarn lockfile v1
 
 
-"@ai-sdk/anthropic@^1.1.6":
-  version "1.1.6"
-  resolved "https://registry.npmjs.org/@ai-sdk/anthropic/-/anthropic-1.1.6.tgz"
-  integrity sha512-4TZBg2VoU/F58DmnyfPPGU9wMUTwLP15XyAFSrUqk9sSdjszwcojXw3LE7YbxifZ+RK7wT7lTkuyK1k2UdfFng==
-  dependencies:
-    "@ai-sdk/provider" "1.0.7"
-    "@ai-sdk/provider-utils" "2.1.6"
-
-"@ai-sdk/azure@^1.1.9":
-  version "1.1.9"
-  resolved "https://registry.npmjs.org/@ai-sdk/azure/-/azure-1.1.9.tgz"
-  integrity sha512-bQL/HGsj8NndoXomgZ7m3LVj/hyRy3alTZNPT8OkUL24Uj3P0mWad4sejaRdSVLr2joBb74YqQ2jlMvRGGG/bw==
-  dependencies:
-    "@ai-sdk/openai" "1.1.9"
-    "@ai-sdk/provider" "1.0.7"
-    "@ai-sdk/provider-utils" "2.1.6"
-
-"@ai-sdk/deepseek@^0.1.8":
-  version "0.1.8"
-  resolved "https://registry.npmjs.org/@ai-sdk/deepseek/-/deepseek-0.1.8.tgz"
-  integrity sha512-ZnugEqmkscB0an46I0Z6Ppor8YwOC2bIhWXkivkGbVdpQgpx43cPBrD3lyOyNEHIFwHtcrJF13S+4FNPzR0Gng==
-  dependencies:
-    "@ai-sdk/openai-compatible" "0.1.8"
-    "@ai-sdk/provider" "1.0.7"
-    "@ai-sdk/provider-utils" "2.1.6"
-
-"@ai-sdk/google@^1.1.11":
-  version "1.1.11"
-  resolved "https://registry.npmjs.org/@ai-sdk/google/-/google-1.1.11.tgz"
-  integrity sha512-EcK20MTA3zNJKNOo3r52Y0N960lGL6UxUimt13HFk2RJ4dXPMWl7ZhWFgjwFXwW2QwdSPKqlMHYjne3xvKTBcQ==
-  dependencies:
-    "@ai-sdk/provider" "1.0.7"
-    "@ai-sdk/provider-utils" "2.1.6"
-
-"@ai-sdk/groq@^1.1.7":
-  version "1.1.7"
-  resolved "https://registry.npmjs.org/@ai-sdk/groq/-/groq-1.1.7.tgz"
-  integrity sha512-OavkZPF42QcJUltw8N/AXmRJvHBCf+I3Nx0FFywzN8xanEEtHothdMv6qDn0nwta+5itd+DEPI+/tLTIplmsMw==
-  dependencies:
-    "@ai-sdk/provider" "1.0.7"
-    "@ai-sdk/provider-utils" "2.1.6"
-
-"@ai-sdk/mistral@^1.1.8":
+"@ai-sdk/anthropic@^1.1.8":
   version "1.1.8"
-  resolved "https://registry.npmjs.org/@ai-sdk/mistral/-/mistral-1.1.8.tgz"
-  integrity sha512-8KeDekwsjqh6TyqvgieIeOLO2uQvWI/Eynn1oG9qsxwo+B6+IdKSUsaBspAIOw1vQUn38mn9DixSRDog+9dhrQ==
+  resolved "https://registry.npmjs.org/@ai-sdk/anthropic/-/anthropic-1.1.8.tgz"
+  integrity sha512-QD8c3ShPIpXaqjCDq9tCBI9iI/GeZETnP/DxgA8wRTs13Sqx6HcLh1eKTaGyePOtJvRx5XBcR+wSdeZZcaeUQQ==
   dependencies:
     "@ai-sdk/provider" "1.0.7"
-    "@ai-sdk/provider-utils" "2.1.6"
+    "@ai-sdk/provider-utils" "2.1.8"
 
-"@ai-sdk/openai-compatible@0.1.8":
-  version "0.1.8"
-  resolved "https://registry.npmjs.org/@ai-sdk/openai-compatible/-/openai-compatible-0.1.8.tgz"
-  integrity sha512-o2WeZmkOgaaEHAIZfAdlAASotNemhWBzupUp7ql/vBKIrPDctbQS4K7XOvG7EZ1dshn0TxB+Ur7Q8HoWSeWPmA==
+"@ai-sdk/azure@^1.1.12":
+  version "1.1.12"
+  resolved "https://registry.npmjs.org/@ai-sdk/azure/-/azure-1.1.12.tgz"
+  integrity sha512-FPFbXJ14WWBxAffjk6gwlQwCX7fNRJSJy2hKU1z97VVphWJHpSYTzcJoVrsv9L8fRWNWAB/Zp56l2xM4NXmLzg==
+  dependencies:
+    "@ai-sdk/openai" "1.1.12"
+    "@ai-sdk/provider" "1.0.7"
+    "@ai-sdk/provider-utils" "2.1.8"
+
+"@ai-sdk/deepseek@^0.1.10":
+  version "0.1.10"
+  resolved "https://registry.npmjs.org/@ai-sdk/deepseek/-/deepseek-0.1.10.tgz"
+  integrity sha512-JCYFEYog365yFXXrbySAwuYfe6zHKuBPmdOIa3xl0LSE0p1GcvGkZn80lNPLLzqR8GO8S4qUZoH+HL1kqYHaYA==
+  dependencies:
+    "@ai-sdk/openai-compatible" "0.1.10"
+    "@ai-sdk/provider" "1.0.7"
+    "@ai-sdk/provider-utils" "2.1.8"
+
+"@ai-sdk/google@^1.1.14":
+  version "1.1.14"
+  resolved "https://registry.npmjs.org/@ai-sdk/google/-/google-1.1.14.tgz"
+  integrity sha512-ZFkSvfjBQP5sBKp9BolHYRxlbSweW0LbjJRE1QiIYRkkM9gifKnI/Atr6W7VGNcs4+GQ1yHsNi1bBDoubviqyw==
   dependencies:
     "@ai-sdk/provider" "1.0.7"
-    "@ai-sdk/provider-utils" "2.1.6"
+    "@ai-sdk/provider-utils" "2.1.8"
 
-"@ai-sdk/openai@^1.1.9", "@ai-sdk/openai@1.1.9":
+"@ai-sdk/groq@^1.1.9":
   version "1.1.9"
-  resolved "https://registry.npmjs.org/@ai-sdk/openai/-/openai-1.1.9.tgz"
-  integrity sha512-t/CpC4TLipdbgBJTMX/otzzqzCMBSPQwUOkYPGbT/jyuC86F+YO9o+LS0Ty2pGUE1kyT+B3WmJ318B16ZCg4hw==
+  resolved "https://registry.npmjs.org/@ai-sdk/groq/-/groq-1.1.9.tgz"
+  integrity sha512-TOE+n/WpAfR+q3pJEL7kI9TqNYbnMK63MyxJmRvIbUfadaouFhmz/k1uwjDFu6DG4Mv6noT9uKIbfBbLqfwuLA==
   dependencies:
     "@ai-sdk/provider" "1.0.7"
-    "@ai-sdk/provider-utils" "2.1.6"
+    "@ai-sdk/provider-utils" "2.1.8"
 
-"@ai-sdk/perplexity@^0.0.7":
-  version "0.0.7"
-  resolved "https://registry.npmjs.org/@ai-sdk/perplexity/-/perplexity-0.0.7.tgz"
-  integrity sha512-PmLBRgEIyxVk0vmHDTb2e5AJnSmSBd3CezGTJBq0Wc3dm8VLyXreex2pLYiB1cDzd6j+vZsWbhHcvalpOoSiTg==
+"@ai-sdk/mistral@^1.1.11":
+  version "1.1.11"
+  resolved "https://registry.npmjs.org/@ai-sdk/mistral/-/mistral-1.1.11.tgz"
+  integrity sha512-PvjmUrtyLZRpmdogPbDXnzuLnFdGlX3I41YT+i2ij5RhZqi+s+BT3L8/01eynT2Z4KIhtXr/GLiw1McTFEjP4A==
   dependencies:
-    "@ai-sdk/openai-compatible" "0.1.8"
     "@ai-sdk/provider" "1.0.7"
-    "@ai-sdk/provider-utils" "2.1.6"
+    "@ai-sdk/provider-utils" "2.1.8"
 
-"@ai-sdk/provider-utils@^2.0.0", "@ai-sdk/provider-utils@2.1.6":
-  version "2.1.6"
-  resolved "https://registry.npmjs.org/@ai-sdk/provider-utils/-/provider-utils-2.1.6.tgz"
-  integrity sha512-Pfyaj0QZS22qyVn5Iz7IXcJ8nKIKlu2MeSAdKJzTwkAks7zdLaKVB+396Rqcp1bfQnxl7vaduQVMQiXUrgK8Gw==
+"@ai-sdk/openai-compatible@0.1.10":
+  version "0.1.10"
+  resolved "https://registry.npmjs.org/@ai-sdk/openai-compatible/-/openai-compatible-0.1.10.tgz"
+  integrity sha512-AR5Acly7U64wDgVdVs9AqaMHgVps/35TMUMDS4akSZjsB4TdAhKnWdMXmACzCxmbCySHMoMnKY41XgvCyFN1pQ==
+  dependencies:
+    "@ai-sdk/provider" "1.0.7"
+    "@ai-sdk/provider-utils" "2.1.8"
+
+"@ai-sdk/openai@^1.1.12", "@ai-sdk/openai@1.1.12":
+  version "1.1.12"
+  resolved "https://registry.npmjs.org/@ai-sdk/openai/-/openai-1.1.12.tgz"
+  integrity sha512-lh3zN4J/XEqkjpZAOBajSttF1Nl2qV/7WxRbORn+4jZmQkmzWQbsEUpgQ6ME+heyRvnsRCNq3fkMGehWWxWuXg==
+  dependencies:
+    "@ai-sdk/provider" "1.0.7"
+    "@ai-sdk/provider-utils" "2.1.8"
+
+"@ai-sdk/perplexity@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.npmjs.org/@ai-sdk/perplexity/-/perplexity-1.0.0.tgz"
+  integrity sha512-TBDkkOCjBelUa54h9Ei+ck8hnyn3eFVIQh1t20tjs1rN0eVTB4uM9xxgv5+ViA9VDvNtQOqrHlY33PcqT46UGw==
+  dependencies:
+    "@ai-sdk/provider" "1.0.7"
+    "@ai-sdk/provider-utils" "2.1.8"
+
+"@ai-sdk/provider-utils@^2.0.0", "@ai-sdk/provider-utils@2.1.8":
+  version "2.1.8"
+  resolved "https://registry.npmjs.org/@ai-sdk/provider-utils/-/provider-utils-2.1.8.tgz"
+  integrity sha512-1j9niMUAFlCBdYRYJr1yoB5kwZcRFBVuBiL1hhrf0ONFNrDiJYA6F+gROOuP16NHhezMfTo60+GeeV1xprHFjg==
   dependencies:
     "@ai-sdk/provider" "1.0.7"
     eventsource-parser "^3.0.0"
@@ -111,42 +110,42 @@
   dependencies:
     json-schema "^0.4.0"
 
-"@ai-sdk/react@1.1.11":
-  version "1.1.11"
-  resolved "https://registry.npmjs.org/@ai-sdk/react/-/react-1.1.11.tgz"
-  integrity sha512-vfjZ7w2M+Me83HTMMrnnrmXotz39UDCMd27YQSrvt2f1YCLPloVpLhP+Y9TLZeFE/QiiRCrPYLDQm6aQJYJ9PQ==
+"@ai-sdk/react@1.1.16":
+  version "1.1.16"
+  resolved "https://registry.npmjs.org/@ai-sdk/react/-/react-1.1.16.tgz"
+  integrity sha512-4Jx1piCte2+YoDd6ZdwM0Mw29046edw7MMNICImCPv2s7sfwFwe4c1t8waA4PYRefuETmzheqjh80kafQYJf8g==
   dependencies:
-    "@ai-sdk/provider-utils" "2.1.6"
-    "@ai-sdk/ui-utils" "1.1.11"
+    "@ai-sdk/provider-utils" "2.1.8"
+    "@ai-sdk/ui-utils" "1.1.14"
     swr "^2.2.5"
     throttleit "2.1.0"
 
-"@ai-sdk/togetherai@^0.1.9":
-  version "0.1.9"
-  resolved "https://registry.npmjs.org/@ai-sdk/togetherai/-/togetherai-0.1.9.tgz"
-  integrity sha512-JG/UV/cjkrWMcRtqrTsu5v6a7Xi95hKn0K+G3pFrEY4l0RXCwtgC6Nw4lLy6afyI118/YAoHW2wNx9gnxWVPKw==
+"@ai-sdk/togetherai@^0.1.11":
+  version "0.1.11"
+  resolved "https://registry.npmjs.org/@ai-sdk/togetherai/-/togetherai-0.1.11.tgz"
+  integrity sha512-gXzBcOeU6PwczmVsYG7lkCTPuFRj4DFn7ELMXLQ9aWMOeotqfr/YtNmIeVspLgleAjOvEZsX3xa34N0IDrbFJw==
   dependencies:
-    "@ai-sdk/openai-compatible" "0.1.8"
+    "@ai-sdk/openai-compatible" "0.1.10"
     "@ai-sdk/provider" "1.0.7"
-    "@ai-sdk/provider-utils" "2.1.6"
+    "@ai-sdk/provider-utils" "2.1.8"
 
-"@ai-sdk/ui-utils@1.1.11":
-  version "1.1.11"
-  resolved "https://registry.npmjs.org/@ai-sdk/ui-utils/-/ui-utils-1.1.11.tgz"
-  integrity sha512-1SC9W4VZLcJtxHRv4Y0aX20EFeaEP6gUvVqoKLBBtMLOgtcZrv/F/HQRjGavGugiwlS3dsVza4X+E78fiwtlTA==
+"@ai-sdk/ui-utils@1.1.14":
+  version "1.1.14"
+  resolved "https://registry.npmjs.org/@ai-sdk/ui-utils/-/ui-utils-1.1.14.tgz"
+  integrity sha512-JQXcnPRnDfeH1l503s/8+SxJdmgyUKC3QvKjOpTV6Z/LyRWJZrruBoZnVB1OrL9o/WHEguC+rD+p9udv281KzQ==
   dependencies:
     "@ai-sdk/provider" "1.0.7"
-    "@ai-sdk/provider-utils" "2.1.6"
+    "@ai-sdk/provider-utils" "2.1.8"
     zod-to-json-schema "^3.24.1"
 
-"@ai-sdk/xai@^1.1.8":
-  version "1.1.8"
-  resolved "https://registry.npmjs.org/@ai-sdk/xai/-/xai-1.1.8.tgz"
-  integrity sha512-2ezkPMBSfqZySYbXZDa1dCq3c1RV5ZXcwkWIB18qpmwGaRCxdjzBIyZHPOH2FeOLQplZnGC0VfxZcOAbvWhV0Q==
+"@ai-sdk/xai@^1.1.10":
+  version "1.1.10"
+  resolved "https://registry.npmjs.org/@ai-sdk/xai/-/xai-1.1.10.tgz"
+  integrity sha512-rB19K0HeuOYh19eNzJrYlIa0sf/nrs7BA854qVMegcuUutAMvHWwLIJrEn2uUBieIdwTOLnTMPcViZq3W51I/Q==
   dependencies:
-    "@ai-sdk/openai-compatible" "0.1.8"
+    "@ai-sdk/openai-compatible" "0.1.10"
     "@ai-sdk/provider" "1.0.7"
-    "@ai-sdk/provider-utils" "2.1.6"
+    "@ai-sdk/provider-utils" "2.1.8"
 
 "@azure/abort-controller@^1.0.0":
   version "1.1.0"
@@ -398,9 +397,9 @@
     wrap-ansi-cjs "npm:wrap-ansi@^7.0.0"
 
 "@jridgewell/gen-mapping@^0.3.5":
-  version "0.3.5"
-  resolved "https://registry.npmjs.org/@jridgewell/gen-mapping/-/gen-mapping-0.3.5.tgz"
-  integrity sha512-IzL8ZoEDIBRWEzlCcRhOaCupYyN5gdIK+Q6fbFdPDg6HqX6jpkItn7DFIpW9LQzXG6Df9sA7+OKnq0qlz/GaQg==
+  version "0.3.8"
+  resolved "https://registry.npmjs.org/@jridgewell/gen-mapping/-/gen-mapping-0.3.8.tgz"
+  integrity sha512-imAbBGkb+ebQyxKgzv5Hu2nmROxoDOXHh80evxdoXNOrvAnVx7zimzc1Oo5h9RlfV4vPXaE2iM5pOFbvOCClWA==
   dependencies:
     "@jridgewell/set-array" "^1.2.1"
     "@jridgewell/sourcemap-codec" "^1.4.10"
@@ -429,7 +428,7 @@
   resolved "https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.5.0.tgz"
   integrity sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ==
 
-"@jridgewell/trace-mapping@^0.3.20", "@jridgewell/trace-mapping@^0.3.24", "@jridgewell/trace-mapping@^0.3.25":
+"@jridgewell/trace-mapping@^0.3.24", "@jridgewell/trace-mapping@^0.3.25":
   version "0.3.25"
   resolved "https://registry.npmjs.org/@jridgewell/trace-mapping/-/trace-mapping-0.3.25.tgz"
   integrity sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==
@@ -526,7 +525,7 @@
   resolved "https://registry.npmjs.org/@types/isomorphic-fetch/-/isomorphic-fetch-0.0.39.tgz"
   integrity sha512-I0gou/ZdA1vMG7t7gMzL7VYu2xAKU78rW9U1l10MI0nn77pEHq3tQqHQ8hMmXdMpBlkxZOorjI4sO594Z3kKJw==
 
-"@types/json-schema@*", "@types/json-schema@^7.0.15", "@types/json-schema@^7.0.8":
+"@types/json-schema@*", "@types/json-schema@^7.0.15", "@types/json-schema@^7.0.9":
   version "7.0.15"
   resolved "https://registry.npmjs.org/@types/json-schema/-/json-schema-7.0.15.tgz"
   integrity sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==
@@ -561,10 +560,10 @@
     "@types/node" "*"
     form-data "^4.0.0"
 
-"@types/node@*", "@types/node@^22.13.1":
-  version "22.13.1"
-  resolved "https://registry.npmjs.org/@types/node/-/node-22.13.1.tgz"
-  integrity sha512-jK8uzQlrvXqEU91UxiK5J7pKHyzgnI1Qnl0QDHIgVGuolJhRb9EEl28Cj9b3rGR8B2lhFCtvIm5os8lFnO/1Ew==
+"@types/node@*", "@types/node@^22.13.4":
+  version "22.13.4"
+  resolved "https://registry.npmjs.org/@types/node/-/node-22.13.4.tgz"
+  integrity sha512-ywP2X0DYtX3y08eFVx5fNIw7/uIv8hYUKgXoK8oayJlLnKcRfEYCxWMVE1XagUdVtCJlZT1AU4LXEABW+L1Peg==
   dependencies:
     undici-types "~6.20.0"
 
@@ -825,22 +824,31 @@ agentkeepalive@^4.2.1:
   dependencies:
     humanize-ms "^1.2.1"
 
-ai@^4.1.34:
-  version "4.1.34"
-  resolved "https://registry.npmjs.org/ai/-/ai-4.1.34.tgz"
-  integrity sha512-9IB5duz6VbXvjibqNrvKz6++PwE8Ui5UfbOC9/CtcQN5Z9sudUQErss+maj7ptoPysD2NPjj99e0Hp183Cz5LQ==
+ai@^4.1.41:
+  version "4.1.41"
+  resolved "https://registry.npmjs.org/ai/-/ai-4.1.41.tgz"
+  integrity sha512-qQ5eVm5ivTij0/auLaoggfW3Y+IgWL0uNCCH79P8eUODeJTTqCRvB0B3iz9xl9b4uqOPcgZCVELgLfVODnCJ9g==
   dependencies:
     "@ai-sdk/provider" "1.0.7"
-    "@ai-sdk/provider-utils" "2.1.6"
-    "@ai-sdk/react" "1.1.11"
-    "@ai-sdk/ui-utils" "1.1.11"
+    "@ai-sdk/provider-utils" "2.1.8"
+    "@ai-sdk/react" "1.1.16"
+    "@ai-sdk/ui-utils" "1.1.14"
     "@opentelemetry/api" "1.9.0"
     jsondiffpatch "0.6.0"
 
-ajv-keywords@^3.5.2:
-  version "3.5.2"
-  resolved "https://registry.npmjs.org/ajv-keywords/-/ajv-keywords-3.5.2.tgz"
-  integrity sha512-5p6WTN0DdTGVQk6VjcEju19IgaHudalcfabD7yhDGeA6bcQnmL+CpveLJq/3hvfwd1aof6L386Ougkx6RfyMIQ==
+ajv-formats@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.npmjs.org/ajv-formats/-/ajv-formats-2.1.1.tgz"
+  integrity sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==
+  dependencies:
+    ajv "^8.0.0"
+
+ajv-keywords@^5.1.0:
+  version "5.1.0"
+  resolved "https://registry.npmjs.org/ajv-keywords/-/ajv-keywords-5.1.0.tgz"
+  integrity sha512-YCS/JNFAUyr5vAuhk1DWm1CBxRHW9LbJ2ozWeemrIqpbsqKjHVxYPyi5GC0rjZIT5JxJ3virVTS8wk4i/Z+krw==
+  dependencies:
+    fast-deep-equal "^3.1.3"
 
 ajv@^6.12.4:
   version "6.12.6"
@@ -852,17 +860,7 @@ ajv@^6.12.4:
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
-ajv@^6.12.5, ajv@^6.9.1:
-  version "6.12.6"
-  resolved "https://registry.npmjs.org/ajv/-/ajv-6.12.6.tgz"
-  integrity sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==
-  dependencies:
-    fast-deep-equal "^3.1.1"
-    fast-json-stable-stringify "^2.0.0"
-    json-schema-traverse "^0.4.1"
-    uri-js "^4.2.2"
-
-ajv@^8.17.1:
+ajv@^8.0.0, ajv@^8.17.1, ajv@^8.8.2, ajv@^8.9.0:
   version "8.17.1"
   resolved "https://registry.npmjs.org/ajv/-/ajv-8.17.1.tgz"
   integrity sha512-B/gBuNg5SiMTrPkC+A2+cW0RszwxYmn6VYxB/inlBStS5nx6xHIt/ehKRhIMhqusl7a8LjQoZnjCs5vhwxOQ1g==
@@ -1219,10 +1217,10 @@ chrome-trace-event@^1.0.2:
   resolved "https://registry.npmjs.org/chrome-trace-event/-/chrome-trace-event-1.0.4.tgz"
   integrity sha512-rNjApaLzuwaOTjCiT8lSDdGN1APCiqkChLMJxJPWLunPAt5fy8xgU9/jNOchV84wfIxrA0lRQB7oCT8jrn/wrQ==
 
-chromium-bidi@1.2.0:
-  version "1.2.0"
-  resolved "https://registry.npmjs.org/chromium-bidi/-/chromium-bidi-1.2.0.tgz"
-  integrity sha512-XtdJ1GSN6S3l7tO7F77GhNsw0K367p0IsLYf2yZawCVAKKC3lUvDhPdMVrB2FNhmhfW43QGYbEX3Wg6q0maGwQ==
+chromium-bidi@1.3.0:
+  version "1.3.0"
+  resolved "https://registry.npmjs.org/chromium-bidi/-/chromium-bidi-1.3.0.tgz"
+  integrity sha512-G3x1bkST13kmbL7+dT/oRkNH/7C4UqG+0YQpmySrzXspyOhYgDNc6lhSGpj3cuexvH25WTENhTYq2Tt9JRXtbw==
   dependencies:
     mitt "^3.0.1"
     zod "^3.24.1"
@@ -1663,10 +1661,10 @@ eslint-visitor-keys@^4.2.0:
   resolved "https://registry.npmjs.org/eslint-visitor-keys/-/eslint-visitor-keys-4.2.0.tgz"
   integrity sha512-UyLnSehNt62FFhSwjZlHmeokpRK59rcz29j+F1/aDgbkbRTk7wIc9XzdoasMUbRNKDM0qQt/+BJ4BrpFeABemw==
 
-"eslint@^6.0.0 || ^7.0.0 || >=8.0.0", eslint@^9.20.0:
-  version "9.20.0"
-  resolved "https://registry.npmjs.org/eslint/-/eslint-9.20.0.tgz"
-  integrity sha512-aL4F8167Hg4IvsW89ejnpTwx+B/UQRzJPGgbIOl+4XqffWsahVVsLEWoZvnrVuwpWmnRd7XeXmQI1zlKcFDteA==
+"eslint@^6.0.0 || ^7.0.0 || >=8.0.0", eslint@^9.20.1:
+  version "9.20.1"
+  resolved "https://registry.npmjs.org/eslint/-/eslint-9.20.1.tgz"
+  integrity sha512-m1mM33o6dBUjxl2qb6wv6nGNwCAsns1eKtaQ4l/NPHeTvhiUPbtdfMyktxN4B3fgHIgsYh1VT3V9txblpQHq+g==
   dependencies:
     "@eslint-community/eslint-utils" "^4.2.0"
     "@eslint-community/regexpp" "^4.12.1"
@@ -3148,10 +3146,10 @@ open@^8.0.0:
     is-docker "^2.1.1"
     is-wsl "^2.2.0"
 
-openai@^4.83.0:
-  version "4.83.0"
-  resolved "https://registry.npmjs.org/openai/-/openai-4.83.0.tgz"
-  integrity sha512-fmTsqud0uTtRKsPC7L8Lu55dkaTwYucqncDHzVvO64DKOpNTuiYwjbR/nVgpapXuYy8xSnhQQPUm+3jQaxICgw==
+openai@^4.85.1:
+  version "4.85.1"
+  resolved "https://registry.npmjs.org/openai/-/openai-4.85.1.tgz"
+  integrity sha512-jkX2fntHljUvSH3MkWh4jShl10oNkb+SsCj4auKlbu2oF4KWAnmHLNR5EpnUHK1ZNW05Rp0fjbJzYwQzMsH8ZA==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
@@ -3359,10 +3357,10 @@ prelude-ls@^1.2.1:
   resolved "https://registry.npmjs.org/prelude-ls/-/prelude-ls-1.2.1.tgz"
   integrity sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==
 
-prettier@^3.5.0:
-  version "3.5.0"
-  resolved "https://registry.npmjs.org/prettier/-/prettier-3.5.0.tgz"
-  integrity sha512-quyMrVt6svPS7CjQ9gKb3GLEX/rl3BCL2oa/QkNcXv4YNVBC9olt3s+H7ukto06q7B1Qz46PbrKLO34PR6vXcA==
+prettier@^3.5.1:
+  version "3.5.1"
+  resolved "https://registry.npmjs.org/prettier/-/prettier-3.5.1.tgz"
+  integrity sha512-hPpFQvHwL3Qv5AdRvBFMhnKo4tYxp0ReXiPn2bxkiohEX6mBeBwEpBSQTkD458RaaDKQMYSp4hX4UtfUTA5wDw==
 
 process-nextick-args@~2.0.0:
   version "2.0.1"
@@ -3411,13 +3409,13 @@ punycode@^2.1.0, punycode@^2.3.1:
   resolved "https://registry.npmjs.org/punycode/-/punycode-2.3.1.tgz"
   integrity sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==
 
-puppeteer-core@*, puppeteer-core@24.2.0:
-  version "24.2.0"
-  resolved "https://registry.npmjs.org/puppeteer-core/-/puppeteer-core-24.2.0.tgz"
-  integrity sha512-e4A4/xqWdd4kcE6QVHYhJ+Qlx/+XpgjP4d8OwBx0DJoY/nkIRhSgYmKQnv7+XSs1ofBstalt+XPGrkaz4FoXOQ==
+puppeteer-core@*, puppeteer-core@24.2.1:
+  version "24.2.1"
+  resolved "https://registry.npmjs.org/puppeteer-core/-/puppeteer-core-24.2.1.tgz"
+  integrity sha512-bCypUh3WXzETafv1TCFAjIUnI8BiQ/d+XvEfEXDLcIMm9CAvROqnBmbt79yBjwasoDZsgfXnUmIJU7Y27AalVQ==
   dependencies:
     "@puppeteer/browsers" "2.7.1"
-    chromium-bidi "1.2.0"
+    chromium-bidi "1.3.0"
     debug "^4.4.0"
     devtools-protocol "0.0.1402036"
     typed-query-selector "^2.12.0"
@@ -3470,16 +3468,16 @@ puppeteer-extra@*, puppeteer-extra@^3.3.6:
     debug "^4.1.1"
     deepmerge "^4.2.2"
 
-puppeteer@*, puppeteer@^24.2.0:
-  version "24.2.0"
-  resolved "https://registry.npmjs.org/puppeteer/-/puppeteer-24.2.0.tgz"
-  integrity sha512-z8vv7zPEgrilIbOo3WNvM+2mXMnyM9f4z6zdrB88Fzeuo43Oupmjrzk3EpuvuCtyK0A7Lsllfx7Z+4BvEEGJcQ==
+puppeteer@*, puppeteer@^24.2.1:
+  version "24.2.1"
+  resolved "https://registry.npmjs.org/puppeteer/-/puppeteer-24.2.1.tgz"
+  integrity sha512-Euno62ou0cd0dTkOYTNioSOsFF4VpSnz4ldD38hi9ov9xCNtr8DbhmoJRUx+V9OuPgecueZbKOohRrnrhkbg3Q==
   dependencies:
     "@puppeteer/browsers" "2.7.1"
-    chromium-bidi "1.2.0"
+    chromium-bidi "1.3.0"
     cosmiconfig "^9.0.0"
     devtools-protocol "0.0.1402036"
-    puppeteer-core "24.2.0"
+    puppeteer-core "24.2.1"
     typed-query-selector "^2.12.0"
 
 qs@^6.9.1:
@@ -3631,14 +3629,15 @@ sax@>=0.6.0:
   resolved "https://registry.npmjs.org/sax/-/sax-1.4.1.tgz"
   integrity sha512-+aWOz7yVScEGoKNd4PA10LZ8sk0A/z5+nXQG5giUO5rprX9jgYsTdov9qCchZiPIZezbZH+jRut8nPodFAX4Jg==
 
-schema-utils@^3.1.1, schema-utils@^3.2.0:
-  version "3.3.0"
-  resolved "https://registry.npmjs.org/schema-utils/-/schema-utils-3.3.0.tgz"
-  integrity sha512-pN/yOAvcC+5rQ5nERGuwrjLlYvLTbCibnZ1I7B1LaiAz9BRBlE9GMgE/eqV30P7aJQUf7Ddimy/RsbYO/GrVGg==
+schema-utils@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.npmjs.org/schema-utils/-/schema-utils-4.3.0.tgz"
+  integrity sha512-Gf9qqc58SpCA/xdziiHz35F4GNIWYWZrEshUc/G/r5BnLph6xpKuLeoJoQuj5WfBIx/eQLf+hmVPYHaxJu7V2g==
   dependencies:
-    "@types/json-schema" "^7.0.8"
-    ajv "^6.12.5"
-    ajv-keywords "^3.5.2"
+    "@types/json-schema" "^7.0.9"
+    ajv "^8.9.0"
+    ajv-formats "^2.1.1"
+    ajv-keywords "^5.1.0"
 
 secure-json-parse@^2.7.0:
   version "2.7.0"
@@ -3655,7 +3654,7 @@ semver@^7.3.4, semver@^7.3.5, semver@^7.5.2, semver@^7.5.4, semver@^7.6.2, semve
   resolved "https://registry.npmjs.org/semver/-/semver-7.7.1.tgz"
   integrity sha512-hlq8tAfn0m/61p4BVRcPzIGr6LKiMwo4VM6dGi6pt4qcRkmNzTcWq6eCEjEh+qXjkMDvPlOFFSGwQjoEa6gyMA==
 
-serialize-javascript@^6.0.1, serialize-javascript@^6.0.2:
+serialize-javascript@^6.0.2:
   version "6.0.2"
   resolved "https://registry.npmjs.org/serialize-javascript/-/serialize-javascript-6.0.2.tgz"
   integrity sha512-Saa1xPByTTq2gdeFZYLLo+RFE35NHZkAbqZeWNd3BpzppeVisAqpDjcp8dyf6uIvEqJRd46jemmyA4iFIeVk8g==
@@ -3965,21 +3964,21 @@ tar-stream@^3.1.5:
     fast-fifo "^1.2.0"
     streamx "^2.15.0"
 
-terser-webpack-plugin@^5.3.10:
-  version "5.3.10"
-  resolved "https://registry.npmjs.org/terser-webpack-plugin/-/terser-webpack-plugin-5.3.10.tgz"
-  integrity sha512-BKFPWlPDndPs+NGGCr1U59t0XScL5317Y0UReNrHaw9/FwhPENlq6bfgs+4yPfyP51vqC1bQ4rp1EfXW5ZSH9w==
+terser-webpack-plugin@^5.3.11:
+  version "5.3.11"
+  resolved "https://registry.npmjs.org/terser-webpack-plugin/-/terser-webpack-plugin-5.3.11.tgz"
+  integrity sha512-RVCsMfuD0+cTt3EwX8hSl2Ks56EbFHWmhluwcqoPKtBnfjiT6olaq7PRIRfhyU8nnC2MrnDrBLfrD/RGE+cVXQ==
   dependencies:
-    "@jridgewell/trace-mapping" "^0.3.20"
+    "@jridgewell/trace-mapping" "^0.3.25"
     jest-worker "^27.4.5"
-    schema-utils "^3.1.1"
-    serialize-javascript "^6.0.1"
-    terser "^5.26.0"
+    schema-utils "^4.3.0"
+    serialize-javascript "^6.0.2"
+    terser "^5.31.1"
 
-terser@^5.26.0:
-  version "5.31.3"
-  resolved "https://registry.npmjs.org/terser/-/terser-5.31.3.tgz"
-  integrity sha512-pAfYn3NIZLyZpa83ZKigvj6Rn9c/vd5KfYGX7cN1mnzqgDcxWvrU5ZtAfIKhEXz9nRecw4z3LXkjaq96/qZqAA==
+terser@^5.31.1:
+  version "5.39.0"
+  resolved "https://registry.npmjs.org/terser/-/terser-5.39.0.tgz"
+  integrity sha512-LBAhFyLho16harJoWMg/nZsQYgTrg5jXOn2nCYjRUcZZEdE3qa2zb8QEDRUGVZBW4rlazf2fxkg8tztybTaqWw==
   dependencies:
     "@jridgewell/source-map" "^0.3.3"
     acorn "^8.8.2"
@@ -4228,10 +4227,10 @@ webpack-sources@^3.2.3:
   resolved "https://registry.npmjs.org/webpack-sources/-/webpack-sources-3.2.3.tgz"
   integrity sha512-/DyMEOrDgLKKIG0fmvtz+4dUX/3Ghozwgm6iPp8KRhvn+eQf9+Q7GWxVNMk3+uCPWfdXYC4ExGBckIXdFEfH1w==
 
-webpack@^5.0.0, webpack@^5.1.0, webpack@^5.97.1:
-  version "5.97.1"
-  resolved "https://registry.npmjs.org/webpack/-/webpack-5.97.1.tgz"
-  integrity sha512-EksG6gFY3L1eFMROS/7Wzgrii5mBAFe4rIr3r2BTfo7bcc+DWwFZ4OJ/miOuHJO/A85HwyI4eQ0F6IKXesO7Fg==
+webpack@^5.0.0, webpack@^5.1.0, webpack@^5.98.0:
+  version "5.98.0"
+  resolved "https://registry.npmjs.org/webpack/-/webpack-5.98.0.tgz"
+  integrity sha512-UFynvx+gM44Gv9qFgj0acCQK2VE1CtdfwFdimkapco3hlPCJ/zeq73n2yVKimVbtm+TnApIugGhLJnkU6gjYXA==
   dependencies:
     "@types/eslint-scope" "^3.7.7"
     "@types/estree" "^1.0.6"
@@ -4251,9 +4250,9 @@ webpack@^5.0.0, webpack@^5.1.0, webpack@^5.97.1:
     loader-runner "^4.2.0"
     mime-types "^2.1.27"
     neo-async "^2.6.2"
-    schema-utils "^3.2.0"
+    schema-utils "^4.3.0"
     tapable "^2.1.1"
-    terser-webpack-plugin "^5.3.10"
+    terser-webpack-plugin "^5.3.11"
     watchpack "^2.4.1"
     webpack-sources "^3.2.3"
 
@@ -4412,10 +4411,10 @@ zod-to-json-schema@^3.24.1:
   resolved "https://registry.npmjs.org/zod-to-json-schema/-/zod-to-json-schema-3.24.1.tgz"
   integrity sha512-3h08nf3Vw3Wl3PK+q3ow/lIil81IT2Oa7YpQyUUDsEWbXveMesdfK1xBd2RhCkynwZndAxixji/7SYJJowr62w==
 
-zod@^3.0.0, zod@^3.23.8, zod@^3.24.1:
-  version "3.24.1"
-  resolved "https://registry.npmjs.org/zod/-/zod-3.24.1.tgz"
-  integrity sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==
+zod@^3.0.0, zod@^3.23.8, zod@^3.24.1, zod@^3.24.2:
+  version "3.24.2"
+  resolved "https://registry.npmjs.org/zod/-/zod-3.24.2.tgz"
+  integrity sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==
 
 zwitch@^2.0.0:
   version "2.0.4"

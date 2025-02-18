@@ -37,7 +37,14 @@ export async function initClaudeModel(viewProvider: ChatGptViewProvider, config:
         baseURL: apiBaseUrl,
         apiKey: config.apiKey,
     });
-    viewProvider.apiChat = ai.languageModel(viewProvider.model ? viewProvider.model : "claude-3-5-sonnet-20240620");
+    if (config.isReasoning) {
+        viewProvider.apiReasoning = wrapLanguageModel({
+            model: ai.languageModel(viewProvider.model ? viewProvider.model : "claude-3-5-sonnet-20240620"),
+            middleware: extractReasoningMiddleware({ tagName: 'think' }),
+        });
+    } else {
+        viewProvider.apiChat = ai.languageModel(viewProvider.model ? viewProvider.model : "claude-3-5-sonnet-20240620");
+    }
 }
 
 // initGeminiModel initializes the Gemini model with the given parameters.
@@ -52,12 +59,28 @@ export async function initGeminiModel(viewProvider: ChatGptViewProvider, config:
         apiKey: config.apiKey,
     });
     const model = viewProvider.model ? viewProvider.model : "gemini-1.5-flash-latest";
-    viewProvider.apiChat = ai(model);
 
-    if (config.searchGrounding) {
-        viewProvider.apiChat = ai(model, {
-            useSearchGrounding: config.searchGrounding,
+    if (config.isReasoning) {
+        viewProvider.apiReasoning = wrapLanguageModel({
+            model: ai(model),
+            middleware: extractReasoningMiddleware({ tagName: 'think' }),
         });
+
+        if (config.searchGrounding) {
+            viewProvider.apiReasoning = wrapLanguageModel({
+                model: ai(model, {
+                    useSearchGrounding: config.searchGrounding,
+                }),
+                middleware: extractReasoningMiddleware({ tagName: 'think' }),
+            });
+        }
+    } else {
+        viewProvider.apiChat = ai(model);
+        if (config.searchGrounding) {
+            viewProvider.apiChat = ai(model, {
+                useSearchGrounding: config.searchGrounding,
+            });
+        }
     }
 }
 
@@ -71,13 +94,20 @@ export async function initOllamaModel(viewProvider: ChatGptViewProvider, config:
         baseURL: apiBaseUrl,
     });
     const model = viewProvider.model ? viewProvider.model : "deepseek-r1";
-    if (isReasoningModel(model)) {
-        viewProvider.apiChat = wrapLanguageModel({
+    if (config.isReasoning) {
+        viewProvider.apiReasoning = wrapLanguageModel({
             model: ai.chat(model),
             middleware: extractReasoningMiddleware({ tagName: 'think' }),
         });
     } else {
-        viewProvider.apiChat = ai.chat(model);
+        if (isReasoningModel(model)) {
+            viewProvider.apiChat = wrapLanguageModel({
+                model: ai.chat(model),
+                middleware: extractReasoningMiddleware({ tagName: 'think' }),
+            });
+        } else {
+            viewProvider.apiChat = ai.chat(model);
+        }
     }
 }
 
@@ -91,7 +121,15 @@ export async function initMistralModel(viewProvider: ChatGptViewProvider, config
         baseURL: apiBaseUrl,
         apiKey: config.apiKey,
     });
-    viewProvider.apiChat = ai.chat(viewProvider.model ? viewProvider.model : "deepseek-r1");
+
+    if (config.isReasoning) {
+        viewProvider.apiReasoning = wrapLanguageModel({
+            model: ai.chat(viewProvider.model ? viewProvider.model : "deepseek-r1"),
+            middleware: extractReasoningMiddleware({ tagName: 'think' }),
+        });
+    } else {
+        viewProvider.apiChat = ai.chat(viewProvider.model ? viewProvider.model : "deepseek-r1");
+    }
 }
 
 export async function initXAIModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {
@@ -105,7 +143,14 @@ export async function initXAIModel(viewProvider: ChatGptViewProvider, config: Mo
         baseURL: apiBaseUrl,
         apiKey: config.apiKey,
     });
-    viewProvider.apiChat = ai.chat(viewProvider.model ? viewProvider.model : "grok-beta");
+    if (config.isReasoning) {
+        viewProvider.apiReasoning = wrapLanguageModel({
+            model: ai.chat(viewProvider.model ? viewProvider.model : "grok-beta"),
+            middleware: extractReasoningMiddleware({ tagName: 'think' }),
+        });
+    } else {
+        viewProvider.apiChat = ai.chat(viewProvider.model ? viewProvider.model : "grok-beta");
+    }
 }
 
 export async function initTogetherModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {
@@ -120,13 +165,22 @@ export async function initTogetherModel(viewProvider: ChatGptViewProvider, confi
         baseURL: apiBaseUrl,
     });
     const model = viewProvider.model ? viewProvider.model : "deepseek-ai/DeepSeek-R1";
-    if (isReasoningModel(model)) {
-        viewProvider.apiChat = wrapLanguageModel({
+
+
+    if (config.isReasoning) {
+        viewProvider.apiReasoning = wrapLanguageModel({
             model: ai.languageModel(model),
             middleware: extractReasoningMiddleware({ tagName: 'think' }),
         });
     } else {
-        viewProvider.apiChat = ai.languageModel(model);
+        if (isReasoningModel(model)) {
+            viewProvider.apiChat = wrapLanguageModel({
+                model: ai.languageModel(model),
+                middleware: extractReasoningMiddleware({ tagName: 'think' }),
+            });
+        } else {
+            viewProvider.apiChat = ai.languageModel(model);
+        }
     }
 }
 
@@ -143,13 +197,20 @@ export async function initDeepSeekModel(viewProvider: ChatGptViewProvider, confi
     });
 
     const model = viewProvider.model ? viewProvider.model : "deepseek-chat";
-    if (isReasoningModel(model)) {
-        viewProvider.apiChat = wrapLanguageModel({
+    if (config.isReasoning) {
+        viewProvider.apiReasoning = wrapLanguageModel({
             model: ai.chat(model),
             middleware: extractReasoningMiddleware({ tagName: 'think' }),
         });
     } else {
-        viewProvider.apiChat = ai.chat(model);
+        if (isReasoningModel(model)) {
+            viewProvider.apiChat = wrapLanguageModel({
+                model: ai.chat(model),
+                middleware: extractReasoningMiddleware({ tagName: 'think' }),
+            });
+        } else {
+            viewProvider.apiChat = ai.chat(model);
+        }
     }
 }
 
@@ -166,13 +227,20 @@ export async function initGroqModel(viewProvider: ChatGptViewProvider, config: M
 
 
     const model = viewProvider.model ? viewProvider.model : "gemma2-9b-it";
-    if (isReasoningModel(model)) {
+    if (config.isReasoning) {
         viewProvider.apiChat = wrapLanguageModel({
             model: ai.languageModel(model),
             middleware: extractReasoningMiddleware({ tagName: 'think' }),
         });
     } else {
-        viewProvider.apiChat = ai.languageModel(model);
+        if (isReasoningModel(model)) {
+            viewProvider.apiChat = wrapLanguageModel({
+                model: ai.languageModel(model),
+                middleware: extractReasoningMiddleware({ tagName: 'think' }),
+            });
+        } else {
+            viewProvider.apiChat = ai.languageModel(model);
+        }
     }
 }
 
@@ -186,12 +254,30 @@ export async function initPerplexityModel(viewProvider: ChatGptViewProvider, con
         apiKey: config.apiKey,
         baseURL: apiBaseUrl,
     });
-    viewProvider.apiChat = ai.chat(viewProvider.model ? viewProvider.model : "sonar-pro");
+
+    viewProvider.apiChat = ai.languageModel(viewProvider.model ? viewProvider.model : "sonar-pro");
 }
 
 export async function initOpenRouterModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {
     const ai = createOpenRouter({
         apiKey: config.apiKey,
     });
-    viewProvider.apiChat = ai.chat(viewProvider.model ? viewProvider.model : "anthropic/claude-3.5-sonnet");
+    const model = viewProvider.model ? viewProvider.model : "anthropic/claude-3.5-sonnet";
+
+    if (config.isReasoning) {
+        viewProvider.apiChat = wrapLanguageModel({
+            model: ai.chat(model),
+            middleware: extractReasoningMiddleware({ tagName: 'think' }),
+        });
+    }
+    else {
+        if (isReasoningModel(model)) {
+            viewProvider.apiChat = wrapLanguageModel({
+                model: ai.chat(model),
+                middleware: extractReasoningMiddleware({ tagName: 'think' }),
+            });
+        } else {
+            viewProvider.apiChat = ai.chat(model);
+        }
+    }
 }

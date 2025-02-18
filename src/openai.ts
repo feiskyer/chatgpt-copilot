@@ -25,20 +25,26 @@ export async function initGptModel(viewProvider: ChatGptViewProvider, config: Mo
         const instanceName = config.apiBaseUrl.split(".")[0].split("//")[1];
         const deployName = config.apiBaseUrl.split("/")[config.apiBaseUrl.split("/").length - 1];
 
-        viewProvider.model = deployName;
         const azure = createAzure({
             resourceName: instanceName,
             apiKey: config.apiKey,
         });
-        if (isReasoningModel(deployName)) {
-            viewProvider.apiChat = wrapLanguageModel({
+
+        if (config.isReasoning) {
+            viewProvider.apiReasoning = wrapLanguageModel({
                 model: azure.chat(deployName),
                 middleware: extractReasoningMiddleware({ tagName: 'think' }),
             });
         } else {
-            viewProvider.apiChat = azure.chat(deployName);
+            if (isReasoningModel(deployName)) {
+                viewProvider.apiChat = wrapLanguageModel({
+                    model: azure.chat(deployName),
+                    middleware: extractReasoningMiddleware({ tagName: 'think' }),
+                });
+            } else {
+                viewProvider.apiChat = azure.chat(deployName);
+            }
         }
-
     } else {
         // OpenAI
         const openai = createOpenAI({
@@ -47,13 +53,21 @@ export async function initGptModel(viewProvider: ChatGptViewProvider, config: Mo
             organization: config.organization,
         });
         const model = viewProvider.model ? viewProvider.model : "gpt-4o";
-        if (isReasoningModel(model)) {
-            viewProvider.apiChat = wrapLanguageModel({
+
+        if (config.isReasoning) {
+            viewProvider.apiReasoning = wrapLanguageModel({
                 model: openai.chat(model),
                 middleware: extractReasoningMiddleware({ tagName: 'think' }),
             });
         } else {
-            viewProvider.apiChat = openai.chat(model);
+            if (isReasoningModel(model)) {
+                viewProvider.apiChat = wrapLanguageModel({
+                    model: openai.chat(model),
+                    middleware: extractReasoningMiddleware({ tagName: 'think' }),
+                });
+            } else {
+                viewProvider.apiChat = openai.chat(model);
+            }
         }
     }
 }
