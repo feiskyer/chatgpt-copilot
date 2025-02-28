@@ -20,6 +20,7 @@ import { createPerplexity } from '@ai-sdk/perplexity';
 import { createTogetherAI } from '@ai-sdk/togetherai';
 import { createXai } from '@ai-sdk/xai';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import { createAzure } from '@quail-ai/azure-ai-provider';
 import { extractReasoningMiddleware, wrapLanguageModel } from 'ai';
 import { createOllama } from 'ollama-ai-provider';
 import ChatGptViewProvider from "./chatgpt-view-provider";
@@ -39,7 +40,7 @@ export async function initClaudeModel(viewProvider: ChatGptViewProvider, config:
     });
     if (config.isReasoning) {
         viewProvider.apiReasoning = wrapLanguageModel({
-            model: ai.languageModel(viewProvider.model ? viewProvider.model : "claude-3-5-sonnet-20240620"),
+            model: ai.languageModel(viewProvider.reasoningModel ? viewProvider.reasoningModel : "claude-3-5-sonnet-20240620"),
             middleware: extractReasoningMiddleware({ tagName: 'think' }),
         });
     } else {
@@ -58,9 +59,9 @@ export async function initGeminiModel(viewProvider: ChatGptViewProvider, config:
         baseURL: apiBaseUrl,
         apiKey: config.apiKey,
     });
-    const model = viewProvider.model ? viewProvider.model : "gemini-1.5-flash-latest";
 
     if (config.isReasoning) {
+        const model = viewProvider.reasoningModel ? viewProvider.reasoningModel : "gemini-1.5-flash-latest";
         viewProvider.apiReasoning = wrapLanguageModel({
             model: ai(model),
             middleware: extractReasoningMiddleware({ tagName: 'think' }),
@@ -75,6 +76,7 @@ export async function initGeminiModel(viewProvider: ChatGptViewProvider, config:
             });
         }
     } else {
+        const model = viewProvider.model ? viewProvider.model : "gemini-1.5-flash-latest";
         viewProvider.apiChat = ai(model);
         if (config.searchGrounding) {
             viewProvider.apiChat = ai(model, {
@@ -93,13 +95,15 @@ export async function initOllamaModel(viewProvider: ChatGptViewProvider, config:
     const ai = createOllama({
         baseURL: apiBaseUrl,
     });
-    const model = viewProvider.model ? viewProvider.model : "deepseek-r1";
+
     if (config.isReasoning) {
+        const model = viewProvider.reasoningModel ? viewProvider.reasoningModel : "deepseek-r1";
         viewProvider.apiReasoning = wrapLanguageModel({
             model: ai.chat(model),
             middleware: extractReasoningMiddleware({ tagName: 'think' }),
         });
     } else {
+        const model = viewProvider.model ? viewProvider.model : "deepseek-r1";
         if (isReasoningModel(model)) {
             viewProvider.apiChat = wrapLanguageModel({
                 model: ai.chat(model),
@@ -124,7 +128,7 @@ export async function initMistralModel(viewProvider: ChatGptViewProvider, config
 
     if (config.isReasoning) {
         viewProvider.apiReasoning = wrapLanguageModel({
-            model: ai.chat(viewProvider.model ? viewProvider.model : "deepseek-r1"),
+            model: ai.chat(viewProvider.reasoningModel ? viewProvider.reasoningModel : "deepseek-r1"),
             middleware: extractReasoningMiddleware({ tagName: 'think' }),
         });
     } else {
@@ -145,7 +149,7 @@ export async function initXAIModel(viewProvider: ChatGptViewProvider, config: Mo
     });
     if (config.isReasoning) {
         viewProvider.apiReasoning = wrapLanguageModel({
-            model: ai.chat(viewProvider.model ? viewProvider.model : "grok-beta"),
+            model: ai.chat(viewProvider.reasoningModel ? viewProvider.reasoningModel : "grok-beta"),
             middleware: extractReasoningMiddleware({ tagName: 'think' }),
         });
     } else {
@@ -164,15 +168,18 @@ export async function initTogetherModel(viewProvider: ChatGptViewProvider, confi
         apiKey: config.apiKey,
         baseURL: apiBaseUrl,
     });
-    const model = viewProvider.model ? viewProvider.model : "deepseek-ai/DeepSeek-R1";
 
 
     if (config.isReasoning) {
+        const model = viewProvider.reasoningModel ? viewProvider.reasoningModel : "deepseek-ai/DeepSeek-R1";
+
         viewProvider.apiReasoning = wrapLanguageModel({
             model: ai.languageModel(model),
             middleware: extractReasoningMiddleware({ tagName: 'think' }),
         });
     } else {
+        const model = viewProvider.model ? viewProvider.model : "deepseek-ai/DeepSeek-R1";
+
         if (isReasoningModel(model)) {
             viewProvider.apiChat = wrapLanguageModel({
                 model: ai.languageModel(model),
@@ -196,13 +203,16 @@ export async function initDeepSeekModel(viewProvider: ChatGptViewProvider, confi
         baseURL: apiBaseUrl,
     });
 
-    const model = viewProvider.model ? viewProvider.model : "deepseek-chat";
     if (config.isReasoning) {
+        const model = viewProvider.reasoningModel ? viewProvider.reasoningModel : "deepseek-chat";
+
         viewProvider.apiReasoning = wrapLanguageModel({
             model: ai.chat(model),
             middleware: extractReasoningMiddleware({ tagName: 'think' }),
         });
     } else {
+        const model = viewProvider.model ? viewProvider.model : "deepseek-chat";
+
         if (isReasoningModel(model)) {
             viewProvider.apiChat = wrapLanguageModel({
                 model: ai.chat(model),
@@ -226,13 +236,15 @@ export async function initGroqModel(viewProvider: ChatGptViewProvider, config: M
     });
 
 
-    const model = viewProvider.model ? viewProvider.model : "gemma2-9b-it";
     if (config.isReasoning) {
-        viewProvider.apiChat = wrapLanguageModel({
+        const model = viewProvider.reasoningModel ? viewProvider.reasoningModel : "gemma2-9b-it";
+
+        viewProvider.apiReasoning = wrapLanguageModel({
             model: ai.languageModel(model),
             middleware: extractReasoningMiddleware({ tagName: 'think' }),
         });
     } else {
+        const model = viewProvider.model ? viewProvider.model : "gemma2-9b-it";
         if (isReasoningModel(model)) {
             viewProvider.apiChat = wrapLanguageModel({
                 model: ai.languageModel(model),
@@ -262,15 +274,18 @@ export async function initOpenRouterModel(viewProvider: ChatGptViewProvider, con
     const ai = createOpenRouter({
         apiKey: config.apiKey,
     });
-    const model = viewProvider.model ? viewProvider.model : "anthropic/claude-3.5-sonnet";
 
     if (config.isReasoning) {
-        viewProvider.apiChat = wrapLanguageModel({
+        const model = viewProvider.reasoningModel ? viewProvider.reasoningModel : "anthropic/claude-3.5-sonnet";
+
+        viewProvider.apiReasoning = wrapLanguageModel({
             model: ai.chat(model),
             middleware: extractReasoningMiddleware({ tagName: 'think' }),
         });
     }
     else {
+        const model = viewProvider.model ? viewProvider.model : "anthropic/claude-3.5-sonnet";
+
         if (isReasoningModel(model)) {
             viewProvider.apiChat = wrapLanguageModel({
                 model: ai.chat(model),
@@ -278,6 +293,36 @@ export async function initOpenRouterModel(viewProvider: ChatGptViewProvider, con
             });
         } else {
             viewProvider.apiChat = ai.chat(model);
+        }
+    }
+}
+
+
+export async function initAzureAIModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {
+    let apiBaseUrl = config.apiBaseUrl;
+
+    const ai = createAzure({
+        apiKey: config.apiKey,
+        endpoint: apiBaseUrl,
+    });
+
+    if (config.isReasoning) {
+        const model = viewProvider.reasoningModel ? viewProvider.reasoningModel : "DeepSeek-R1";
+
+        viewProvider.apiReasoning = wrapLanguageModel({
+            model: ai.languageModel(model),
+            middleware: extractReasoningMiddleware({ tagName: 'think' }),
+        });
+    }
+    else {
+        const model = viewProvider.model ? viewProvider.model : "DeepSeek-R1";
+        if (isReasoningModel(model)) {
+            viewProvider.apiChat = wrapLanguageModel({
+                model: ai.languageModel(model),
+                middleware: extractReasoningMiddleware({ tagName: 'think' }),
+            });
+        } else {
+            viewProvider.apiChat = ai.languageModel(model);
         }
     }
 }

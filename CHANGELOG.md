@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v4.6.8
+
+* Remove the default system prompt.
+* Fix the reasoning model bug.
+* Add support for Azure AI inference endpoint (baseURL: <https://your-name.services.ai.azure.com>).
+
 ## v4.6.7
 
 * Add new reasoning model configurations and added support of DeepClaude mode (DeepSeek + Claude).

@@ -23,10 +23,8 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
         throw new Error("apiReasoning is undefined");
     }
 
-    logger.appendLine(`INFO: debug ${JSON.stringify(provider.reasoningModelConfig, null, 2)}`);
-
     try {
-        logger.appendLine(`INFO: chatgpt.model: ${provider.model}, reasoning.model: ${provider.reasoningModel}, chatgpt.question: ${question}`);
+        logger.appendLine(`INFO: deepclaude.model: ${provider.model}, deepclaude.reasoning.model: ${provider.reasoningModel}, deepclaude.question: ${question}`);
 
         var chatMessage: CoreMessage = {
             role: "user",
@@ -40,9 +38,8 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
 
         /* placeholder for response */
         startResponse();
-        provider.chatHistory.push(chatMessage);
-        /* do not add system prompt for reasoning step */
         // provider.chatHistory.push({ role: "user", content: provider.modelConfig.systemPrompt });
+        provider.chatHistory.push(chatMessage);
 
         /* step 1: perform reasoning */
         let reasoningResult = "";
@@ -51,6 +48,7 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
             const result = await generateText({
                 model: provider.apiReasoning,
                 messages: provider.chatHistory,
+                abortSignal: provider.abortController?.signal,
             });
             if (result.reasoning) {
                 reasoningResult = result.reasoning;
@@ -69,11 +67,11 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
                 model: provider.apiReasoning,
                 messages: provider.chatHistory,
                 maxTokens: provider.modelConfig.maxTokens,
-                topP: provider.modelConfig.topP,
                 temperature: provider.modelConfig.temperature,
+                abortSignal: provider.abortController?.signal,
             });
             for await (const part of result.fullStream) {
-                // logger.appendLine(`INFO: reasoning.model: ${provider.reasoningModel} chatgpt.question: ${question} response: ${JSON.stringify(part, null, 2)}`);
+                // logger.appendLine(`INFO: deepclaude.reasoning.model: ${provider.reasoningModel} deepclaude.question: ${question} response: ${JSON.stringify(part, null, 2)}`);
                 if (reasoningDone) {
                     // no need to process response after reasoning is done.
                     break;
@@ -82,7 +80,12 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
                 switch (part.type) {
                     case 'text-delta': {
                         if (hasReasoning) {
-                            reasoningDone = true;
+                            // Reasoning may be empty
+                            if (reasonChunks.join("").trim() == "") {
+                                hasReasoning = false;
+                            } else {
+                                reasoningDone = true;
+                            }
                         } else {
                             updateReasoning(part.textDelta);
                             chunks.push(part.textDelta);
@@ -98,13 +101,13 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
                     case 'error':
                         provider.sendMessage({
                             type: "addError",
-                            value: part.error,
+                            value: JSON.stringify(part.error, null, 2),
                             autoScroll: provider.autoScroll,
                         });
                         break;
 
                     default: {
-                        // logger.appendLine(`INFO: reasoning.model: ${provider.reasoningModel} chatgpt.question: ${question} response: ${JSON.stringify(part, null, 2)}`);
+                        // logger.appendLine(`INFO: deepclaude.reasoning.model: ${provider.reasoningModel} deepclaude.question: ${question} response: ${JSON.stringify(part, null, 2)}`);
                         break;
                     }
                 }
@@ -119,8 +122,17 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
 
         logger.appendLine(`INFO: reasoning.model: ${provider.reasoningModel}, reasoning: ${reasoningResult}`);
 
+        if (reasoningResult.trim() == "") {
+            provider.sendMessage({
+                type: "addError",
+                value: "Reasoning is empty.",
+                autoScroll: provider.autoScroll,
+            });
+            return;
+        }
+
         /* add reasoning to context */
-        provider.chatHistory.push({ role: "user", content: reasoningResult });
+        provider.chatHistory.push({ role: "user", content: `Reasoning: ${reasoningResult}` });
 
         /* add images after reasoning */
         Object.entries(images).forEach(([_, content]) => {
@@ -137,6 +149,7 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
                 // system: provider.modelConfig.systemPrompt,
                 model: provider.apiChat,
                 messages: provider.chatHistory,
+                abortSignal: provider.abortController?.signal,
             });
 
             updateReasoning(result.reasoning ?? "");
@@ -157,9 +170,10 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
             maxTokens: provider.modelConfig.maxTokens,
             topP: provider.modelConfig.topP,
             temperature: provider.modelConfig.temperature,
+            abortSignal: provider.abortController?.signal,
         });
         for await (const part of result.fullStream) {
-            // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question} response: ${JSON.stringify(part, null, 2)}`);
+            // logger.appendLine(`INFO: deepclaude.model: ${provider.model} deepclaude.question: ${question} response: ${JSON.stringify(part, null, 2)}`);
             switch (part.type) {
                 case 'text-delta': {
                     updateResponse(part.textDelta);
@@ -180,7 +194,7 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
                     break;
 
                 default: {
-                    // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question} response: ${JSON.stringify(part, null, 2)}`);
+                    logger.appendLine(`INFO: deepclaude.model: ${provider.model} deepclaude.question: ${question} response: ${JSON.stringify(part, null, 2)}`);
                     break;
                 }
             }
@@ -189,9 +203,9 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
         provider.response = chunks.join("");
         provider.reasoning = reasonChunks.join("");
         provider.chatHistory.push({ role: "assistant", content: chunks.join("") });
-        logger.appendLine(`INFO: chatgpt.response: ${provider.response}`);
+        logger.appendLine(`INFO: deepclaude.response: ${provider.response}`);
     } catch (error) {
-        logger.appendLine(`ERROR: chatgpt.model: ${provider.model} response: ${error}`);
+        logger.appendLine(`ERROR: deepclaude.model: ${provider.model} response: ${error}`);
         throw error;
     }
 }

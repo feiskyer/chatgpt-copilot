@@ -34,6 +34,7 @@ ChatGPT Copilot is a powerful and telemetry-free extension for Visual Studio Cod
 
 ## Recent Release Highlights
 
+* **v4.6.8**: Fix reasoning model bug, fix stop responses and set default system prompt to empty.
 * **v4.6.7**: Added DeepClaude mode (DeepSeek + Claude) for best AI responses.
 * **v4.6.6**: Added reasoning response for reasoning models (e.g. DeepSeek R1).
 * **v4.6.5**: Added reasoning models (DeepSeek R1 and o3-mini)

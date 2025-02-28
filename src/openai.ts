@@ -109,6 +109,7 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
             const result = await generateText({
                 model: provider.apiChat,
                 messages: provider.chatHistory,
+                abortSignal: provider.abortController?.signal,
             });
 
             updateReasoning(result.reasoning ?? "");
@@ -130,6 +131,7 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
             maxTokens: provider.modelConfig.maxTokens,
             topP: provider.modelConfig.topP,
             temperature: provider.modelConfig.temperature,
+            abortSignal: provider.abortController?.signal,
         });
         for await (const part of result.fullStream) {
             // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question} response: ${JSON.stringify(part, null, 2)}`);

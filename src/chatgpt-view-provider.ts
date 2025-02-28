@@ -21,7 +21,7 @@ import path from "path";
 import * as vscode from "vscode";
 import { reasoningChat } from "./deepclaude";
 import {
-  initClaudeModel, initDeepSeekModel, initGeminiModel,
+  initAzureAIModel, initClaudeModel, initDeepSeekModel, initGeminiModel,
   initGroqModel, initMistralModel, initOllamaModel,
   initOpenRouterModel, initPerplexityModel,
   initTogetherModel, initXAIModel
@@ -33,11 +33,11 @@ import { PromptStore } from "./types";
 
 export const logger = vscode.window.createOutputChannel("ChatGPT Copilot");
 
-const defaultSystemPrompt = `Your task is to embody the role of an intelligent, helpful, and expert assistant.
-You MUST provide accurate and truthful answers, adhering strictly to the instructions given.
-Your responses should be styled using Github Flavored Markdown for elements such as headings,
-lists, colored text, code blocks, and highlights. However, you MUST NOT mention markdown or
-styling directly in your response. Respond in the same language as the query, unless otherwise specified by the user.`;
+// const defaultSystemPrompt = `Your task is to embody the role of an intelligent, helpful, and expert assistant.
+// You MUST provide accurate and truthful answers, adhering strictly to the instructions given.
+// Your responses should be styled using Github Flavored Markdown for elements such as headings,
+// lists, colored text, code blocks, and highlights. However, you MUST NOT mention markdown or
+// styling directly in your response. Respond in the same language as the query, unless otherwise specified by the user.`;
 
 export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private webView?: vscode.WebviewView;
@@ -49,6 +49,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private apiBaseUrl?: string;
   public modelConfig!: ModelConfig;
   public reasoningModel: string = "";
+  public reasoningAPIBaseUrl: string = "";
   public reasoningProvider: string = "Auto";
   public reasoningModelConfig!: ModelConfig;
   public systemPromptOverride: string = "";
@@ -109,6 +110,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.reasoningModel = vscode.workspace
       .getConfiguration("chatgpt")
       .get("gpt3.reasoning.model") as string;
+    this.reasoningAPIBaseUrl = vscode.workspace
+      .getConfiguration("chatgpt")
+      .get("gpt3.reasoning.apiBaseUrl") as string;
     this.reasoningProvider = vscode.workspace
       .getConfiguration("chatgpt")
       .get("gpt3.reasoning.provider") as string;
@@ -367,6 +371,14 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     return !!this.model?.startsWith("gemini-") || !!this.model?.startsWith("learnlm");
   }
 
+  private get isAzureOAI(): boolean {
+    return !!this.apiBaseUrl?.includes("openai.azure.com");
+  }
+
+  private get isAzureAI(): boolean {
+    return !!this.apiBaseUrl?.includes("services.ai.azure.com");
+  }
+
   private get isXAI(): boolean {
     return !!this.model?.startsWith("grok-");
   }
@@ -389,6 +401,14 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         return "xAI";
       }
 
+      if (this.isAzureOAI) {
+        return "Azure";
+      }
+
+      if (this.isAzureAI) {
+        return "AzureAI";
+      }
+
       return "OpenAILegacy";
     }
 
@@ -405,6 +425,18 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         return "Google";
       }
 
+      if (!!this.reasoningModel?.startsWith("grok-")) {
+        return "xAI";
+      }
+
+      if (!!this.reasoningAPIBaseUrl?.includes("openai.azure.com")) {
+        return "Azure";
+      }
+
+      if (!!this.reasoningAPIBaseUrl?.includes("services.ai.azure.com")) {
+        return "AzureAI";
+      }
+
       return "OpenAI";
     }
 
@@ -417,6 +449,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     const configuration = vscode.workspace.getConfiguration("chatgpt");
     this.model = configuration.get("gpt3.model") as string;
     this.reasoningModel = configuration.get("gpt3.reasoning.model") as string;
+    this.reasoningAPIBaseUrl = configuration.get("gpt3.reasoning.apiBaseUrl") as string;
     this.provider = configuration.get("gpt3.provider") as string;
     this.reasoningProvider = configuration.get("gpt3.reasoning.provider") as string;
 
@@ -442,9 +475,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       const searchGrounding = configuration.get("gpt3.searchGrounding.enabled") as boolean;
 
       let systemPrompt = configuration.get("systemPrompt") as string;
-      if (!systemPrompt) {
-        systemPrompt = defaultSystemPrompt;
-      }
       if (this.systemPromptOverride != "") {
         systemPrompt = this.systemPromptOverride;
       }
@@ -538,6 +568,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
           case "Azure":
             await initGptModel(this, modelConfig);
+            break;
+
+          case "AzureAI":
+            await initAzureAIModel(this, modelConfig);
             break;
 
           case "Anthropic":

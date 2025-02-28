@@ -782,6 +782,8 @@
     }
 
     // Add tooltip styles to the styleSheet
+    const styleSheet = document.createElement('style');
+    document.head.appendChild(styleSheet);
     styleSheet.textContent += `
         .tooltip {
             position: absolute;
