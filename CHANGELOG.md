@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v4.6.9
+
+* Add support for Github Copilot models.
+
 ## v4.6.8
 
 * Remove the default system prompt.

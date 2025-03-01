@@ -20,6 +20,7 @@ import delay from "delay";
 import path from "path";
 import * as vscode from "vscode";
 import { reasoningChat } from "./deepclaude";
+import { chatCopilot } from "./github-copilot";
 import {
   initAzureAIModel, initClaudeModel, initDeepSeekModel, initGeminiModel,
   initGroqModel, initMistralModel, initOllamaModel,
@@ -614,10 +615,20 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
             await initOpenRouterModel(this, modelConfig);
             break;
 
+          case "GitHubCopilot":
+            break;
+
           default:
             initGptLegacyModel(this, modelConfig);
             break;
         }
+      }
+
+      if (provider == "GithubCopilot") {
+        const models = await vscode.lm.selectChatModels({
+          vendor: 'copilot'
+        });
+        logger.appendLine(`INFO: available models: ${models.map(m => m.family).join(', ')}`);
       }
     }
 
@@ -743,14 +754,14 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         this.conversationContext.filesSent = true;
       }
 
-      if (this.provider != "OpenAILegacy") {
-        if (this.reasoningModel != "") {
-          await reasoningChat(this, question, imageFiles, startResponse, updateResponse, updateReasoning);
-        } else {
-          await chatGpt(this, question, imageFiles, startResponse, updateResponse, updateReasoning);
-        }
-      } else {
+      if (this.provider == "OpenAILegacy") {
         await chatCompletion(this, question, imageFiles, startResponse, updateResponse);
+      } else if (this.provider == "GitHubCopilot") {
+        await chatCopilot(this, question, imageFiles, startResponse, updateResponse);
+      } else if (this.reasoningModel != "") {
+        await reasoningChat(this, question, imageFiles, startResponse, updateResponse, updateReasoning);
+      } else {
+        await chatGpt(this, question, imageFiles, startResponse, updateResponse, updateReasoning);
       }
 
       if (options.previousAnswer != null) {
