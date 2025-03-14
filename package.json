@@ -4,7 +4,7 @@
   "displayName": "ChatGPT Copilot",
   "icon": "images/ai-logo.png",
   "description": "An VS Code ChatGPT Copilot Extension",
-  "version": "4.6.8",
+  "version": "4.7.0",
   "aiKey": "",
   "repository": {
     "url": "https://github.com/feiskyer/chatgpt-copilot"
@@ -94,6 +94,18 @@
           "command": "chatgpt-copilot.customPrompt2",
           "group": "chatGpt@10",
           "when": "editorHasSelection && customPrompt2-enabled"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "chatgpt-copilot.openPromptManager",
+          "when": "view == promptManager",
+          "group": "navigation"
+        },
+        {
+          "command": "chatgpt-copilot.openMCPServers",
+          "when": "view == mcpServersView",
+          "group": "navigation"
         }
       ]
     },
@@ -242,6 +254,14 @@
         "command": "chatgpt-copilot.addCurrentFile",
         "title": "Add Current File to Chat Context",
         "category": "ChatGPT"
+      },
+      {
+        "command": "chatgpt-copilot.openPromptManager",
+        "title": "ChatGPT: Open Prompt Manager"
+      },
+      {
+        "command": "chatgpt-copilot.openMCPServers",
+        "title": "ChatGPT: Open MCP Servers"
       }
     ],
     "viewsContainers": {
@@ -636,6 +656,7 @@
     "@ai-sdk/perplexity": "^1.0.0",
     "@ai-sdk/togetherai": "^0.1.11",
     "@ai-sdk/xai": "^1.1.10",
+    "@modelcontextprotocol/sdk": "^1.7.0",
     "@openrouter/ai-sdk-provider": "^0.2.1",
     "@quail-ai/azure-ai-provider": "^1.0.5",
     "@types/minimatch": "^5.1.2",

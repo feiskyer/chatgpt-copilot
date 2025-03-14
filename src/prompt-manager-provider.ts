@@ -60,32 +60,6 @@ export default class PromptManagerProvider implements vscode.WebviewViewProvider
         });
     }
 
-    private getWebviewHtml(webview: vscode.Webview) {
-        const scriptUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(this.context.extensionUri, "media", "prompt-manager.js")
-        );
-        const stylesUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(this.context.extensionUri, "media", "prompt-manager.css")
-        );
-
-        return `<!DOCTYPE html>
-    <html>
-      <head>
-        <link href="${stylesUri}" rel="stylesheet">
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h2>Prompt Manager</h2>
-            <button id="addPrompt">Add New Prompt</button>
-          </div>
-          <div id="promptList"></div>
-        </div>
-        <script src="${scriptUri}"></script>
-      </body>
-    </html>`;
-    }
-
     public addPrompt(prompt: Omit<Prompt, "id" | "createdAt" | "updatedAt">) {
         const now = Date.now();
         const newPrompt: Prompt = {

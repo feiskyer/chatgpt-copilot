@@ -89,6 +89,7 @@ export async function chatCompletion(provider: ChatGptViewProvider, question: st
         topP: provider.modelConfig.topP,
         temperature: provider.modelConfig.temperature,
         abortSignal: provider.abortController?.signal,
+        tools: provider.toolSet?.tools || undefined,
     });
     const chunks = [];
     for await (const textPart of result.textStream) {

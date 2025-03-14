@@ -216,8 +216,11 @@
                     return;
                 }
 
-                const messageValue = message.value || "An error occurred. If this issue persists please clear your session token with `ChatGPT: Reset session` command and/or restart your Visual Studio Code. If you still experience issues, it may be due to outage on https://openai.com services.";
-
+                const messageValue = message.value ?
+                    (typeof message.value === 'object' ?
+                        JSON.stringify(message.value, null, 2) :
+                        message.value) :
+                    "An error occurred. If this issue persists please clear your session token with `ChatGPT: Reset session` command and/or restart your Visual Studio Code.";
                 list.innerHTML +=
                     `<div class="p-4 self-end mt-4 pb-8 error-element-ext">
                         <h2 class="mb-5 flex">${aiSvg}ChatGPT</h2>
@@ -586,6 +589,14 @@
             e.preventDefault();
             vscode.postMessage({
                 type: "togglePromptManager"
+            });
+            return;
+        }
+
+        if (targetButton?.id === "toggle-mcp-servers") {
+            e.preventDefault();
+            vscode.postMessage({
+                type: "openMCPServers"
             });
             return;
         }

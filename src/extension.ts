@@ -13,6 +13,7 @@
 
 import * as vscode from "vscode";
 import ChatGptViewProvider from "./chatgpt-view-provider";
+import MCPServerProvider from './mcp-server-provider';
 import PromptManagerProvider from "./prompt-manager-provider";
 import { PromptStore } from "./types";
 
@@ -257,7 +258,7 @@ export async function activate(context: vscode.ExtensionContext) {
     async () => {
       const panel = vscode.window.createWebviewPanel(
         'chatgpt-copilot.promptManager',
-        'Prompt Manager',
+        'ChatGPT: Prompt Manager',
         vscode.ViewColumn.Beside,
         {
           enableScripts: true,
@@ -303,6 +304,58 @@ export async function activate(context: vscode.ExtensionContext) {
     }
   );
 
+  const mcpServerProvider = new MCPServerProvider(context);
+  const mcpServerView = vscode.window.registerWebviewViewProvider(
+    'chatgpt-copilot.mcpServers',
+    mcpServerProvider
+  );
+
+  const openMCPServers = vscode.commands.registerCommand(
+    'chatgpt-copilot.openMCPServers',
+    () => {
+      const panel = vscode.window.createWebviewPanel(
+        'chatgpt-copilot.mcpServers',
+        'ChatGPT: MCP Servers',
+        vscode.ViewColumn.One,
+        {
+          enableScripts: true,
+          retainContextWhenHidden: true,
+          localResourceRoots: [context.extensionUri]
+        }
+      );
+
+      panel.webview.html = mcpServerProvider.getWebviewContent(panel.webview);
+      mcpServerProvider.setPanel(panel);
+
+      panel.onDidDispose(() => {
+        mcpServerProvider.setPanel(undefined);
+      });
+
+      panel.webview.onDidReceiveMessage(async (data) => {
+        switch (data.type) {
+          case 'addServer':
+            mcpServerProvider.addServer(data.server);
+            break;
+          case 'updateServer':
+            mcpServerProvider.updateServer(data.server);
+            break;
+          case 'deleteServer':
+            mcpServerProvider.deleteServer(data.id);
+            break;
+          case 'toggleServerEnabled':
+            mcpServerProvider.toggleServerEnabled(data.id);
+            break;
+          case 'getServers':
+            panel.webview.postMessage({
+              type: 'updateServers',
+              servers: mcpServerProvider.getServers()
+            });
+            break;
+        }
+      });
+    }
+  );
+
   context.subscriptions.push(
     view,
     freeText,
@@ -317,7 +370,9 @@ export async function activate(context: vscode.ExtensionContext) {
     managePrompts,
     debugPrompts,
     togglePromptManager,
-    addCurrentFileCommand
+    addCurrentFileCommand,
+    mcpServerView,
+    openMCPServers
   );
 
   const setContext = () => {

@@ -110,6 +110,7 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
                 model: provider.apiChat,
                 messages: provider.chatHistory,
                 abortSignal: provider.abortController?.signal,
+                tools: provider.toolSet?.tools || undefined,
             });
 
             updateReasoning(result.reasoning ?? "");
@@ -132,6 +133,7 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
             topP: provider.modelConfig.topP,
             temperature: provider.modelConfig.temperature,
             abortSignal: provider.abortController?.signal,
+            tools: provider.toolSet?.tools || undefined,
         });
         for await (const part of result.fullStream) {
             // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question} response: ${JSON.stringify(part, null, 2)}`);
@@ -155,7 +157,7 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
                     break;
 
                 default: {
-                    // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question} response: ${JSON.stringify(part, null, 2)}`);
+                    logger.appendLine(`INFO: chatgpt.model: ${provider.model}, chatgpt.question: ${question}, debug response: ${JSON.stringify(part, null, 2)}`);
                     break;
                 }
             }
@@ -164,9 +166,9 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
         provider.response = chunks.join("");
         provider.reasoning = reasonChunks.join("");
         provider.chatHistory.push({ role: "assistant", content: chunks.join("") });
-        logger.appendLine(`INFO: chatgpt.response: ${provider.response}`);
+        logger.appendLine(`INFO: chatgpt.model: ${provider.model}, chatgpt.question: ${question}, final response: ${provider.response}`);
     } catch (error) {
-        logger.appendLine(`ERROR: chatgpt.model: ${provider.model} response: ${error}`);
+        logger.appendLine(`ERROR: chatgpt.model: ${provider.model} error: ${error}`);
         throw error;
     }
 }

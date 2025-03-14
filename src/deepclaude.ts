@@ -49,6 +49,7 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
                 model: provider.apiReasoning,
                 messages: provider.chatHistory,
                 abortSignal: provider.abortController?.signal,
+                tools: provider.toolSet?.tools || undefined,
             });
             if (result.reasoning) {
                 reasoningResult = result.reasoning;
@@ -69,6 +70,7 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
                 maxTokens: provider.modelConfig.maxTokens,
                 temperature: provider.modelConfig.temperature,
                 abortSignal: provider.abortController?.signal,
+                tools: provider.toolSet?.tools || undefined,
             });
             for await (const part of result.fullStream) {
                 // logger.appendLine(`INFO: deepclaude.reasoning.model: ${provider.reasoningModel} deepclaude.question: ${question} response: ${JSON.stringify(part, null, 2)}`);
@@ -150,6 +152,7 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
                 model: provider.apiChat,
                 messages: provider.chatHistory,
                 abortSignal: provider.abortController?.signal,
+                tools: provider.toolSet?.tools || undefined,
             });
 
             updateReasoning(result.reasoning ?? "");
@@ -171,6 +174,7 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
             topP: provider.modelConfig.topP,
             temperature: provider.modelConfig.temperature,
             abortSignal: provider.abortController?.signal,
+            tools: provider.toolSet?.tools || undefined,
         });
         for await (const part of result.fullStream) {
             // logger.appendLine(`INFO: deepclaude.model: ${provider.model} deepclaude.question: ${question} response: ${JSON.stringify(part, null, 2)}`);

@@ -13,6 +13,7 @@
  * copies or substantial portions of the Software.
  */
 
+// @ts-ignore
 import { OpenAIChatLanguageModel, OpenAICompletionLanguageModel } from "@ai-sdk/openai/internal";
 import { LanguageModelV1 } from "@ai-sdk/provider";
 import { CoreMessage } from "ai";
@@ -27,11 +28,12 @@ import {
   initOpenRouterModel, initPerplexityModel,
   initTogetherModel, initXAIModel
 } from "./llms";
+import { ToolSet, createToolSet } from "./mcp";
+import { MCPServer } from "./mcp-server-provider";
 import { ModelConfig } from "./model-config";
 import { chatGpt, initGptModel } from "./openai";
 import { chatCompletion, initGptLegacyModel } from "./openai-legacy";
 import { PromptStore } from "./types";
-
 export const logger = vscode.window.createOutputChannel("ChatGPT Copilot");
 
 // const defaultSystemPrompt = `Your task is to embody the role of an intelligent, helpful, and expert assistant.
@@ -65,6 +67,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public reasoning: string = "";
   public response: string = "";
   public chatHistory: CoreMessage[] = [];
+  public toolSet?: ToolSet;
 
   /**
    * Message to be rendered lazily if they haven't been rendered
@@ -122,6 +125,18 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     if (this.apiBaseUrl?.includes("azure")) {
       this.model = this.model?.replace(".", "");
     }
+  }
+
+  public closeMCPServers(): void {
+    if (this.toolSet) {
+      for (const transport of Object.values(this.toolSet.transports)) {
+        transport.close();
+      }
+      for (const client of Object.values(this.toolSet.clients)) {
+        client.close();
+      }
+    }
+    this.toolSet = undefined;
   }
 
   public resolveWebviewView(
@@ -246,6 +261,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         case "togglePromptManager":
           await vscode.commands.executeCommand("chatgpt-copilot.togglePromptManager");
           break;
+        case "openMCPServers":
+          await vscode.commands.executeCommand("chatgpt-copilot.openMCPServers");
+          break;
         case "searchPrompts":
           await this.handlePromptSearch(data.query, data.responseType);
           break;
@@ -267,6 +285,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           break;
         case "removeFileReference":
           this.handleRemoveFileReference(data.fileName);
+          break;
+        case "toggleMCPServers":
+          await vscode.commands.executeCommand("chatgpt-copilot.openMCPServers");
           break;
         default:
           break;
@@ -453,6 +474,31 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.reasoningAPIBaseUrl = configuration.get("gpt3.reasoning.apiBaseUrl") as string;
     this.provider = configuration.get("gpt3.provider") as string;
     this.reasoningProvider = configuration.get("gpt3.reasoning.provider") as string;
+
+    const mcpStore = this.context.globalState.get<{ servers: MCPServer[]; }>("mcpServers", { servers: [] });
+    logger.appendLine(`INFO: enabled MCP servers: ${JSON.stringify(mcpStore.servers)}`);
+    if (mcpStore.servers.length > 0) {
+      if (this.toolSet && Object.values(this.toolSet.clients).length !== mcpStore.servers.length) {
+        this.closeMCPServers();
+      }
+      if (!this.toolSet) {
+        this.toolSet = await createToolSet({
+          mcpServers: mcpStore.servers.reduce((acc: Record<string, { command: string, args: any, env?: any; isEnabled: boolean; type: string; url: string; }>, server) => {
+            acc[server.name] = {
+              command: server.command || '',
+              args: server.arguments || [],
+              env: server.env || {},
+              url: server.url || '',
+              isEnabled: server.isEnabled,
+              type: server.type || 'local',
+            };
+            return acc;
+          }, {}),
+        });
+      }
+    } else {
+      this.closeMCPServers();
+    }
 
     if (this.model == "custom") {
       this.model = configuration.get("gpt3.customModel") as string;
@@ -914,6 +960,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       vscode.Uri.joinPath(this.context.extensionUri, "media", "main.css"),
     );
 
+    const lightSvgUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this.context.extensionUri, "media", "mcp.svg"),
+    );
+
     const vendorHighlightCss = webview.asWebviewUri(
       vscode.Uri.joinPath(
         this.context.extensionUri,
@@ -999,11 +1049,14 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
        </head>
       <body class="overflow-hidden">
 				<div class="flex flex-col h-screen">
-					<div class="absolute top-2 right-2 z-10">
+					<div class="absolute top-2 right-2 z-10 flex gap-2">
 						<button id="toggle-prompt-manager" class="p-1.5 rounded-lg" title="Manage Prompts">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
 								<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
 							</svg>
+						</button>
+						<button id="toggle-mcp-servers" class="p-1.5 rounded-lg" title="Manage MCP Servers">
+							<img src="${lightSvgUri}" alt="MCP Servers" class="w-5 h-5" />
 						</button>
 					</div>
 
@@ -1019,7 +1072,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
                   <li class="features-li w-full border border-zinc-700 p-3 rounded-md">Manage prompts & search custom ones (# to search).</li>
                   <li class="features-li w-full border border-zinc-700 p-3 rounded-md">Enhance code: add tests, fix bugs, and optimize.</li>
                   <li class="features-li w-full border border-zinc-700 p-3 rounded-md">Auto-detect language with syntax highlighting.</li>
-                  <li class="features-li w-full border border-zinc-700 p-3 rounded-md">DeepClaude (DeepSeek+Claude) for best results.</li>
+                  <li class="features-li w-full border border-zinc-700 p-3 rounded-md">Model Context Protocol (MCP) and DeepClaude mode.</li>
                   </ul>
 							</div>
 						</div>
