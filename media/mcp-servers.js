@@ -13,12 +13,18 @@ let servers = [];
 document.addEventListener('DOMContentLoaded', () => {
     const serverList = document.getElementById('serverList');
     const addServerButton = document.getElementById('addServer');
+    const addFirstServerButton = document.getElementById('addFirstServer');
 
     // Request initial data
     vscode.postMessage({ type: 'getServers' });
 
     // Add server button
     addServerButton.addEventListener('click', () => {
+        showServerModal();
+    });
+
+    // Add first server button (in empty state)
+    addFirstServerButton?.addEventListener('click', () => {
         showServerModal();
     });
 
