@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v4.7.0
+
+* Added Model Context Protocol (MCP) integration.
+
 ## v4.6.9
 
 * Add support for Github Copilot models.

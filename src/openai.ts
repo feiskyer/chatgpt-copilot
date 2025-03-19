@@ -111,6 +111,7 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
                 messages: provider.chatHistory,
                 abortSignal: provider.abortController?.signal,
                 tools: provider.toolSet?.tools || undefined,
+                maxSteps: provider.maxSteps,
             });
 
             updateReasoning(result.reasoning ?? "");
@@ -134,6 +135,7 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
             temperature: provider.modelConfig.temperature,
             abortSignal: provider.abortController?.signal,
             tools: provider.toolSet?.tools || undefined,
+            maxSteps: provider.maxSteps,
         });
         for await (const part of result.fullStream) {
             // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question} response: ${JSON.stringify(part, null, 2)}`);
@@ -146,6 +148,10 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
                 case 'reasoning': {
                     updateReasoning(part.textDelta);
                     reasonChunks.push(part.textDelta);
+                    break;
+                }
+                case 'tool-call': {
+                    updateResponse(`${part.toolName}...`);
                     break;
                 }
                 case 'error':
