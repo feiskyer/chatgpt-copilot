@@ -17,6 +17,10 @@ import { CoreMessage, streamText } from 'ai';
 import ChatGptViewProvider, { logger } from "./chatgpt-view-provider";
 import { ModelConfig } from "./model-config";
 
+
+const azureAPIVersion = '2025-02-01-preview';
+
+
 // initGptLegacyModel initializes the GPT legacy model.
 export function initGptLegacyModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {
     if (config.apiBaseUrl?.includes("openai.azure.com")) {
@@ -27,6 +31,7 @@ export function initGptLegacyModel(viewProvider: ChatGptViewProvider, config: Mo
         const azure = createAzure({
             resourceName: instanceName,
             apiKey: config.apiKey,
+            apiVersion: azureAPIVersion,
         });
         if (config.isReasoning) {
             viewProvider.apiReasoning = azure.completion(deployName);
@@ -41,7 +46,7 @@ export function initGptLegacyModel(viewProvider: ChatGptViewProvider, config: Mo
             organization: config.organization,
         });
         if (config.isReasoning) {
-            viewProvider.apiReasoning = openai.completion(viewProvider.model ? viewProvider.model : "o1-mini");
+            viewProvider.apiReasoning = openai.completion(viewProvider.reasoningModel ? viewProvider.reasoningModel : "o1-mini");
         } else {
             viewProvider.apiCompletion = openai.completion(viewProvider.model ? viewProvider.model : "gpt-4o");
         }

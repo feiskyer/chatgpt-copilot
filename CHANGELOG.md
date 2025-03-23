@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v4.7.3
+
+* Fix reasoning model for deepclaude mode
+
+## v4.7.2
+
+* feat: add agent max steps when enabling MCP servers
+
 ## v4.7.0
 
 * Added Model Context Protocol (MCP) integration.

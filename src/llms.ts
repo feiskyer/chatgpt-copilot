@@ -299,11 +299,13 @@ export async function initOpenRouterModel(viewProvider: ChatGptViewProvider, con
 
 
 export async function initAzureAIModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {
+    const azureAPIVersion = '2025-02-01-preview';
     let apiBaseUrl = config.apiBaseUrl;
 
     const ai = createAzure({
         apiKey: config.apiKey,
         endpoint: apiBaseUrl,
+        apiVersion: azureAPIVersion,
     });
 
     if (config.isReasoning) {

@@ -2,79 +2,79 @@
 # yarn lockfile v1
 
 
-"@ai-sdk/anthropic@^1.1.17":
-  version "1.1.17"
-  resolved "https://registry.npmjs.org/@ai-sdk/anthropic/-/anthropic-1.1.17.tgz"
-  integrity sha512-t4ipxope34TFvWa4SrFsg2//aAFk3hUv2gxlM5W39IdsT7Hq2nMxJIcXE6C19YdhE/0Kep32iv38BgPaDZet6A==
+"@ai-sdk/anthropic@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/@ai-sdk/anthropic/-/anthropic-1.2.0.tgz"
+  integrity sha512-VMm+wAx7FhSMSjqJv7Zeu3GVxzUdohmWoFpzDCWiODpxPGFHw0d0spDR3sVpk5KcyGRJfebGd86ZtpFLCnagOQ==
   dependencies:
-    "@ai-sdk/provider" "1.0.11"
-    "@ai-sdk/provider-utils" "2.1.13"
+    "@ai-sdk/provider" "1.1.0"
+    "@ai-sdk/provider-utils" "2.2.0"
 
-"@ai-sdk/azure@^1.2.5":
-  version "1.2.5"
-  resolved "https://registry.npmjs.org/@ai-sdk/azure/-/azure-1.2.5.tgz"
-  integrity sha512-pG9rF1YbOja7hMiwtOhFTXn5OSQibGxe0j+9VMJQTAnuvxUVViu00oMWuUMvxbLKUwvcIsF7BzWSYh2DPidz+A==
+"@ai-sdk/azure@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.npmjs.org/@ai-sdk/azure/-/azure-1.3.0.tgz"
+  integrity sha512-2JCWcTt/Hfzk+aeRCggCUuzAe1k7KlfjJqMjP25hRr2dUXn3i4BFYo1yapyd/ShtgXy/tDPeqRLO2ZJ9d8xRLA==
   dependencies:
-    "@ai-sdk/openai" "1.2.5"
-    "@ai-sdk/provider" "1.0.11"
-    "@ai-sdk/provider-utils" "2.1.13"
+    "@ai-sdk/openai" "1.3.0"
+    "@ai-sdk/provider" "1.1.0"
+    "@ai-sdk/provider-utils" "2.2.0"
 
-"@ai-sdk/deepseek@^0.1.15":
-  version "0.1.15"
-  resolved "https://registry.npmjs.org/@ai-sdk/deepseek/-/deepseek-0.1.15.tgz"
-  integrity sha512-0sB3G71eXI7ND4fa9MwBIyN+tTwnH0MQs2Sc+8gGluMy6FtlQi1x49j0yWp1jWSp8E0T31zU7Po7U77NEM0Wxw==
+"@ai-sdk/deepseek@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.npmjs.org/@ai-sdk/deepseek/-/deepseek-0.2.0.tgz"
+  integrity sha512-Bte4rMc4zb+2vNXk+Pdg1OQH5qKRV4APVWY1SqN92+UJA8//yLTQj9nfrK9s4jHuvGBBveOIbjSLbeRfND8vOQ==
   dependencies:
-    "@ai-sdk/openai-compatible" "0.1.15"
-    "@ai-sdk/provider" "1.0.11"
-    "@ai-sdk/provider-utils" "2.1.13"
+    "@ai-sdk/openai-compatible" "0.2.0"
+    "@ai-sdk/provider" "1.1.0"
+    "@ai-sdk/provider-utils" "2.2.0"
 
-"@ai-sdk/google@^1.1.25":
-  version "1.1.25"
-  resolved "https://registry.npmjs.org/@ai-sdk/google/-/google-1.1.25.tgz"
-  integrity sha512-4eIssVphgVmAAsrDqWbH+YH0LXgHpXXY7ye7yuxK+fobpDifZ7LLLEwsbjtg9mfjwSUJ4dSyI/L5mlZ1eQqu0A==
+"@ai-sdk/google@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/@ai-sdk/google/-/google-1.2.0.tgz"
+  integrity sha512-e/sDYsjOc9YdzhnobCt16bkHsEkDEFHs7ZCAOQ1A06zJhRYVll3hyAmWDEgXf25Zdk1R20gu+JEvnIpZ9qgT5w==
   dependencies:
-    "@ai-sdk/provider" "1.0.11"
-    "@ai-sdk/provider-utils" "2.1.13"
+    "@ai-sdk/provider" "1.1.0"
+    "@ai-sdk/provider-utils" "2.2.0"
 
-"@ai-sdk/groq@^1.1.14":
-  version "1.1.14"
-  resolved "https://registry.npmjs.org/@ai-sdk/groq/-/groq-1.1.14.tgz"
-  integrity sha512-LbjpTwN8kLeU/+nfE9inFVQRff1U194j7FJfJNTpKAMPB1AJB7EhPd06IbRdQ7i1CB+fEGnpeQc8gyISjWBQug==
+"@ai-sdk/groq@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/@ai-sdk/groq/-/groq-1.2.0.tgz"
+  integrity sha512-hF62hBUTpOMyqum+w9mozh/KIgxueKowM9cRo38n5PqpXYUexDEKcW8HxOAXWwmbAZcE4l+FBSTu/xk4lBZzZQ==
   dependencies:
-    "@ai-sdk/provider" "1.0.11"
-    "@ai-sdk/provider-utils" "2.1.13"
+    "@ai-sdk/provider" "1.1.0"
+    "@ai-sdk/provider-utils" "2.2.0"
 
-"@ai-sdk/mistral@^1.1.17":
-  version "1.1.17"
-  resolved "https://registry.npmjs.org/@ai-sdk/mistral/-/mistral-1.1.17.tgz"
-  integrity sha512-v0B6nMU6ZmViwj286HF3SMH1CWkIvRemAYw+0tyYi3pWOYC7td564Llnoqm2+EfKMfUNUCtqA4gj2xBr5cS20w==
+"@ai-sdk/mistral@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/@ai-sdk/mistral/-/mistral-1.2.0.tgz"
+  integrity sha512-x09jwW6Ok68gbbOu+2ehXhAtR3u3DyE1g9QbNd0iRuDGV4GTf3mcef2JlrLSyr9EEDts6izB6jdl1CQYPnCjlA==
   dependencies:
-    "@ai-sdk/provider" "1.0.11"
-    "@ai-sdk/provider-utils" "2.1.13"
+    "@ai-sdk/provider" "1.1.0"
+    "@ai-sdk/provider-utils" "2.2.0"
 
-"@ai-sdk/openai-compatible@0.1.15":
-  version "0.1.15"
-  resolved "https://registry.npmjs.org/@ai-sdk/openai-compatible/-/openai-compatible-0.1.15.tgz"
-  integrity sha512-iuylARLylTkaVYXKdgA1GeGU2TwANaJ3RlhJqmN0cVO5uEt3qVKvedrzR3jrQIyy9hu3gngsiXfFBMW2UQ7Ntg==
+"@ai-sdk/openai-compatible@0.2.0":
+  version "0.2.0"
+  resolved "https://registry.npmjs.org/@ai-sdk/openai-compatible/-/openai-compatible-0.2.0.tgz"
+  integrity sha512-8rTOKGf791wlmIM4XKjzN/KqOsO50wUoz9PF9B6ZC4p3UZdLTx9f+pBk+Lo85A68JeK2uRkPAuXjr+8aBpqCuA==
   dependencies:
-    "@ai-sdk/provider" "1.0.11"
-    "@ai-sdk/provider-utils" "2.1.13"
+    "@ai-sdk/provider" "1.1.0"
+    "@ai-sdk/provider-utils" "2.2.0"
 
-"@ai-sdk/openai@^1.2.5", "@ai-sdk/openai@1.2.5":
-  version "1.2.5"
-  resolved "https://registry.npmjs.org/@ai-sdk/openai/-/openai-1.2.5.tgz"
-  integrity sha512-COK7LzspgQQh5Yq070xfDdVMvp8WX592rXRaMaYNNqu1xpzahxDcM24aF9xgKYWuYH0UMoOw4UmWGwGxr6ygIg==
+"@ai-sdk/openai@^1.3.0", "@ai-sdk/openai@1.3.0":
+  version "1.3.0"
+  resolved "https://registry.npmjs.org/@ai-sdk/openai/-/openai-1.3.0.tgz"
+  integrity sha512-zKKacGH8AyUjC63GizDpts+Nf8qAEtvAtO5O/AfVML8pIrtNWsbF+U3nT6mM8Oqvkp9X7ivuc4hCurivMFlJ6Q==
   dependencies:
-    "@ai-sdk/provider" "1.0.11"
-    "@ai-sdk/provider-utils" "2.1.13"
+    "@ai-sdk/provider" "1.1.0"
+    "@ai-sdk/provider-utils" "2.2.0"
 
-"@ai-sdk/perplexity@^1.0.7":
-  version "1.0.7"
-  resolved "https://registry.npmjs.org/@ai-sdk/perplexity/-/perplexity-1.0.7.tgz"
-  integrity sha512-+K86L/X5gnmhu+M89RpaUliZp80updKF2rfH78OO2TBVUxQ1KFGqfc0M0Jm60O4sXNW9Z234l8z5nQbqz+r0AQ==
+"@ai-sdk/perplexity@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.npmjs.org/@ai-sdk/perplexity/-/perplexity-1.1.0.tgz"
+  integrity sha512-9vTjCRglhdRfckQOvyLieI70kQqONu69jsnXANOFKiOLH3vxFjzSQ/8yCm7Jt4EdSfhDNxSFSXpozc8KmziNGw==
   dependencies:
-    "@ai-sdk/provider" "1.0.11"
-    "@ai-sdk/provider-utils" "2.1.13"
+    "@ai-sdk/provider" "1.1.0"
+    "@ai-sdk/provider-utils" "2.2.0"
 
 "@ai-sdk/provider-utils@^2.0.0", "@ai-sdk/provider-utils@^2.1.8", "@ai-sdk/provider-utils@2.1.10":
   version "2.1.10"
@@ -86,12 +86,12 @@
     nanoid "^3.3.8"
     secure-json-parse "^2.7.0"
 
-"@ai-sdk/provider-utils@2.1.13":
-  version "2.1.13"
-  resolved "https://registry.npmjs.org/@ai-sdk/provider-utils/-/provider-utils-2.1.13.tgz"
-  integrity sha512-kLjqsfOdONr6DGcGEntFYM1niXz1H05vyZNf9OAzK+KKKc64izyP4/q/9HX7W4+6g8hm6BnmKxu8vkr6FSOqDg==
+"@ai-sdk/provider-utils@2.2.0":
+  version "2.2.0"
+  resolved "https://registry.npmjs.org/@ai-sdk/provider-utils/-/provider-utils-2.2.0.tgz"
+  integrity sha512-RX5BnDSqudjvZjwwpROcxVQElyX7rUn/xImBgaZLXekSGqq8f7/tefqDcQiRbDZjuCd4CVIfhrK8y/Pta8cPfQ==
   dependencies:
-    "@ai-sdk/provider" "1.0.11"
+    "@ai-sdk/provider" "1.1.0"
     eventsource-parser "^3.0.0"
     nanoid "^3.3.8"
     secure-json-parse "^2.7.0"
@@ -103,49 +103,49 @@
   dependencies:
     json-schema "^0.4.0"
 
-"@ai-sdk/provider@1.0.11":
-  version "1.0.11"
-  resolved "https://registry.npmjs.org/@ai-sdk/provider/-/provider-1.0.11.tgz"
-  integrity sha512-CPyImHGiT3svyfmvPvAFTianZzWFtm0qK82XjwlQIA1C3IQ2iku/PMQXi7aFyrX0TyMh3VTkJPB03tjU2VXVrw==
+"@ai-sdk/provider@1.1.0":
+  version "1.1.0"
+  resolved "https://registry.npmjs.org/@ai-sdk/provider/-/provider-1.1.0.tgz"
+  integrity sha512-0M+qjp+clUD0R1E5eWQFhxEvWLNaOtGQRUaBn8CUABnSKredagq92hUS9VjOzGsTm37xLfpaxl97AVtbeOsHew==
   dependencies:
     json-schema "^0.4.0"
 
-"@ai-sdk/react@1.1.23":
-  version "1.1.23"
-  resolved "https://registry.npmjs.org/@ai-sdk/react/-/react-1.1.23.tgz"
-  integrity sha512-R+PG9ya0GLs6orzt+1MxmjrWFuZM0gVs+l8ihBr1u+42wwkVeojY4CAtQjW4nrfGTVbdJYkl5y+r/VKfjr42aQ==
+"@ai-sdk/react@1.2.0":
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/@ai-sdk/react/-/react-1.2.0.tgz"
+  integrity sha512-fUTZkAsxOMz8ijjWf87E/GfYkgsH4V5MH2yuj7EXh5ShjWe/oayn2ZJkyoqFMr4Jf8m5kptDaivmbIenDq5OXA==
   dependencies:
-    "@ai-sdk/provider-utils" "2.1.13"
-    "@ai-sdk/ui-utils" "1.1.19"
+    "@ai-sdk/provider-utils" "2.2.0"
+    "@ai-sdk/ui-utils" "1.2.0"
     swr "^2.2.5"
     throttleit "2.1.0"
 
-"@ai-sdk/togetherai@^0.1.16":
-  version "0.1.16"
-  resolved "https://registry.npmjs.org/@ai-sdk/togetherai/-/togetherai-0.1.16.tgz"
-  integrity sha512-PQxvDZGg/PsiOjwP93tVesnpUORrhe3yhjmqshxzjYZAYeEDdrUo8Aqp3yGBiQffwDGZLon90W+X74C/ZYS4UQ==
+"@ai-sdk/togetherai@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.npmjs.org/@ai-sdk/togetherai/-/togetherai-0.2.0.tgz"
+  integrity sha512-fpWtFhG9u+80lKifxsLjQ/T/zQqPOyXh+hiO77UDjDIvjyUxQtgtB2WlvD1xw37y8HAqxBDxLjCTvMFrJKXQvQ==
   dependencies:
-    "@ai-sdk/openai-compatible" "0.1.15"
-    "@ai-sdk/provider" "1.0.11"
-    "@ai-sdk/provider-utils" "2.1.13"
+    "@ai-sdk/openai-compatible" "0.2.0"
+    "@ai-sdk/provider" "1.1.0"
+    "@ai-sdk/provider-utils" "2.2.0"
 
-"@ai-sdk/ui-utils@1.1.19":
-  version "1.1.19"
-  resolved "https://registry.npmjs.org/@ai-sdk/ui-utils/-/ui-utils-1.1.19.tgz"
-  integrity sha512-rDHy2uxlPMt3jjS9L6mBrsfhEInZ5BVoWevmD13fsAt2s/XWy2OwwKmgmUQkdLlY4mn/eyeYAfDGK8+5CbOAgg==
+"@ai-sdk/ui-utils@1.2.0":
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/@ai-sdk/ui-utils/-/ui-utils-1.2.0.tgz"
+  integrity sha512-0IZwCqe7E+GkCASTDPAbzMr+POm9GDzWvFd37FvzpOeKNeibmge/LZEkTDbGSa+3b928H8wPwOLsOXBWPLUPDQ==
   dependencies:
-    "@ai-sdk/provider" "1.0.11"
-    "@ai-sdk/provider-utils" "2.1.13"
+    "@ai-sdk/provider" "1.1.0"
+    "@ai-sdk/provider-utils" "2.2.0"
     zod-to-json-schema "^3.24.1"
 
-"@ai-sdk/xai@^1.1.15":
-  version "1.1.15"
-  resolved "https://registry.npmjs.org/@ai-sdk/xai/-/xai-1.1.15.tgz"
-  integrity sha512-Uuc6NC4xsNF5KyYivf/9egWEBNNZ0s3nnQ2klWLj0k9gu5h9fuGAto5thhp2Rd50cPMWzQVQ7R5zvYHmfiunWA==
+"@ai-sdk/xai@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/@ai-sdk/xai/-/xai-1.2.0.tgz"
+  integrity sha512-ZxKbHl2CIDAHGO8Xvd09mOvb73C+hlHyDFOaAj+1qFqZN782eKPSRI9dP32zjfOMPYckUHXvwTUyWyN5oz1U7Q==
   dependencies:
-    "@ai-sdk/openai-compatible" "0.1.15"
-    "@ai-sdk/provider" "1.0.11"
-    "@ai-sdk/provider-utils" "2.1.13"
+    "@ai-sdk/openai-compatible" "0.2.0"
+    "@ai-sdk/provider" "1.1.0"
+    "@ai-sdk/provider-utils" "2.2.0"
 
 "@azure-rest/ai-inference@^1.0.0-beta.5":
   version "1.0.0-beta.5"
@@ -627,10 +627,10 @@
     "@types/node" "*"
     form-data "^4.0.0"
 
-"@types/node@*", "@types/node@^22.13.10":
-  version "22.13.10"
-  resolved "https://registry.npmjs.org/@types/node/-/node-22.13.10.tgz"
-  integrity sha512-I6LPUvlRH+O6VRUqYOcMudhaIdUVWfsjnZavnsraHvpBwaEyMN29ry+0UVJhImYL16xsscu0aske3yA+uPOWfw==
+"@types/node@*", "@types/node@^22.13.11":
+  version "22.13.11"
+  resolved "https://registry.npmjs.org/@types/node/-/node-22.13.11.tgz"
+  integrity sha512-iEUCUJoU0i3VnrCmgoWCXttklWcvoCIx4jzcP22fioIVSdTmjgoEvmAO/QPw6TcS9k5FrNgn4w7q5lGOd1CT5g==
   dependencies:
     undici-types "~6.20.0"
 
@@ -899,15 +899,15 @@ agentkeepalive@^4.2.1:
   dependencies:
     humanize-ms "^1.2.1"
 
-ai@^4.1.62:
-  version "4.1.62"
-  resolved "https://registry.npmjs.org/ai/-/ai-4.1.62.tgz"
-  integrity sha512-+cEyxjOUUA4IxaPiPhmGSQHVrwFplDLqFADzmK0lRnLgacmtI4j1jWuT0HeqAHM3pVtKPYubbQNDuY1djc934A==
+ai@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.npmjs.org/ai/-/ai-4.2.0.tgz"
+  integrity sha512-3xJWzBZpBS3n/UY360IopufV5dpfgYoY08eCAV2A2m7CcyJxVOAQ4lXvBGSsB+mR+BYJ8Y/JOesFfc0+k4jz3A==
   dependencies:
-    "@ai-sdk/provider" "1.0.11"
-    "@ai-sdk/provider-utils" "2.1.13"
-    "@ai-sdk/react" "1.1.23"
-    "@ai-sdk/ui-utils" "1.1.19"
+    "@ai-sdk/provider" "1.1.0"
+    "@ai-sdk/provider-utils" "2.2.0"
+    "@ai-sdk/react" "1.2.0"
+    "@ai-sdk/ui-utils" "1.2.0"
     "@opentelemetry/api" "1.9.0"
     eventsource-parser "^3.0.0"
     jsondiffpatch "0.6.0"
@@ -1015,10 +1015,10 @@ asynckit@^0.4.0:
   resolved "https://registry.npmjs.org/asynckit/-/asynckit-0.4.0.tgz"
   integrity sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==
 
-axios@^1.8.3:
-  version "1.8.3"
-  resolved "https://registry.npmjs.org/axios/-/axios-1.8.3.tgz"
-  integrity sha512-iP4DebzoNlP/YN2dpwCgb8zoCmhtkajzS48JvwmkSkXvPI3DHc7m+XYL5tGnSlJtR6nImXZmdCuN5aP8dh1d8A==
+axios@^1.8.4:
+  version "1.8.4"
+  resolved "https://registry.npmjs.org/axios/-/axios-1.8.4.tgz"
+  integrity sha512-eBSYY4Y68NNlHbHBMdeDmKNtDgXWhQsJcGqzO3iLUM0GraQFSS9cVgPX5I9b3lbdFKyYoAEGAZF1DwhTaljNAw==
   dependencies:
     follow-redirects "^1.15.6"
     form-data "^4.0.0"
@@ -3478,10 +3478,10 @@ open@^8.0.0:
     is-docker "^2.1.1"
     is-wsl "^2.2.0"
 
-openai@^4.87.4:
-  version "4.87.4"
-  resolved "https://registry.npmjs.org/openai/-/openai-4.87.4.tgz"
-  integrity sha512-lsfM20jZY4A0lNexfoUAkfmrEXxaTXvv8OKYicpeAJUNHObpRgkvC7pxPgMnB6gc9ID8OCwzzhEhBpNy69UR7w==
+openai@^4.89.0:
+  version "4.89.0"
+  resolved "https://registry.npmjs.org/openai/-/openai-4.89.0.tgz"
+  integrity sha512-XNI0q2l8/Os6jmojxaID5EhyQjxZgzR2gWcpEjYWK5hGKwE7AcifxEY7UNwFDDHJQXqeiosQ0CJwQN+rvnwdjA==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"

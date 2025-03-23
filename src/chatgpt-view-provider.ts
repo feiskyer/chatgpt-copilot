@@ -442,7 +442,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   }
 
   private get reasoningModelProvider(): string {
-    if (this.provider == "Auto") {
+    if (this.reasoningProvider == "Auto") {
       if (!!this.reasoningModel?.startsWith("claude-")) {
         return "Anthropic";
       }
@@ -480,9 +480,13 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.reasoningProvider = configuration.get("gpt3.reasoning.provider") as string;
 
     const mcpStore = this.context.globalState.get<{ servers: MCPServer[]; }>("mcpServers", { servers: [] });
-    logger.appendLine(`INFO: enabled MCP servers: ${JSON.stringify(mcpStore.servers)}`);
+    const enabledMcpServers = mcpStore.servers
+      .filter(server => server.isEnabled)
+      .map(server => server.name)
+      .join(", ");
+    logger.appendLine(`INFO: enabled MCP servers: ${enabledMcpServers}`);
     if (mcpStore.servers.length > 0) {
-      if (this.toolSet && Object.values(this.toolSet.clients).length !== mcpStore.servers.length) {
+      if (this.toolSet && Object.values(this.toolSet.clients).length !== mcpStore.servers.filter(server => server.isEnabled).length) {
         this.closeMCPServers();
       }
       if (!this.toolSet) {

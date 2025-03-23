@@ -18,6 +18,8 @@ import ChatGptViewProvider, { logger } from "./chatgpt-view-provider";
 import { ModelConfig } from "./model-config";
 import { isReasoningModel } from "./types";
 
+const azureAPIVersion = '2025-02-01-preview';
+
 // initGptModel initializes the GPT model.
 export async function initGptModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {
     // AzureOpenAI
@@ -28,6 +30,7 @@ export async function initGptModel(viewProvider: ChatGptViewProvider, config: Mo
         const azure = createAzure({
             resourceName: instanceName,
             apiKey: config.apiKey,
+            apiVersion: azureAPIVersion,
         });
 
         if (config.isReasoning) {
@@ -52,14 +55,15 @@ export async function initGptModel(viewProvider: ChatGptViewProvider, config: Mo
             apiKey: config.apiKey,
             organization: config.organization,
         });
-        const model = viewProvider.model ? viewProvider.model : "gpt-4o";
 
         if (config.isReasoning) {
+            const model = viewProvider.reasoningModel ? viewProvider.reasoningModel : "o3-mini";
             viewProvider.apiReasoning = wrapLanguageModel({
                 model: openai.chat(model),
                 middleware: extractReasoningMiddleware({ tagName: 'think' }),
             });
         } else {
+            const model = viewProvider.model ? viewProvider.model : "gpt-4o";
             if (isReasoningModel(model)) {
                 viewProvider.apiChat = wrapLanguageModel({
                     model: openai.chat(model),

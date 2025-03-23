@@ -24,7 +24,7 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
     }
 
     try {
-        logger.appendLine(`INFO: deepclaude.model: ${provider.model}, deepclaude.reasoning.model: ${provider.reasoningModel}, deepclaude.question: ${question}`);
+        logger.appendLine(`INFO: deepclaude.model: ${provider.model}, reasoning.model: ${provider.reasoningModel}, question: ${question}`);
 
         var chatMessage: CoreMessage = {
             role: "user",
@@ -215,7 +215,8 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
         provider.chatHistory.push({ role: "assistant", content: chunks.join("") });
         logger.appendLine(`INFO: deepclaude.response: ${provider.response}`);
     } catch (error) {
-        logger.appendLine(`ERROR: deepclaude.model: ${provider.model} response: ${error}`);
+        const backtrace = new Error().stack;
+        logger.appendLine(`ERROR: deepclaude.model: ${provider.model} failed with error: ${error}`);
         throw error;
     }
 }
