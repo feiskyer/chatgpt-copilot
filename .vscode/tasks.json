@@ -5,9 +5,29 @@
 			"type": "npm",
 			"script": "watch",
 			"group": "build",
-			"problemMatcher": "$esbuild-watch",
 			"isBackground": true,
 			"label": "npm: watch",
+			"problemMatcher": [
+				{
+					"pattern": [
+						{
+							"regexp": ".",
+							"file": 1,
+							"location": 2,
+							"message": 3
+						}
+					],
+					"background": {
+						"activeOnStart": true,
+						"beginsPattern": {
+							"regexp": "[watch]"
+						},
+						"endsPattern": {
+							"regexp": "build finished"
+						}
+					}
+				}
+			]
 		},
 		{
 			"type": "npm",
