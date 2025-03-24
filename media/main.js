@@ -113,8 +113,8 @@
                 };
 
                 list.innerHTML +=
-                    `<div class="p-4 self-end mt-4 question-element-ext relative input-background">
-                        <h2 class="mb-5 flex">${userSvg}You</h2>
+                    `<div class="px-4 py-3 self-end question-element-ext relative input-background">
+                        <h2 class="mb-3 flex">${userSvg}You</h2>
                         <no-export class="mb-2 flex items-center">
                             <button title="Edit and resend this prompt" class="resend-element-ext p-1.5 flex items-center rounded-lg absolute right-6 top-6">${pencilSvg}</button>
                             <div class="hidden send-cancel-elements-ext flex gap-2">
@@ -133,7 +133,7 @@
             case "startResponse":
                 const startElement = document.getElementById(`${message.id}-start`);
                 if (!startElement) {
-                    list.innerHTML += `<div class="p-4 self-end mt-2 pb-4"><h2 class="mb-3 flex">${aiSvg}ChatGPT</h2></div>`;
+                    list.innerHTML += `<div class="px-4 py-2 self-end"><h2 class="flex">${aiSvg}ChatGPT</h2></div>`;
                 }
                 break;
 
@@ -157,7 +157,7 @@
                     existingMessage.innerHTML = markedResponse;
                 } else {
                     list.innerHTML +=
-                        `<div class="p-4 self-end mt-2 pb-4 answer-element-ext">
+                        `<div class="px-4 self-end mt-2 answer-element-ext">
                         <div class="result-streaming" id="${message.id}">${markedResponse}</div>
                     </div>`;
                 }

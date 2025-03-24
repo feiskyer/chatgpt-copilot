@@ -22,7 +22,7 @@ body {
     font-size: var(--vscode-editor-font-size);
     font-weight: var(--vscode-font-weight);
     font-family: var(--vscode-font-family);
-    background-color: var(--vscode-editor-background);
+    background-color: var(--vscode-sideBar-background);
 }
 
 ol,
@@ -94,8 +94,6 @@ h1 {
 
 h2 {
     font-size: 1em !important;
-    margin-top: 0.83em !important;
-    margin-bottom: 0.83em !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
     font-weight: bold !important;
@@ -253,9 +251,16 @@ textarea::placeholder {
     display: grid;
     position: relative;
     width: 100%;
+    border-radius: 4px;
+    background-color: var(--vscode-input-background);
+    border: 1px solid transparent;
 }
 
-.textarea-wrapper>textarea {
+.textarea-wrapper:has(textarea:focus) {
+    border-color: var(--vscode-commandCenter-inactiveBorder);
+}
+
+.textarea-wrapper textarea {
     resize: none;
     overflow-x: auto;
     overflow-y: hidden;
@@ -265,27 +270,14 @@ textarea::placeholder {
     font-family: inherit;
     font-size: inherit;
     color: var(--vscode-input-foreground);
-    background-color: var(--vscode-input-background);
     display: block;
     outline: none;
     box-sizing: border-box;
-    border: 1px solid var(--vscode-focusBorder);
     border-radius: 2px;
     padding: 6px 8px;
     padding-right: 76px;
     white-space: nowrap;
     grid-area: 1 / 1 / 2 / 2;
-}
-
-.textarea-wrapper::after {
-    content: attr(data-replicated-value) " ";
-    white-space: pre-wrap;
-    visibility: hidden;
-    grid-area: 1 / 1 / 2 / 2;
-    border: 1px solid transparent;
-    padding: 6px 8px;
-    padding-right: 76px;
-    box-sizing: border-box;
 }
 
 .input-container {
@@ -354,10 +346,6 @@ textarea::placeholder {
     font-size: var(--vscode-font-size);
 }
 
-.input-background {
-    background: var(--vscode-input-background);
-}
-
 .send-element-ext,
 .cancel-element-ext {
     font-size: smaller;
@@ -411,6 +399,7 @@ textarea::placeholder {
     border-left-width: 1px;
     border-top-width: 1px;
     padding: .25rem .75rem;
+    border-color: var(--vscode-quickInputTitle-background);
 }
 
 .answer-element-ext th:first-child {
@@ -426,6 +415,7 @@ textarea::placeholder {
     border-bottom-width: 1px;
     border-left-width: 1px;
     padding: .25rem .75rem;
+    border-color: var(--vscode-quickInputTitle-background);
 }
 
 .answer-element-ext td:last-child {
@@ -623,7 +613,7 @@ pre>code {
     flex-wrap: nowrap;
     overflow-x: auto;
     gap: 4px;
-    padding: 4px 8px;
+    padding: 6px 6px 2px;
     min-height: 32px;
     border-bottom: 1px solid var(--vscode-input-border);
     scrollbar-width: none;
@@ -641,11 +631,12 @@ pre>code {
 .file-reference-tag {
     display: inline-flex;
     align-items: center;
-    background-color: rgba(24, 119, 232, 0.2);
+    background-color: transparent;
     color: var(--vscode-input-foreground);
-    padding: 2px 8px;
+    border: 1px solid var(--vscode-chat-requestBorder, var(--vscode-input-background, transparent));
+    padding: 2px 4px;
     border-radius: 3px;
-    font-size: inherit;
+    font-size: var(--vscode-font-size);
     white-space: nowrap;
     user-select: none;
     gap: 4px;
@@ -660,15 +651,24 @@ pre>code {
     opacity: 1;
 }
 
+#question-input {
+    padding: 4px 6px;
+    caret-color: var(--vscode-editorCursor-foreground);
+}
+
+#question-input::placeholder {
+    color: var(--vscode-input-placeholderForeground);
+}
+
 /* 修改按钮容器的定位和对齐 */
 #question-input-buttons {
     position: absolute;
     right: 8px;
-    top: 50%;
+    bottom: -5px;
     transform: translateY(-50%);
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     pointer-events: auto;
     z-index: 1;
 }
@@ -692,13 +692,19 @@ pre>code {
     height: 16px;
 }
 
-/* 添加悬停和焦点状态 */
-.textarea-wrapper>textarea:hover {
-    border-color: var(--vscode-input-border);
-    border-width: 1px;
+#toggle-mcp-servers,
+.send-element-ext,
+#question-input-buttons .ask-button {
+    color: var(--vscode-button-foreground) !important;
+    background: var(--vscode-button-background) !important;
 }
 
-.textarea-wrapper>textarea:focus {
-    border-color: var(--vscode-focusBorder);
-    border-width: 1px;
+#toggle-mcp-servers:hover,
+.send-element-ext:hover,
+#question-input-buttons .ask-button:hover {
+    background: var(--vscode-button-hoverBackground) !important;
+}
+
+.chat-button-wrapper {
+    border-color: var(--vscode-quickInputTitle-background);
 }
