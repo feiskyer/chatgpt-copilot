@@ -80,10 +80,31 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
     </svg>`;
 
+    let autoScroll = true;
+    let lastScrollY = null;
+    // 监听滚动事件，当用户向上滚动时，禁用自动滚动
+    window.addEventListener('scroll', () => {
+        const list = document.getElementById("qa-list");
+        const { scrollTop, scrollHeight, clientHeight } = list;
+        if (lastScrollY !== null && scrollTop < lastScrollY) {
+            // 用户向上滚动，禁用自动滚动
+            autoScroll = false;
+        } else if (lastScrollY !== null && scrollHeight - scrollTop - clientHeight <= 50) {
+            // 用户向下滚动到底部，启用自动滚动
+            autoScroll = true;
+        }
+        lastScrollY = scrollTop;
+    }, { capture: true, passive: true });
     // Handle messages sent from the extension to the webview
     window.addEventListener("message", (event) => {
         const message = event.data;
         const list = document.getElementById("qa-list");
+
+        const checkAndScroll = () => {
+            if (autoScroll && message.autoScroll) {
+                list.lastChild?.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+            }
+        };
 
         switch (message.type) {
             case "showInProgress":
@@ -125,7 +146,7 @@
                     </div>`;
 
                 if (message.autoScroll) {
-                    list.lastChild?.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+                    checkAndScroll();
                 }
                 break;
 
@@ -206,7 +227,7 @@
                 }
 
                 if (message.autoScroll) {
-                    list.lastChild?.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+                    checkAndScroll();
                 }
 
                 break;
@@ -227,7 +248,7 @@
                     </div>`;
 
                 if (message.autoScroll) {
-                    list.lastChild?.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+                    checkAndScroll();
                 }
                 break;
             case "clearConversation":
@@ -329,7 +350,7 @@
                 }
 
                 if (message.autoScroll) {
-                    list.lastChild?.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+                    checkAndScroll();
                 }
                 break;
             default:
@@ -338,6 +359,8 @@
     });
 
     const addFreeTextQuestion = () => {
+        autoScroll = true;
+        lastScrollY = null;
         const input = document.getElementById("question-input");
         const value = input.value;
         $("#question-input").focus();
