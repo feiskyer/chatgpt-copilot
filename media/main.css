@@ -83,6 +83,10 @@ p {
     margin-inline-end: 0px !important;
 }
 
+hr {
+    border-color: var(--vscode-editorWidget-border);
+}
+
 h1 {
     font-size: 1.17em !important;
     margin-top: 0.67em !important;
