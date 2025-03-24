@@ -95,7 +95,6 @@
 
                 if (message.inProgress) {
                     document.getElementById("in-progress").classList.remove("hidden");
-                    document.getElementById("question-input").setAttribute("disabled", true);
                     document.getElementById("question-input-buttons").classList.add("hidden");
                 } else {
                     document.getElementById("in-progress").classList.add("hidden");
@@ -341,6 +340,7 @@
     const addFreeTextQuestion = () => {
         const input = document.getElementById("question-input");
         const value = input.value;
+        $("#question-input").focus();
 
         if (value.startsWith('/') || value.startsWith('#') || value.startsWith('@')) {
             return;
@@ -609,6 +609,11 @@
 
     $(function () {
         const availableCommands = ["/clear", "/settings", "/manage-prompt", "/reset-prompt"];
+
+        window.addEventListener('focus', function (event) {
+            $("#question-input").focus();
+        });
+        $("#question-input").focus();
 
         $("#question-input").autocomplete({
             source: function (request, response) {
