@@ -84,7 +84,7 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
     }
 
     try {
-        logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question}`);
+        logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question.trim()}`);
 
         var chatMessage: CoreMessage = {
             role: "user",
@@ -143,7 +143,7 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
             maxSteps: provider.maxSteps,
         });
         for await (const part of result.fullStream) {
-            // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question} response: ${JSON.stringify(part, null, 2)}`);
+            // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question.trim()} response: ${JSON.stringify(part, null, 2)}`);
             switch (part.type) {
                 case 'text-delta': {
                     updateResponse(part.textDelta);
@@ -168,7 +168,7 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
                     break;
 
                 default: {
-                    logger.appendLine(`INFO: chatgpt.model: ${provider.model}, chatgpt.question: ${question}, debug response: ${JSON.stringify(part, null, 2)}`);
+                    logger.appendLine(`INFO: chatgpt.model: ${provider.model}, chatgpt.question: ${question.trim()}, debug response: ${JSON.stringify(part)}`);
                     break;
                 }
             }
@@ -177,7 +177,7 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
         provider.response = chunks.join("");
         provider.reasoning = reasonChunks.join("");
         provider.chatHistory.push({ role: "assistant", content: chunks.join("") });
-        logger.appendLine(`INFO: chatgpt.model: ${provider.model}, chatgpt.question: ${question}, final response: ${provider.response}`);
+        logger.appendLine(`INFO: chatgpt.model: ${provider.model}, chatgpt.question: ${question.trim()}, final response: ${provider.response}`);
     } catch (error) {
         logger.appendLine(`ERROR: chatgpt.model: ${provider.model} error: ${error}`);
         throw error;

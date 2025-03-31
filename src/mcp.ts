@@ -1,10 +1,10 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-// import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import type { Tool } from "ai";
-import { tool } from "ai";
-import { z } from "zod";
+import { jsonSchema, tool } from "ai";
+import { JSONSchema7 } from "json-schema";
 import { logger } from "./logger";
 
 export type MCPServerConfig = {
@@ -66,15 +66,11 @@ export async function createToolSet(config: MCPServerConfig): Promise<ToolSet> {
             continue;
         }
 
-
         let transport: Transport;
         try {
             if (serverConfig.type === "sse") {
-                // TODO: Implement SSE transport
-                // Top-level await is currently not supported with the "cjs" output format
-                transport = undefined as any;
-                throw new Error("SSE transport is not implemented yet");
-                // transport = new SSEClientTransport(new URL(serverConfig.url));
+                // Refer https://github.com/modelcontextprotocol/typescript-sdk/issues/213#issuecomment-2758113743 for workarounds.
+                transport = new SSEClientTransport(new URL(serverConfig.url));
             } else {
                 transport = new StdioClientTransport({
                     command: serverConfig.command,
@@ -117,34 +113,14 @@ export async function createToolSet(config: MCPServerConfig): Promise<ToolSet> {
                     toolName = `${serverName}-${toolName}`;
                 }
 
-                // Convert JSON Schema to Zod schema
-                const zodSchema: Record<string, z.ZodTypeAny> = {};
-                if (t.inputSchema?.properties) {
-                    Object.entries(t.inputSchema.properties).forEach(([key, prop]: [string, any]) => {
-                        if (prop.type === 'string') {
-                            zodSchema[key] = z.string();
-                        } else if (prop.type === 'number' || prop.type === 'integer') {
-                            zodSchema[key] = z.number();
-                        } else if (prop.type === 'boolean') {
-                            zodSchema[key] = z.boolean();
-                        } else if (prop.type === 'array') {
-                            zodSchema[key] = z.array(z.any());
-                        } else if (prop.type === 'object') {
-                            zodSchema[key] = z.record(z.any());
-                        } else {
-                            zodSchema[key] = z.any();
-                        }
-                    });
-                }
-                const parameters = z.object(zodSchema);
-
+                const parameters = jsonSchema(t.inputSchema as JSONSchema7);
                 toolset.tools[toolName] = tool({
                     description: t.description || toolName,
                     parameters: parameters,
                     execute: async (args) => {
                         const result = await client.callTool({
                             name: t.name,
-                            arguments: args,
+                            arguments: args as Record<string, any>,
                         });
                         const strResult = JSON.stringify(result);
                         if (config.onCallTool) {

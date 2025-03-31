@@ -141,6 +141,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         ? `<div>Arguments: ${server.arguments.join(' ')}</div>`
                         : ''}`
                 }
+                ${server.env && Object.keys(server.env).length > 0
+                    ? `<div>Environment: ${Object.entries(server.env)
+                        .map(([key, value]) => `${key}=${value}`)
+                        .join('; ')}</div>`
+                    : ''}
                 </div>
             `;
 
@@ -271,6 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <input type="url" id="url" name="url" class="form-input" value="${isEdit && server.url ? escapeHtml(server.url) : ''}">
                 </div>
                 <div class="form-group">
+                    <label for="env" class="form-label">Environment Variables (key=value;key=value)</label>
+                    <input type="text" id="env" name="env" class="form-input" value="${isEdit && server.env ? escapeHtml(formatEnvForDisplay(server.env)) : ''}">
+                </div>
+                <div class="form-group">
                     <label class="form-label" style="display: inline-flex; align-items: center; gap: 8px;">
                     <input type="checkbox" name="isEnabled" ${isEdit ? (server.isEnabled ? 'checked' : '') : 'checked'}>
                     <span>Enabled</span>
@@ -284,6 +293,14 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             </div>
         `;
+
+        // Function to convert env object to display string
+        function formatEnvForDisplay(envObj) {
+            if (!envObj || typeof envObj !== 'object') return '';
+            return Object.entries(envObj)
+                .map(([key, value]) => `${key}=${value}`)
+                .join(';');
+        }
 
         // Add change handler for server type
         const serverTypeSelect = dialogOverlay.querySelector('#server-type');
@@ -423,6 +440,29 @@ document.addEventListener('DOMContentLoaded', () => {
             url: formData.get('url') || undefined,
             arguments: argumentsArray.length > 0 ? argumentsArray : undefined
         };
+
+        // Parse environment variables from string format "key=value;key=value" into an object
+        const envString = formData.get('env') || '';
+        if (envString.trim()) {
+            const envObject = {};
+            const envPairs = envString.split(';');
+
+            envPairs.forEach(pair => {
+                const parts = pair.trim().split('=');
+                if (parts.length === 2) {
+                    const key = parts[0].trim();
+                    const value = parts[1].trim();
+                    if (key) {
+                        envObject[key] = value;
+                    }
+                }
+            });
+
+            // Only add env if we have at least one valid key-value pair
+            if (Object.keys(envObject).length > 0) {
+                serverData.env = envObject;
+            }
+        }
 
         if (id) {
             // Update existing server
