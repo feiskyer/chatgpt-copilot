@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v4.8.0
+
+* Update LOGO and fix logger
+
 ## v4.7.3
 
 * Fix reasoning model for deepclaude mode

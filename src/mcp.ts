@@ -4,10 +4,8 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import type { Tool } from "ai";
 import { tool } from "ai";
-import * as vscode from "vscode";
 import { z } from "zod";
-
-const logger = vscode.window.createOutputChannel("ChatGPT Copilot");
+import { logger } from "./logger";
 
 export type MCPServerConfig = {
     mcpServers: {

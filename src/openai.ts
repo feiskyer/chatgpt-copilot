@@ -14,7 +14,8 @@
 import { createAzure } from '@ai-sdk/azure';
 import { createOpenAI } from '@ai-sdk/openai';
 import { CoreMessage, extractReasoningMiddleware, generateText, streamText, wrapLanguageModel } from 'ai';
-import ChatGptViewProvider, { logger } from "./chatgpt-view-provider";
+import ChatGptViewProvider from "./chatgpt-view-provider";
+import { logger } from "./logger";
 import { ModelConfig } from "./model-config";
 import { isReasoningModel } from "./types";
 

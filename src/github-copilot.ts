@@ -1,6 +1,8 @@
 import { CoreMessage } from "ai";
 import * as vscode from "vscode";
-import ChatGptViewProvider, { logger } from "./chatgpt-view-provider";
+import ChatGptViewProvider from "./chatgpt-view-provider";
+import { logger } from "./logger";
+
 
 export async function chatCopilot(provider: ChatGptViewProvider, question: string, images: Record<string, string>, startResponse: () => void, updateResponse: (message: string) => void) {
     // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question}`);

@@ -14,12 +14,11 @@
 import { createAzure } from '@ai-sdk/azure';
 import { createOpenAI } from '@ai-sdk/openai';
 import { CoreMessage, streamText } from 'ai';
-import ChatGptViewProvider, { logger } from "./chatgpt-view-provider";
+import ChatGptViewProvider from "./chatgpt-view-provider";
+import { logger } from "./logger";
 import { ModelConfig } from "./model-config";
 
-
 const azureAPIVersion = '2025-02-01-preview';
-
 
 // initGptLegacyModel initializes the GPT legacy model.
 export function initGptLegacyModel(viewProvider: ChatGptViewProvider, config: ModelConfig) {

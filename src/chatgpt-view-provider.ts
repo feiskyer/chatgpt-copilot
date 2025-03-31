@@ -28,13 +28,13 @@ import {
   initOpenRouterModel, initPerplexityModel,
   initTogetherModel, initXAIModel
 } from "./llms";
+import { logger } from "./logger";
 import { ToolSet, createToolSet } from "./mcp";
 import { MCPServer } from "./mcp-server-provider";
 import { ModelConfig } from "./model-config";
 import { chatGpt, initGptModel } from "./openai";
 import { chatCompletion, initGptLegacyModel } from "./openai-legacy";
 import { PromptStore } from "./types";
-export const logger = vscode.window.createOutputChannel("ChatGPT Copilot");
 
 // const defaultSystemPrompt = `Your task is to embody the role of an intelligent, helpful, and expert assistant.
 // You MUST provide accurate and truthful answers, adhering strictly to the instructions given.

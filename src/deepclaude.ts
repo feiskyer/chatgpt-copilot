@@ -12,7 +12,8 @@
  * copies or substantial portions of the Software.
 */
 import { CoreMessage, generateText, streamText } from 'ai';
-import ChatGptViewProvider, { logger } from "./chatgpt-view-provider";
+import ChatGptViewProvider from "./chatgpt-view-provider";
+import { logger } from "./logger";
 
 // reasoningChat performs reasoning + chat (e.g. DeepSeek + Claude).
 export async function reasoningChat(provider: ChatGptViewProvider, question: string, images: Record<string, string>, startResponse: () => void, updateResponse: (message: string) => void, updateReasoning: (message: string) => void) {
