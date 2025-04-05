@@ -13,6 +13,7 @@
 
 import * as vscode from "vscode";
 import ChatGptViewProvider from "./chatgpt-view-provider";
+import { registerMCPToolsWithVSCode } from './github-copilot';
 import MCPServerProvider from './mcp-server-provider';
 import PromptManagerProvider from "./prompt-manager-provider";
 import { PromptStore } from "./types";
@@ -58,6 +59,27 @@ export async function activate(context: vscode.ExtensionContext) {
       }
     },
   );
+
+  // Listen for MCP toolSet changes to register tools with VS Code
+  const disposables: vscode.Disposable[] = [];
+  context.subscriptions.push({
+    dispose: () => {
+      disposables.forEach(d => d.dispose());
+    }
+  });
+
+  // Observer for the toolSet changes
+  provider.onToolSetChanged = (toolSet) => {
+    // Clear existing tool registrations
+    disposables.forEach(d => d.dispose());
+    disposables.length = 0;
+
+    // Register new tools if available
+    if (toolSet) {
+      const registeredTools = registerMCPToolsWithVSCode(context, toolSet);
+      disposables.push(...registeredTools);
+    }
+  };
 
   const resetThread = vscode.commands.registerCommand(
     "chatgpt-copilot.clearConversation",

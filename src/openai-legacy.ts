@@ -16,7 +16,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { CoreMessage, streamText } from 'ai';
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
-import { ModelConfig } from "./model-config";
+import { ModelConfig, getHeaders } from "./model-config";
 
 const azureAPIVersion = '2025-02-01-preview';
 
@@ -94,6 +94,8 @@ export async function chatCompletion(provider: ChatGptViewProvider, question: st
         temperature: provider.modelConfig.temperature,
         abortSignal: provider.abortController?.signal,
         tools: provider.toolSet?.tools || undefined,
+        headers: getHeaders(),
+
     });
     const chunks = [];
     for await (const textPart of result.textStream) {

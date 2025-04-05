@@ -39,3 +39,11 @@ export class ModelConfig {
         this.isReasoning = isReasoning ?? false;
     }
 }
+
+export function getHeaders() {
+    return {
+        "User-Agent": "ChatGPT Copilot (VSCode Extension)",
+        "X-Title": "ChatGPT Copilot (VSCode Extension)",
+        "HTTP-Referer": "https://github.com/feiskyer/chatgpt-copilot"
+    };
+}

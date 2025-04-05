@@ -16,7 +16,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { CoreMessage, extractReasoningMiddleware, generateText, streamText, wrapLanguageModel } from 'ai';
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
-import { ModelConfig } from "./model-config";
+import { ModelConfig, getHeaders } from "./model-config";
 import { isReasoningModel } from "./types";
 
 const azureAPIVersion = '2025-02-01-preview';
@@ -117,6 +117,7 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
                 abortSignal: provider.abortController?.signal,
                 tools: provider.toolSet?.tools || undefined,
                 maxSteps: provider.maxSteps,
+                headers: getHeaders(),
             });
 
             updateReasoning(result.reasoning ?? "");
@@ -141,6 +142,7 @@ export async function chatGpt(provider: ChatGptViewProvider, question: string, i
             abortSignal: provider.abortController?.signal,
             tools: provider.toolSet?.tools || undefined,
             maxSteps: provider.maxSteps,
+            headers: getHeaders(),
         });
         for await (const part of result.fullStream) {
             // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question.trim()} response: ${JSON.stringify(part, null, 2)}`);

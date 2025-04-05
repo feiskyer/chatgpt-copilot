@@ -14,6 +14,7 @@
 import { CoreMessage, generateText, streamText } from 'ai';
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
+import { getHeaders } from "./model-config";
 
 // reasoningChat performs reasoning + chat (e.g. DeepSeek + Claude).
 export async function reasoningChat(provider: ChatGptViewProvider, question: string, images: Record<string, string>, startResponse: () => void, updateResponse: (message: string) => void, updateReasoning: (message: string) => void) {
@@ -51,6 +52,7 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
                 messages: provider.chatHistory,
                 abortSignal: provider.abortController?.signal,
                 tools: provider.toolSet?.tools || undefined,
+                headers: getHeaders(),
             });
             if (result.reasoning) {
                 reasoningResult = result.reasoning;
@@ -72,6 +74,7 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
                 temperature: provider.modelConfig.temperature,
                 abortSignal: provider.abortController?.signal,
                 tools: provider.toolSet?.tools || undefined,
+                headers: getHeaders(),
             });
             for await (const part of result.fullStream) {
                 // logger.appendLine(`INFO: deepclaude.reasoning.model: ${provider.reasoningModel} deepclaude.question: ${question} response: ${JSON.stringify(part, null, 2)}`);
@@ -155,6 +158,7 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
                 abortSignal: provider.abortController?.signal,
                 tools: provider.toolSet?.tools || undefined,
                 maxSteps: provider.maxSteps,
+                headers: getHeaders(),
             });
 
             updateReasoning(result.reasoning ?? "");
@@ -178,6 +182,7 @@ export async function reasoningChat(provider: ChatGptViewProvider, question: str
             abortSignal: provider.abortController?.signal,
             tools: provider.toolSet?.tools || undefined,
             maxSteps: provider.maxSteps,
+            headers: getHeaders(),
         });
         for await (const part of result.fullStream) {
             // logger.appendLine(`INFO: deepclaude.model: ${provider.model} deepclaude.question: ${question} response: ${JSON.stringify(part, null, 2)}`);

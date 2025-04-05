@@ -161,6 +161,22 @@ For Azure OpenAI Service, apiBaseUrl should be set to format `https://[YOUR-ENDP
 </details>
 
 <details>
+<summary> Github Copilot </summary>
+
+[Github Copilot](https://github.com/features/copilot) is supported with build-in authentication (a popup would ask your permission when using Github Copilot models).
+
+> Note: Currently, gpt-4o, gpt-4o-mini, o1, o1-mini, claude-3.5-sonnet are supported (refer the doc [here](https://code.visualstudio.com/api/extension-guides/language-model#send-the-language-model-request) for the details).
+
+| Configuration | Example |
+| ------------- | ----------- |
+| Provider | GitHubCopilot |
+| API Key     | github |
+| Model      | custom |
+| Custom Model | claude-3.5-sonnet |
+
+</details>
+
+<details>
 <summary> Github Models </summary>
 
 For [Github Models](https://github.com/marketplace/models), get your Github token from [here](https://github.com/settings/tokens).
