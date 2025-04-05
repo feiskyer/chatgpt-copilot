@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v4.8.3
+
+* Add request headers
+
+## v4.8.2
+
+* CVE fixes for various packages
+
+## v4.8.1
+
+* feat: add env config options for mcp servers
+
 ## v4.8.0
 
 * Update LOGO and fix logger
