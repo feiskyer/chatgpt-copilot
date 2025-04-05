@@ -165,7 +165,7 @@ For Azure OpenAI Service, apiBaseUrl should be set to format `https://[YOUR-ENDP
 
 [Github Copilot](https://github.com/features/copilot) is supported with build-in authentication (a popup would ask your permission when using Github Copilot models).
 
-> Note: Currently, gpt-4o, gpt-4o-mini, o1, o1-mini, claude-3.5-sonnet are supported (refer the doc [here](https://code.visualstudio.com/api/extension-guides/language-model#send-the-language-model-request) for the details).
+> Note: Currently, gpt-4o, gpt-4o-mini, o1, o1-mini, claude-3.5-sonnet are supported (refer the doc [here](https://code.visualstudio.com/api/extension-guides/language-model#send-the-language-model-request) for the details). And MCP tools are not supported yet via ChatGPT Copilot extension.
 
 | Configuration | Example |
 | ------------- | ----------- |

@@ -63,22 +63,21 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public response: string = "";
   public chatHistory: CoreMessage[] = [];
 
-  private _toolSet?: ToolSet;
-  // Callback to notify when toolSet changes
-  public onToolSetChanged?: (toolSet?: ToolSet) => void;
-
-  // Define getter and setter for toolSet to notify when it changes
-  public get toolSet(): ToolSet | undefined {
-    return this._toolSet;
-  }
-
-  public set toolSet(value: ToolSet | undefined) {
-    this._toolSet = value;
-    // Notify listeners when toolSet changes
-    if (this.onToolSetChanged) {
-      this.onToolSetChanged(value);
-    }
-  }
+  public toolSet?: ToolSet;
+  // private _toolSet?: ToolSet;
+  // // Callback to notify when toolSet changes
+  // public onToolSetChanged?: (toolSet?: ToolSet) => void;
+  // // Define getter and setter for toolSet to notify when it changes
+  // public get toolSet(): ToolSet | undefined {
+  //   return this._toolSet;
+  // }
+  // public set toolSet(value: ToolSet | undefined) {
+  //   this._toolSet = value;
+  //   // Notify listeners when toolSet changes
+  //   if (this.onToolSetChanged) {
+  //     this.onToolSetChanged(value);
+  //   }
+  // }
 
   /**
    * Message to be rendered lazily if they haven't been rendered
@@ -501,7 +500,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       }
       if (!this.toolSet) {
         this.toolSet = await createToolSet({
-          mcpServers: mcpStore.servers.filter(server => server.isEnabled).reduce((acc: Record<string, { command: string, args: any, env?: any; isEnabled: boolean; type: string; url: string; }>, server) => {
+          mcpServers: mcpStore.servers.reduce((acc: Record<string, { command: string, args: any, env?: any; isEnabled: boolean; type: string; url: string; }>, server) => {
             acc[server.name] = {
               command: server.command || '',
               args: server.arguments || [],

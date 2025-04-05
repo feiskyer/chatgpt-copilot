@@ -2,101 +2,100 @@ import { CoreMessage } from "ai";
 import * as vscode from "vscode";
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
-import { ToolSet } from './mcp';
 
-/**
- * Register MCP tools as Language Model tools in VS Code
- * @param context VS Code extension context
- * @param toolSet MCP Tool Set
- */
-export function registerMCPToolsWithVSCode(
-    context: vscode.ExtensionContext,
-    toolSet: ToolSet
-): vscode.Disposable[] {
-    const disposables: vscode.Disposable[] = [];
+// /**
+//  * Register MCP tools as Language Model tools in VS Code
+//  * @param context VS Code extension context
+//  * @param toolSet MCP Tool Set
+//  */
+// export function registerMCPToolsWithVSCode(
+//     context: vscode.ExtensionContext,
+//     toolSet: ToolSet
+// ): vscode.Disposable[] {
+//     const disposables: vscode.Disposable[] = [];
 
-    // Register each MCP tool as a VS Code Language Model tool
-    for (const [toolName, mcpTool] of Object.entries(toolSet.tools)) {
-        try {
-            // Create a tool implementation that conforms to VS Code's LanguageModelTool interface
-            const vscodeToolWrapper = new MCPToolWrapper(toolName, mcpTool);
+//     // Register each MCP tool as a VS Code Language Model tool
+//     for (const [toolName, mcpTool] of Object.entries(toolSet.tools)) {
+//         try {
+//             // Create a tool implementation that conforms to VS Code's LanguageModelTool interface
+//             const vscodeToolWrapper = new MCPToolWrapper(toolName, mcpTool);
 
-            // Register the tool with VS Code
-            const disposable = vscode.lm.registerTool(`${toolName}`, vscodeToolWrapper);
-            disposables.push(disposable);
-            logger.appendLine(`INFO: Registered MCP tool ${toolName} with VS Code Language Model API`);
-        } catch (error) {
-            logger.appendLine(`ERROR: Failed to register MCP tool ${toolName} with VS Code: ${error}`);
-        }
-    }
+//             // Register the tool with VS Code
+//             const disposable = vscode.lm.registerTool(`${toolName}`, vscodeToolWrapper);
+//             disposables.push(disposable);
+//             logger.appendLine(`INFO: Registered MCP tool ${toolName} with VS Code Language Model API`);
+//         } catch (error) {
+//             logger.appendLine(`ERROR: Failed to register MCP tool ${toolName} with VS Code: ${error}`);
+//         }
+//     }
 
-    return disposables;
-}
+//     return disposables;
+// }
 
-/**
- * A wrapper class that adapts MCP tools to the VS Code LanguageModelTool interface
- */
-class MCPToolWrapper implements vscode.LanguageModelTool<any> {
-    private name: string;
-    private mcpTool: any;
+// /**
+//  * A wrapper class that adapts MCP tools to the VS Code LanguageModelTool interface
+//  */
+// class MCPToolWrapper implements vscode.LanguageModelTool<any> {
+//     private name: string;
+//     private mcpTool: any;
 
-    constructor(name: string, mcpTool: any) {
-        this.name = name;
-        this.mcpTool = mcpTool;
-    }
+//     constructor(name: string, mcpTool: any) {
+//         this.name = name;
+//         this.mcpTool = mcpTool;
+//     }
 
-    /**
-     * Invokes the MCP tool with the provided parameters
-     */
-    async invoke(
-        options: vscode.LanguageModelToolInvocationOptions<any>,
-        token: vscode.CancellationToken
-    ): Promise<vscode.LanguageModelToolResult> {
-        try {
-            // Execute the underlying MCP tool
-            if (this.mcpTool.execute) {
-                const result = await this.mcpTool.execute(options.input, {});
-                const strResult = typeof result === 'string' ? result : JSON.stringify(result);
+//     /**
+//      * Invokes the MCP tool with the provided parameters
+//      */
+//     async invoke(
+//         options: vscode.LanguageModelToolInvocationOptions<any>,
+//         token: vscode.CancellationToken
+//     ): Promise<vscode.LanguageModelToolResult> {
+//         try {
+//             // Execute the underlying MCP tool
+//             if (this.mcpTool.execute) {
+//                 const result = await this.mcpTool.execute(options.input, {});
+//                 const strResult = typeof result === 'string' ? result : JSON.stringify(result);
 
-                // Return the result as a Language Model Tool Result
-                return new vscode.LanguageModelToolResult([
-                    new vscode.LanguageModelTextPart(strResult)
-                ]);
-            } else {
-                throw new Error('Tool execution method not found');
-            }
-        } catch (error) {
-            logger.appendLine(`ERROR: MCP tool execution failed: ${error}`);
+//                 // Return the result as a Language Model Tool Result
+//                 return new vscode.LanguageModelToolResult([
+//                     new vscode.LanguageModelTextPart(strResult)
+//                 ]);
+//             } else {
+//                 throw new Error('Tool execution method not found');
+//             }
+//         } catch (error) {
+//             logger.appendLine(`ERROR: MCP tool execution failed: ${error}`);
 
-            // Return the error as a Language Model Tool Result
-            return new vscode.LanguageModelToolResult([
-                new vscode.LanguageModelTextPart(`Error executing tool: ${error}`)
-            ]);
-        }
-    }
+//             // Return the error as a Language Model Tool Result
+//             return new vscode.LanguageModelToolResult([
+//                 new vscode.LanguageModelTextPart(`Error executing tool: ${error}`)
+//             ]);
+//         }
+//     }
 
-    /**
-     * Prepares tool invocation with optional confirmation message
-     */
-    async prepareInvocation(
-        options: vscode.LanguageModelToolInvocationPrepareOptions<any>,
-        token: vscode.CancellationToken
-    ) {
-        // Create a confirmation message if appropriate
-        const confirmationMessages = {
-            title: `Execute MCP tool: ${this.name}`,
-            message: new vscode.MarkdownString(
-                `Execute MCP tool '${this.name}'?` +
-                (options.input ? `\n\n\`\`\`json\n${JSON.stringify(options.input, null, 2)}\n\`\`\`\n` : '')
-            ),
-        };
+//     /**
+//      * Prepares tool invocation with optional confirmation message
+//      */
+//     async prepareInvocation(
+//         options: vscode.LanguageModelToolInvocationPrepareOptions<any>,
+//         token: vscode.CancellationToken
+//     ) {
+//         // Create a confirmation message if appropriate
+//         const confirmationMessages = {
+//             title: `Execute MCP tool: ${this.name}`,
+//             message: new vscode.MarkdownString(
+//                 `Execute MCP tool '${this.name}'?` +
+//                 (options.input ? `\n\n\`\`\`json\n${JSON.stringify(options.input, null, 2)}\n\`\`\`\n` : '')
+//             ),
+//         };
 
-        return {
-            invocationMessage: `Executing MCP tool: ${this.name}`,
-            confirmationMessages,
-        };
-    }
-}
+//         return {
+//             invocationMessage: `Executing MCP tool: ${this.name}`,
+//             confirmationMessages,
+//         };
+//     }
+// }
 
 export async function chatCopilot(provider: ChatGptViewProvider, question: string, images: Record<string, string>, startResponse: () => void, updateResponse: (message: string) => void) {
     // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question}`);
@@ -148,18 +147,18 @@ export async function chatCopilot(provider: ChatGptViewProvider, question: strin
     /* placeholder for response */
     startResponse();
 
-    const tools = [...vscode.lm.tools];
-    // Cannot have more than 128 tools per request, so only keep the first 128.
-    if (tools.length > 128) {
-        tools.splice(128);
-    }
+    // const tools = [...vscode.lm.tools];
+    // // Cannot have more than 128 tools per request, so only keep the first 128.
+    // if (tools.length > 128) {
+    //     tools.splice(128);
+    // }
     try {
         // Simply use the tools that are already registered with VS Code
         // MCP tools are registered in extension.ts and automatically available here
         chatResponse = await model.sendRequest(
             messages,
             {
-                tools: tools,
+                // tools: tools,
             },
             new vscode.CancellationTokenSource().token
         );

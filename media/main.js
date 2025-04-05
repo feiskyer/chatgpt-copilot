@@ -122,7 +122,7 @@
                                 <button title="Cancel" class="cancel-element-ext p-1 pr-2 flex items-center">${cancelSvg}&nbsp;Cancel</button>
                             </div>
                         </no-export>
-                        <div class="overflow-y-auto">${escapeHtml(message.value)}</div>
+                        <div class="mt-2 overflow-y-auto">${escapeHtml(message.value)}</div>
                     </div>`;
 
                 if (message.autoScroll) {
@@ -133,7 +133,7 @@
             case "startResponse":
                 const startElement = document.getElementById(`${message.id}-start`);
                 if (!startElement) {
-                    list.innerHTML += `<div class="p-4 self-end mt-2 pb-4"><h2 class="mb-3 flex">${aiSvg}ChatGPT</h2></div>`;
+                    list.innerHTML += `<div class="p-4 self-end mt-2 pb-4 answer-element-ext"><h2 class="mb-3 flex">${aiSvg}ChatGPT</h2></div>`;
                 }
                 break;
 
