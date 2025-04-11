@@ -14,7 +14,7 @@
 import * as vscode from "vscode";
 import ChatGptViewProvider from "./chatgpt-view-provider";
 // import { registerMCPToolsWithVSCode } from './github-copilot';
-import MCPServerProvider from './mcp-server-provider';
+import MCPServerProvider from "./mcp-server-provider";
 import PromptManagerProvider from "./prompt-manager-provider";
 import { PromptStore } from "./types";
 
@@ -255,14 +255,16 @@ export async function activate(context: vscode.ExtensionContext) {
   const promptManager = new PromptManagerProvider(context);
   const promptManagerView = vscode.window.registerWebviewViewProvider(
     "chatgpt-copilot.promptManager",
-    promptManager
+    promptManager,
   );
 
   const managePrompts = vscode.commands.registerCommand(
     "chatgpt-copilot.managePrompts",
     async () => {
-      await vscode.commands.executeCommand("chatgpt-copilot.promptManager.focus");
-    }
+      await vscode.commands.executeCommand(
+        "chatgpt-copilot.promptManager.focus",
+      );
+    },
   );
 
   const debugPrompts = vscode.commands.registerCommand(
@@ -270,23 +272,23 @@ export async function activate(context: vscode.ExtensionContext) {
     async () => {
       const prompts = context.globalState.get<PromptStore>("prompts");
       vscode.window.showInformationMessage(
-        `Stored prompts: ${JSON.stringify(prompts, null, 2)}`
+        `Stored prompts: ${JSON.stringify(prompts, null, 2)}`,
       );
-    }
+    },
   );
 
   const togglePromptManager = vscode.commands.registerCommand(
     "chatgpt-copilot.togglePromptManager",
     async () => {
       const panel = vscode.window.createWebviewPanel(
-        'chatgpt-copilot.promptManager',
-        'ChatGPT: Prompt Manager',
+        "chatgpt-copilot.promptManager",
+        "ChatGPT: Prompt Manager",
         vscode.ViewColumn.Beside,
         {
           enableScripts: true,
           retainContextWhenHidden: true,
-          localResourceRoots: [context.extensionUri]
-        }
+          localResourceRoots: [context.extensionUri],
+        },
       );
 
       const promptManager = new PromptManagerProvider(context);
@@ -307,7 +309,7 @@ export async function activate(context: vscode.ExtensionContext) {
           case "getPrompts":
             panel.webview.postMessage({
               type: "updatePrompts",
-              prompts: promptManager.getPrompts()
+              prompts: promptManager.getPrompts(),
             });
             break;
         }
@@ -316,34 +318,34 @@ export async function activate(context: vscode.ExtensionContext) {
       panel.onDidDispose(() => {
         promptManager.setPanel(undefined);
       });
-    }
+    },
   );
 
   let addCurrentFileCommand = vscode.commands.registerCommand(
-    'chatgpt-copilot.addCurrentFile',
+    "chatgpt-copilot.addCurrentFile",
     () => {
       provider.addCurrentFileToContext();
-    }
+    },
   );
 
   const mcpServerProvider = new MCPServerProvider(context);
   const mcpServerView = vscode.window.registerWebviewViewProvider(
-    'chatgpt-copilot.mcpServers',
-    mcpServerProvider
+    "chatgpt-copilot.mcpServers",
+    mcpServerProvider,
   );
 
   const openMCPServers = vscode.commands.registerCommand(
-    'chatgpt-copilot.openMCPServers',
+    "chatgpt-copilot.openMCPServers",
     () => {
       const panel = vscode.window.createWebviewPanel(
-        'chatgpt-copilot.mcpServers',
-        'ChatGPT: MCP Servers',
+        "chatgpt-copilot.mcpServers",
+        "ChatGPT: MCP Servers",
         vscode.ViewColumn.One,
         {
           enableScripts: true,
           retainContextWhenHidden: true,
-          localResourceRoots: [context.extensionUri]
-        }
+          localResourceRoots: [context.extensionUri],
+        },
       );
 
       panel.webview.html = mcpServerProvider.getWebviewContent(panel.webview);
@@ -355,27 +357,27 @@ export async function activate(context: vscode.ExtensionContext) {
 
       panel.webview.onDidReceiveMessage(async (data) => {
         switch (data.type) {
-          case 'addServer':
+          case "addServer":
             mcpServerProvider.addServer(data.server);
             break;
-          case 'updateServer':
+          case "updateServer":
             mcpServerProvider.updateServer(data.server);
             break;
-          case 'deleteServer':
+          case "deleteServer":
             mcpServerProvider.deleteServer(data.id);
             break;
-          case 'toggleServerEnabled':
+          case "toggleServerEnabled":
             mcpServerProvider.toggleServerEnabled(data.id);
             break;
-          case 'getServers':
+          case "getServers":
             panel.webview.postMessage({
-              type: 'updateServers',
-              servers: mcpServerProvider.getServers()
+              type: "updateServers",
+              servers: mcpServerProvider.getServers(),
             });
             break;
         }
       });
-    }
+    },
   );
 
   context.subscriptions.push(
@@ -394,7 +396,7 @@ export async function activate(context: vscode.ExtensionContext) {
     togglePromptManager,
     addCurrentFileCommand,
     mcpServerView,
-    openMCPServers
+    openMCPServers,
   );
 
   const setContext = () => {
@@ -407,8 +409,7 @@ export async function activate(context: vscode.ExtensionContext) {
           .getConfiguration("chatgpt")
           .get("gpt3.model") as string;
         generateCodeEnabled =
-          generateCodeEnabled &&
-          modelName.startsWith("code-");
+          generateCodeEnabled && modelName.startsWith("code-");
         vscode.commands.executeCommand(
           "setContext",
           "generateCode-enabled",
@@ -430,4 +431,4 @@ export async function activate(context: vscode.ExtensionContext) {
   setContext();
 }
 
-export function deactivate() { }
+export function deactivate() {}

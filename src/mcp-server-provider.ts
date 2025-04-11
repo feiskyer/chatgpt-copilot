@@ -5,163 +5,171 @@ import { v4 as uuidv4 } from "uuid";
 import * as vscode from "vscode";
 
 export interface MCPServer {
-    id: string;
-    name: string;
-    type: string;
-    isEnabled: boolean;
-    command?: string;
-    url?: string;
-    arguments?: string[];
-    env?: Record<string, string>;
-    tools?: string[];
+  id: string;
+  name: string;
+  type: string;
+  isEnabled: boolean;
+  command?: string;
+  url?: string;
+  arguments?: string[];
+  env?: Record<string, string>;
+  tools?: string[];
 }
 
 export interface MCPServerStore {
-    servers: MCPServer[];
-    addServer: (server: MCPServer) => void;
-    removeServer: (id: string) => void;
-    updateServer: (id: string, updates: Partial<MCPServer>) => void;
-    toggleServerEnabled: (id: string) => void;
+  servers: MCPServer[];
+  addServer: (server: MCPServer) => void;
+  removeServer: (id: string) => void;
+  updateServer: (id: string, updates: Partial<MCPServer>) => void;
+  toggleServerEnabled: (id: string) => void;
 }
 
 export default class MCPServerProvider implements vscode.WebviewViewProvider {
-    private webView?: vscode.WebviewView;
-    private store: { servers: MCPServer[]; } = { servers: [] };
-    private _panel?: vscode.WebviewPanel;
+  private webView?: vscode.WebviewView;
+  private store: { servers: MCPServer[] } = { servers: [] };
+  private _panel?: vscode.WebviewPanel;
 
-    constructor(private context: vscode.ExtensionContext) {
-        this.loadServers();
+  constructor(private context: vscode.ExtensionContext) {
+    this.loadServers();
+  }
+
+  private loadServers() {
+    this.store = this.context.globalState.get<{ servers: MCPServer[] }>(
+      "mcpServers",
+      { servers: [] },
+    );
+  }
+
+  private saveServers() {
+    this.context.globalState.update("mcpServers", this.store);
+  }
+
+  public resolveWebviewView(
+    webviewView: vscode.WebviewView,
+    _context: vscode.WebviewViewResolveContext,
+    _token: vscode.CancellationToken,
+  ) {
+    this.webView = webviewView;
+    webviewView.webview.options = {
+      enableScripts: true,
+      localResourceRoots: [this.context.extensionUri],
+    };
+
+    webviewView.webview.html = this.getWebviewContent(webviewView.webview);
+
+    webviewView.webview.onDidReceiveMessage(async (data) => {
+      switch (data.type) {
+        case "addServer":
+          this.addServer(data.server);
+          break;
+        case "updateServer":
+          this.updateServer(data.server);
+          break;
+        case "deleteServer":
+          this.deleteServer(data.id);
+          break;
+        case "toggleServerEnabled":
+          this.toggleServerEnabled(data.id);
+          break;
+        case "getServers":
+          this.handleGetServers(webviewView.webview);
+          break;
+      }
+    });
+  }
+
+  public addServer(server: Omit<MCPServer, "id">) {
+    const newServer: MCPServer = {
+      id: uuidv4(),
+      ...server,
+    };
+    this.store.servers.push(newServer);
+    this.saveServers();
+    this.sendServersToAll(this.store.servers);
+  }
+
+  public updateServer(server: MCPServer) {
+    const index = this.store.servers.findIndex((s) => s.id === server.id);
+    if (index !== -1) {
+      this.store.servers[index] = {
+        ...this.store.servers[index],
+        ...server,
+      };
+      this.saveServers();
+      this.sendServersToAll(this.store.servers);
+    } else {
+      console.error(`Server with id ${server.id} not found for update`);
+    }
+  }
+
+  public deleteServer(id: string) {
+    const initialLength = this.store.servers.length;
+    this.store.servers = this.store.servers.filter((s) => s.id !== id);
+
+    if (this.store.servers.length === initialLength) {
+      console.error(`Server with id ${id} not found for deletion`);
+      return;
     }
 
-    private loadServers() {
-        this.store = this.context.globalState.get<{ servers: MCPServer[]; }>("mcpServers", { servers: [] });
+    this.saveServers();
+    this.sendServersToAll(this.store.servers);
+  }
+
+  public toggleServerEnabled(id: string) {
+    const index = this.store.servers.findIndex((s) => s.id === id);
+    if (index !== -1) {
+      this.store.servers[index].isEnabled =
+        !this.store.servers[index].isEnabled;
+      this.saveServers();
+      this.sendServersToAll(this.store.servers);
     }
+  }
 
-    private saveServers() {
-        this.context.globalState.update("mcpServers", this.store);
+  private sendServersToAll(servers: MCPServer[]) {
+    this.webView?.webview.postMessage({
+      type: "updateServers",
+      servers: servers,
+    });
+
+    if (this._panel?.webview) {
+      this._panel.webview.postMessage({
+        type: "updateServers",
+        servers: servers,
+      });
     }
+  }
 
-    public resolveWebviewView(
-        webviewView: vscode.WebviewView,
-        _context: vscode.WebviewViewResolveContext,
-        _token: vscode.CancellationToken,
-    ) {
-        this.webView = webviewView;
-        webviewView.webview.options = {
-            enableScripts: true,
-            localResourceRoots: [this.context.extensionUri],
-        };
+  public getServers() {
+    return this.store.servers;
+  }
 
-        webviewView.webview.html = this.getWebviewContent(webviewView.webview);
+  public setPanel(panel: vscode.WebviewPanel | undefined) {
+    this._panel = panel;
+  }
 
-        webviewView.webview.onDidReceiveMessage(async (data) => {
-            switch (data.type) {
-                case "addServer":
-                    this.addServer(data.server);
-                    break;
-                case "updateServer":
-                    this.updateServer(data.server);
-                    break;
-                case "deleteServer":
-                    this.deleteServer(data.id);
-                    break;
-                case "toggleServerEnabled":
-                    this.toggleServerEnabled(data.id);
-                    break;
-                case "getServers":
-                    this.handleGetServers(webviewView.webview);
-                    break;
-            }
-        });
-    }
+  private handleGetServers(webview: vscode.Webview) {
+    webview.postMessage({
+      type: "updateServers",
+      servers: this.store.servers,
+    });
+  }
 
-    public addServer(server: Omit<MCPServer, "id">) {
-        const newServer: MCPServer = {
-            id: uuidv4(),
-            ...server,
-        };
-        this.store.servers.push(newServer);
-        this.saveServers();
-        this.sendServersToAll(this.store.servers);
-    }
+  public getWebviewContent(webview: vscode.Webview) {
+    const scriptUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this.context.extensionUri, "media", "mcp-servers.js"),
+    );
+    const stylesUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(
+        this.context.extensionUri,
+        "media",
+        "mcp-servers.css",
+      ),
+    );
+    const mcpIconUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this.context.extensionUri, "media", "mcp.svg"),
+    );
 
-    public updateServer(server: MCPServer) {
-        const index = this.store.servers.findIndex(s => s.id === server.id);
-        if (index !== -1) {
-            this.store.servers[index] = {
-                ...this.store.servers[index],
-                ...server
-            };
-            this.saveServers();
-            this.sendServersToAll(this.store.servers);
-        } else {
-            console.error(`Server with id ${server.id} not found for update`);
-        }
-    }
-
-    public deleteServer(id: string) {
-        const initialLength = this.store.servers.length;
-        this.store.servers = this.store.servers.filter(s => s.id !== id);
-
-        if (this.store.servers.length === initialLength) {
-            console.error(`Server with id ${id} not found for deletion`);
-            return;
-        }
-
-        this.saveServers();
-        this.sendServersToAll(this.store.servers);
-    }
-
-    public toggleServerEnabled(id: string) {
-        const index = this.store.servers.findIndex(s => s.id === id);
-        if (index !== -1) {
-            this.store.servers[index].isEnabled = !this.store.servers[index].isEnabled;
-            this.saveServers();
-            this.sendServersToAll(this.store.servers);
-        }
-    }
-
-    private sendServersToAll(servers: MCPServer[]) {
-        this.webView?.webview.postMessage({
-            type: "updateServers",
-            servers: servers
-        });
-
-        if (this._panel?.webview) {
-            this._panel.webview.postMessage({
-                type: "updateServers",
-                servers: servers
-            });
-        }
-    }
-
-    public getServers() {
-        return this.store.servers;
-    }
-
-    public setPanel(panel: vscode.WebviewPanel | undefined) {
-        this._panel = panel;
-    }
-
-    private handleGetServers(webview: vscode.Webview) {
-        webview.postMessage({
-            type: "updateServers",
-            servers: this.store.servers
-        });
-    }
-
-    public getWebviewContent(webview: vscode.Webview) {
-        const scriptUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(this.context.extensionUri, "media", "mcp-servers.js")
-        );
-        const stylesUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(this.context.extensionUri, "media", "mcp-servers.css")
-        );
-        const mcpIconUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(this.context.extensionUri, "media", "mcp.svg")
-        );
-
-        return `<!DOCTYPE html>
+    return `<!DOCTYPE html>
         <html>
             <head>
                 <meta charset="UTF-8">
@@ -207,5 +215,5 @@ export default class MCPServerProvider implements vscode.WebviewViewProvider {
                 <script src="${scriptUri}"></script>
             </body>
         </html>`;
-    }
+  }
 }

@@ -8,127 +8,144 @@
  *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
-*/
+ */
 import * as vscode from "vscode";
 import { Prompt, PromptStore } from "./types";
 
-export default class PromptManagerProvider implements vscode.WebviewViewProvider {
-    private webView?: vscode.WebviewView;
-    private store: PromptStore = { prompts: [] };
-    private _panel?: vscode.WebviewPanel;
+export default class PromptManagerProvider
+  implements vscode.WebviewViewProvider
+{
+  private webView?: vscode.WebviewView;
+  private store: PromptStore = { prompts: [] };
+  private _panel?: vscode.WebviewPanel;
 
-    constructor(private context: vscode.ExtensionContext) {
-        this.loadPrompts();
+  constructor(private context: vscode.ExtensionContext) {
+    this.loadPrompts();
+  }
+
+  private loadPrompts() {
+    this.store = this.context.globalState.get<PromptStore>("prompts", {
+      prompts: [],
+    });
+  }
+
+  private savePrompts() {
+    this.context.globalState.update("prompts", this.store);
+  }
+
+  public resolveWebviewView(
+    webviewView: vscode.WebviewView,
+    _context: vscode.WebviewViewResolveContext,
+    _token: vscode.CancellationToken,
+  ) {
+    this.webView = webviewView;
+    webviewView.webview.options = {
+      enableScripts: true,
+      localResourceRoots: [this.context.extensionUri],
+    };
+
+    webviewView.webview.html = this.getWebviewContent(webviewView.webview);
+
+    webviewView.webview.onDidReceiveMessage(async (data) => {
+      switch (data.type) {
+        case "addPrompt":
+          this.addPrompt(data.prompt);
+          break;
+        case "updatePrompt":
+          this.updatePrompt(data.prompt);
+          break;
+        case "deletePrompt":
+          this.deletePrompt(data.id);
+          break;
+        case "getPrompts":
+          this.handleGetPrompts(webviewView.webview);
+          break;
+      }
+    });
+  }
+
+  public addPrompt(prompt: Omit<Prompt, "id" | "createdAt" | "updatedAt">) {
+    const now = Date.now();
+    const newPrompt: Prompt = {
+      id: this.generateId(),
+      ...prompt,
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.store.prompts.push(newPrompt);
+    this.savePrompts();
+    this.sendPromptsToAll(this.store.prompts);
+  }
+
+  public updatePrompt(prompt: Prompt) {
+    const index = this.store.prompts.findIndex((p) => p.id === prompt.id);
+    if (index !== -1) {
+      this.store.prompts[index] = {
+        ...prompt,
+        updatedAt: Date.now(),
+      };
+      this.savePrompts();
+      this.sendPromptsToAll(this.store.prompts);
     }
+  }
 
-    private loadPrompts() {
-        this.store = this.context.globalState.get<PromptStore>("prompts", { prompts: [] });
+  public deletePrompt(id: string) {
+    this.store.prompts = this.store.prompts.filter((p) => p.id !== id);
+    this.savePrompts();
+    this.sendPromptsToAll(this.store.prompts);
+  }
+
+  private sendPromptsToAll(prompts: Prompt[]) {
+    this.webView?.webview.postMessage({
+      type: "updatePrompts",
+      prompts: prompts,
+    });
+
+    if (this._panel?.webview) {
+      this._panel.webview.postMessage({
+        type: "updatePrompts",
+        prompts: prompts,
+      });
     }
+  }
 
-    private savePrompts() {
-        this.context.globalState.update("prompts", this.store);
-    }
+  private generateId(): string {
+    return Math.random().toString(36).substring(2) + Date.now().toString(36);
+  }
 
-    public resolveWebviewView(
-        webviewView: vscode.WebviewView,
-        _context: vscode.WebviewViewResolveContext,
-        _token: vscode.CancellationToken,
-    ) {
-        this.webView = webviewView;
-        webviewView.webview.options = {
-            enableScripts: true,
-            localResourceRoots: [this.context.extensionUri],
-        };
+  public getPrompts() {
+    return this.store.prompts;
+  }
 
-        webviewView.webview.html = this.getWebviewContent(webviewView.webview);
+  public setPanel(panel: vscode.WebviewPanel | undefined) {
+    this._panel = panel;
+  }
 
-        webviewView.webview.onDidReceiveMessage(async (data) => {
-            switch (data.type) {
-                case "addPrompt":
-                    this.addPrompt(data.prompt);
-                    break;
-                case "updatePrompt":
-                    this.updatePrompt(data.prompt);
-                    break;
-                case "deletePrompt":
-                    this.deletePrompt(data.id);
-                    break;
-                case "getPrompts":
-                    this.handleGetPrompts(webviewView.webview);
-                    break;
-            }
-        });
-    }
+  public getWebviewContent(webview: vscode.Webview) {
+    const scriptUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(
+        this.context.extensionUri,
+        "media",
+        "prompt-manager.js",
+      ),
+    );
+    const stylesUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(
+        this.context.extensionUri,
+        "media",
+        "prompt-manager.css",
+      ),
+    );
+    const tailwindUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(
+        this.context.extensionUri,
+        "media",
+        "vendor",
+        "tailwindcss.3.2.4.min.js",
+      ),
+    );
 
-    public addPrompt(prompt: Omit<Prompt, "id" | "createdAt" | "updatedAt">) {
-        const now = Date.now();
-        const newPrompt: Prompt = {
-            id: this.generateId(),
-            ...prompt,
-            createdAt: now,
-            updatedAt: now
-        };
-        this.store.prompts.push(newPrompt);
-        this.savePrompts();
-        this.sendPromptsToAll(this.store.prompts);
-    }
-
-    public updatePrompt(prompt: Prompt) {
-        const index = this.store.prompts.findIndex(p => p.id === prompt.id);
-        if (index !== -1) {
-            this.store.prompts[index] = {
-                ...prompt,
-                updatedAt: Date.now()
-            };
-            this.savePrompts();
-            this.sendPromptsToAll(this.store.prompts);
-        }
-    }
-
-    public deletePrompt(id: string) {
-        this.store.prompts = this.store.prompts.filter(p => p.id !== id);
-        this.savePrompts();
-        this.sendPromptsToAll(this.store.prompts);
-    }
-
-    private sendPromptsToAll(prompts: Prompt[]) {
-        this.webView?.webview.postMessage({
-            type: "updatePrompts",
-            prompts: prompts
-        });
-
-        if (this._panel?.webview) {
-            this._panel.webview.postMessage({
-                type: "updatePrompts",
-                prompts: prompts
-            });
-        }
-    }
-
-    private generateId(): string {
-        return Math.random().toString(36).substring(2) + Date.now().toString(36);
-    }
-
-    public getPrompts() {
-        return this.store.prompts;
-    }
-
-    public setPanel(panel: vscode.WebviewPanel | undefined) {
-        this._panel = panel;
-    }
-
-    public getWebviewContent(webview: vscode.Webview) {
-        const scriptUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(this.context.extensionUri, "media", "prompt-manager.js")
-        );
-        const stylesUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(this.context.extensionUri, "media", "prompt-manager.css")
-        );
-        const tailwindUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(this.context.extensionUri, "media", "vendor", "tailwindcss.3.2.4.min.js")
-        );
-
-        return `<!DOCTYPE html>
+    return `<!DOCTYPE html>
         <html>
             <head>
                 <link href="${stylesUri}" rel="stylesheet">
@@ -158,12 +175,12 @@ export default class PromptManagerProvider implements vscode.WebviewViewProvider
                 <script src="${scriptUri}"></script>
             </body>
         </html>`;
-    }
+  }
 
-    private handleGetPrompts(webview: vscode.Webview) {
-        webview.postMessage({
-            type: "updatePrompts",
-            prompts: this.store.prompts
-        });
-    }
-} 
+  private handleGetPrompts(webview: vscode.Webview) {
+    webview.postMessage({
+      type: "updatePrompts",
+      prompts: this.store.prompts,
+    });
+  }
+}

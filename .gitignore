@@ -6,3 +6,10 @@ package-lock.json
 *.vsix
 .DS_Store
 !node_modules/chatgpt/build/index.js
+
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
