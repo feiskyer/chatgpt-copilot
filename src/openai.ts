@@ -16,9 +16,8 @@ import { createOpenAI } from "@ai-sdk/openai";
 import {
   CoreMessage,
   extractReasoningMiddleware,
-  generateText,
   streamText,
-  wrapLanguageModel,
+  wrapLanguageModel
 } from "ai";
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
@@ -126,33 +125,6 @@ export async function chatGpt(
     /* placeholder for response */
     startResponse();
 
-    if (provider.model?.startsWith("o1") || provider.model?.startsWith("o3")) {
-      // streaming not supported for o1/o3 models
-      if (provider.chatHistory.length <= 1) {
-        provider.chatHistory.push(chatMessage);
-      }
-      provider.chatHistory.push({
-        role: "user",
-        content: provider.modelConfig.systemPrompt,
-      });
-      const result = await generateText({
-        model: provider.apiChat,
-        messages: provider.chatHistory,
-        abortSignal: provider.abortController?.signal,
-        tools: provider.toolSet?.tools || undefined,
-        maxSteps: provider.maxSteps,
-        headers: getHeaders(),
-      });
-
-      updateReasoning(result.reasoning ?? "");
-      updateResponse(result.text);
-      provider.reasoning = result.reasoning ?? "";
-      provider.response = result.text;
-      provider.chatHistory.push({ role: "assistant", content: result.text });
-      logger.appendLine(`INFO: chatgpt.response: ${provider.response}`);
-      return;
-    }
-
     const chunks = [];
     const reasonChunks = [];
     provider.chatHistory.push(chatMessage);
@@ -182,9 +154,17 @@ export async function chatGpt(
           break;
         }
         case "tool-call": {
-          updateResponse(`${part.toolName}...`);
+          updateResponse(`\nCalling tool ${part.toolName}...\n`);
           break;
         }
+
+        // @ts-ignore
+        case "tool-result": {
+          // @ts-ignore
+          updateResponse(`\nTool result: ${JSON.stringify(part.result)}\n`);
+          break;
+        }
+
         case "error":
           provider.sendMessage({
             type: "addError",

@@ -87,7 +87,7 @@ export async function createToolSet(config: MCPServerConfig): Promise<ToolSet> {
       };
       toolset.transports[serverName] = transport;
       await transport.start();
-      transport.start = async () => {}; // No-op now, .connect() won't fail
+      transport.start = async () => { }; // No-op now, .connect() won't fail
 
       const client = new Client(
         {
@@ -112,6 +112,9 @@ export async function createToolSet(config: MCPServerConfig): Promise<ToolSet> {
         }
 
         const parameters = jsonSchema(t.inputSchema as JSONSchema7);
+        if (parameters.jsonSchema.additionalProperties == null) {
+          parameters.jsonSchema.additionalProperties = false;
+        }
         toolset.tools[toolName] = tool({
           description: t.description || toolName,
           parameters: parameters,

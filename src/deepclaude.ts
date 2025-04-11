@@ -54,27 +54,7 @@ export async function reasoningChat(
 
     /* step 1: perform reasoning */
     let reasoningResult = "";
-    if (
-      provider.reasoningModel?.startsWith("o1") ||
-      provider.reasoningModel?.startsWith("o3")
-    ) {
-      // streaming not supported for o1/o3 models
-      const result = await generateText({
-        model: provider.apiReasoning,
-        messages: provider.chatHistory,
-        abortSignal: provider.abortController?.signal,
-        tools: provider.toolSet?.tools || undefined,
-        headers: getHeaders(),
-      });
-      if (result.reasoning) {
-        reasoningResult = result.reasoning;
-        updateReasoning(result.reasoning ?? "");
-      } else {
-        // use response if reasoning is not available.
-        reasoningResult = result.text;
-        updateReasoning(result.text ?? "");
-      }
-    } else {
+    {
       const chunks = [];
       const reasonChunks = [];
       let hasReasoning = false;
@@ -214,10 +194,19 @@ export async function reasoningChat(
           reasonChunks.push(part.textDelta);
           break;
         }
+
         case "tool-call": {
-          updateResponse(`${part.toolName}...`);
+          updateResponse(`\nCalling tool ${part.toolName}...\n`);
           break;
         }
+
+        // @ts-ignore
+        case "tool-result": {
+          // @ts-ignore
+          updateResponse(`\nTool result: ${JSON.stringify(part.result)}\n`);
+          break;
+        }
+
         case "error":
           provider.sendMessage({
             type: "addError",

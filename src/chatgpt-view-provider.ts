@@ -14,10 +14,7 @@
  */
 
 // @ts-ignore
-import {
-  OpenAIChatLanguageModel,
-  OpenAICompletionLanguageModel,
-} from "@ai-sdk/openai/internal";
+import { OpenAIChatLanguageModel, OpenAICompletionLanguageModel } from "@ai-sdk/openai/internal";
 import { LanguageModelV1 } from "@ai-sdk/provider";
 import { CoreMessage } from "ai";
 import delay from "delay";
@@ -74,20 +71,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public chatHistory: CoreMessage[] = [];
 
   public toolSet?: ToolSet;
-  // private _toolSet?: ToolSet;
-  // // Callback to notify when toolSet changes
-  // public onToolSetChanged?: (toolSet?: ToolSet) => void;
-  // // Define getter and setter for toolSet to notify when it changes
-  // public get toolSet(): ToolSet | undefined {
-  //   return this._toolSet;
-  // }
-  // public set toolSet(value: ToolSet | undefined) {
-  //   this._toolSet = value;
-  //   // Notify listeners when toolSet changes
-  //   if (this.onToolSetChanged) {
-  //     this.onToolSetChanged(value);
-  //   }
-  // }
 
   /**
    * Message to be rendered lazily if they haven't been rendered
@@ -104,9 +87,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     };
     filesSent: boolean;
   } = {
-    files: {},
-    filesSent: false,
-  };
+      files: {},
+      filesSent: false,
+    };
 
   constructor(private context: vscode.ExtensionContext) {
     this.subscribeToResponse =
@@ -529,7 +512,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       "gpt3.reasoning.provider",
     ) as string;
 
-    const mcpStore = this.context.globalState.get<{ servers: MCPServer[] }>(
+    const mcpStore = this.context.globalState.get<{ servers: MCPServer[]; }>(
       "mcpServers",
       { servers: [] },
     );
@@ -542,7 +525,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       if (
         this.toolSet &&
         Object.values(this.toolSet.clients).length !==
-          mcpStore.servers.filter((server) => server.isEnabled).length
+        mcpStore.servers.filter((server) => server.isEnabled).length
       ) {
         this.closeMCPServers();
       }
@@ -796,11 +779,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private processQuestion(question: string, code?: string, language?: string) {
     if (code != null) {
       // Add prompt prefix to the code if there was a code block selected
-      question = `${question}${
-        language
-          ? ` (The following code is in ${language} programming language)`
-          : ""
-      }: ${code}`;
+      question = `${question}${language
+        ? ` (The following code is in ${language} programming language)`
+        : ""
+        }: ${code}`;
     }
     return question + "\r\n";
   }
@@ -1008,9 +990,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       this.logError("api-request-failed");
 
       if (error?.response?.status || error?.response?.statusText) {
-        message = `${error?.response?.status || ""} ${
-          error?.response?.statusText || ""
-        }`;
+        message = `${error?.response?.status || ""} ${error?.response?.statusText || ""
+          }`;
 
         vscode.window
           .showErrorMessage(
@@ -1080,8 +1061,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private logEvent(eventName: string, properties?: {}): void {
     if (properties != null) {
       logger.appendLine(
-        `INFO ${eventName} chatgpt.model:${this.model} chatgpt.questionCounter:${
-          this.questionCounter
+        `INFO ${eventName} chatgpt.model:${this.model} chatgpt.questionCounter:${this.questionCounter
         } ${JSON.stringify(properties)}`,
       );
     } else {
