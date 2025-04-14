@@ -128,18 +128,19 @@ export async function chatGpt(
     const chunks = [];
     const reasonChunks = [];
     provider.chatHistory.push(chatMessage);
-    const result = await streamText({
+    var inputs: any = {
       system: provider.modelConfig.systemPrompt,
       model: provider.apiChat,
       messages: provider.chatHistory,
       maxTokens: provider.modelConfig.maxTokens,
-      topP: provider.modelConfig.topP,
+      // topP: provider.modelConfig.topP,
       temperature: provider.modelConfig.temperature,
       abortSignal: provider.abortController?.signal,
       tools: provider.toolSet?.tools || undefined,
       maxSteps: provider.maxSteps,
       headers: getHeaders(),
-    });
+    };
+    const result = await streamText(inputs);
     for await (const part of result.fullStream) {
       // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question.trim()} response: ${JSON.stringify(part, null, 2)}`);
       switch (part.type) {
@@ -154,14 +155,45 @@ export async function chatGpt(
           break;
         }
         case "tool-call": {
-          updateResponse(`\nCalling tool ${part.toolName}...\n`);
+          let formattedArgs = part.args;
+          if (typeof formattedArgs === 'string') {
+            try {
+              formattedArgs = JSON.parse(formattedArgs);
+            } catch (e) {
+              // If parsing fails, use the original string
+              // @ts-ignore
+              formattedArgs = part.args;
+            }
+          }
+
+          const toolCallText = `\nCalling tool ${part.toolName} with args\n\`\`\`json\n${JSON.stringify(formattedArgs, null, 2)}\n\`\`\`\n`;
+          updateResponse(toolCallText);
+          chunks.push(toolCallText);
           break;
         }
 
         // @ts-ignore
         case "tool-result": {
           // @ts-ignore
-          updateResponse(`\nTool result: ${JSON.stringify(part.result)}\n`);
+          logger.appendLine(`INFO: Tool ${part.toolName} result received: ${JSON.stringify(part.result)}`);
+
+          // @ts-ignore
+          let formattedResult = part.result;
+          if (typeof formattedResult === 'string') {
+            try {
+              formattedResult = JSON.parse(formattedResult);
+            } catch (e) {
+              // If parsing fails, use the original string
+              // @ts-ignore
+              formattedResult = part.result;
+            }
+          }
+
+          // @ts-ignore
+          const toolResultText = `\nTool ${part.toolName} result:\n\`\`\`json\n${JSON.stringify(formattedResult, null, 2)}\n\`\`\`\n`;
+
+          updateResponse(toolResultText);
+          chunks.push(toolResultText);
           break;
         }
 
@@ -184,13 +216,20 @@ export async function chatGpt(
 
     provider.response = chunks.join("");
     provider.reasoning = reasonChunks.join("");
-    provider.chatHistory.push({ role: "assistant", content: chunks.join("") });
+
+    // Save both the text response and tool calls in the chat history
+    const assistantResponse: any = {
+      role: "assistant",
+      content: chunks.join("")
+    };
+    provider.chatHistory.push(assistantResponse);
+
     logger.appendLine(
       `INFO: chatgpt.model: ${provider.model}, chatgpt.question: ${question.trim()}, final response: ${provider.response}`,
     );
   } catch (error) {
     logger.appendLine(
-      `ERROR: chatgpt.model: ${provider.model} error: ${error}`,
+      `ERROR: chatgpt.model: ${provider.model} error: ${error}, backtrace: ${new Error().stack}`,
     );
     throw error;
   }

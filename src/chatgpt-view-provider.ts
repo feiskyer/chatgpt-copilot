@@ -69,9 +69,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public reasoning: string = "";
   public response: string = "";
   public chatHistory: CoreMessage[] = [];
-
   public toolSet?: ToolSet;
-
   /**
    * Message to be rendered lazily if they haven't been rendered
    * in time before resolveWebviewView is called.

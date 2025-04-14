@@ -11,7 +11,7 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  */
-import { CoreMessage, generateText, streamText } from "ai";
+import { CoreMessage, streamText } from "ai";
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
 import { getHeaders } from "./model-config";
@@ -138,35 +138,23 @@ export async function reasoningChat(
     });
 
     /* add images after reasoning */
-    Object.entries(images).forEach(([_, content]) => {
-      (chatMessage.content as any[]).push({
-        type: "image",
-        image: content,
+    Object.entries(images).forEach(([title, content]) => {
+      provider.chatHistory.push({
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: `Image: ${title}`,
+          },
+          {
+            type: "image",
+            image: content,
+          },
+        ],
       });
     });
 
     /* step 2: perform chat with reasoning in context */
-    if (provider.model?.startsWith("o1") || provider.model?.startsWith("o3")) {
-      // streaming not supported for o1/o3 models
-      const result = await generateText({
-        // system: provider.modelConfig.systemPrompt,
-        model: provider.apiChat,
-        messages: provider.chatHistory,
-        abortSignal: provider.abortController?.signal,
-        tools: provider.toolSet?.tools || undefined,
-        maxSteps: provider.maxSteps,
-        headers: getHeaders(),
-      });
-
-      updateReasoning(result.reasoning ?? "");
-      updateResponse(result.text);
-      provider.reasoning = result.reasoning ?? "";
-      provider.response = result.text;
-      provider.chatHistory.push({ role: "assistant", content: result.text });
-      logger.appendLine(`INFO: chatgpt.response: ${provider.response}`);
-      return;
-    }
-
     const chunks = [];
     const reasonChunks = [];
     const result = await streamText({
@@ -174,7 +162,6 @@ export async function reasoningChat(
       model: provider.apiChat,
       messages: provider.chatHistory,
       maxTokens: provider.modelConfig.maxTokens,
-      topP: provider.modelConfig.topP,
       temperature: provider.modelConfig.temperature,
       abortSignal: provider.abortController?.signal,
       tools: provider.toolSet?.tools || undefined,
@@ -194,16 +181,46 @@ export async function reasoningChat(
           reasonChunks.push(part.textDelta);
           break;
         }
-
         case "tool-call": {
-          updateResponse(`\nCalling tool ${part.toolName}...\n`);
+          let formattedArgs = part.args;
+          if (typeof formattedArgs === 'string') {
+            try {
+              formattedArgs = JSON.parse(formattedArgs);
+            } catch (e) {
+              // If parsing fails, use the original string
+              // @ts-ignore
+              formattedArgs = part.args;
+            }
+          }
+
+          const toolCallText = `\nCalling tool ${part.toolName} with args\n\`\`\`json\n${JSON.stringify(formattedArgs, null, 2)}\n\`\`\`\n`;
+          updateResponse(toolCallText);
+          chunks.push(toolCallText);
           break;
         }
 
         // @ts-ignore
         case "tool-result": {
           // @ts-ignore
-          updateResponse(`\nTool result: ${JSON.stringify(part.result)}\n`);
+          logger.appendLine(`INFO: Tool ${part.toolName} result received: ${JSON.stringify(part.result)}`);
+
+          // @ts-ignore
+          let formattedResult = part.result;
+          if (typeof formattedResult === 'string') {
+            try {
+              formattedResult = JSON.parse(formattedResult);
+            } catch (e) {
+              // If parsing fails, use the original string
+              // @ts-ignore
+              formattedResult = part.result;
+            }
+          }
+
+          // @ts-ignore
+          const toolResultText = `\nTool ${part.toolName} result:\n\`\`\`json\n${JSON.stringify(formattedResult, null, 2)}\n\`\`\`\n`;
+
+          updateResponse(toolResultText);
+          chunks.push(toolResultText);
           break;
         }
 
@@ -226,12 +243,18 @@ export async function reasoningChat(
 
     provider.response = chunks.join("");
     provider.reasoning = reasonChunks.join("");
-    provider.chatHistory.push({ role: "assistant", content: chunks.join("") });
+
+    // Save both the text response and tool calls in the chat history
+    const assistantResponse: any = {
+      role: "assistant",
+      content: chunks.join("")
+    };
+
+    provider.chatHistory.push(assistantResponse);
     logger.appendLine(`INFO: deepclaude.response: ${provider.response}`);
   } catch (error) {
-    const backtrace = new Error().stack;
     logger.appendLine(
-      `ERROR: deepclaude.model: ${provider.model} failed with error: ${error}`,
+      `ERROR: deepclaude.model: ${provider.model} failed with error: ${error}, backtrace: ${new Error().stack}`,
     );
     throw error;
   }

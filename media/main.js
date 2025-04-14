@@ -333,6 +333,7 @@
                     list.lastChild?.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
                 }
                 break;
+
             default:
                 break;
         }
