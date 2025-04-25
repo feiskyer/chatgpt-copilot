@@ -50,6 +50,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public autoScroll: boolean;
   public provider: string = "Auto";
   public model?: string;
+  public reasoningEffort: string = "high";
   public maxSteps: number = 0;
   private apiBaseUrl?: string;
   public modelConfig!: ModelConfig;
@@ -105,6 +106,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         .getConfiguration("chatgpt")
         .get("gpt3.customModel") as string;
     }
+    this.reasoningEffort = vscode.workspace
+      .getConfiguration("chatgpt")
+      .get("gpt3.reasoningEffort") as string;
     this.provider = vscode.workspace
       .getConfiguration("chatgpt")
       .get("gpt3.provider") as string;

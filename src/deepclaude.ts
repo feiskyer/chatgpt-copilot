@@ -15,6 +15,7 @@ import { CoreMessage, streamText } from "ai";
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
 import { getHeaders } from "./model-config";
+import { isOpenAIOModel } from "./types";
 
 // reasoningChat performs reasoning + chat (e.g. DeepSeek + Claude).
 export async function reasoningChat(
@@ -62,11 +63,23 @@ export async function reasoningChat(
       const result = await streamText({
         model: provider.apiReasoning,
         messages: provider.chatHistory,
-        maxTokens: provider.modelConfig.maxTokens,
-        temperature: provider.modelConfig.temperature,
+
         abortSignal: provider.abortController?.signal,
         tools: provider.toolSet?.tools || undefined,
         headers: getHeaders(),
+        ...(isOpenAIOModel(provider.reasoningModel) && {
+          providerOptions: {
+            openai: {
+              reasoningEffort: provider.reasoningEffort,
+              maxCompletionTokens: provider.modelConfig.maxTokens,
+            },
+          },
+        }),
+        ...(!isOpenAIOModel(provider.reasoningModel) && {
+          maxTokens: provider.modelConfig.maxTokens,
+          temperature: provider.modelConfig.temperature,
+          // topP: provider.modelConfig.topP,
+        }),
       });
       for await (const part of result.fullStream) {
         // logger.appendLine(`INFO: deepclaude.reasoning.model: ${provider.reasoningModel} deepclaude.question: ${question} response: ${JSON.stringify(part, null, 2)}`);
@@ -161,12 +174,23 @@ export async function reasoningChat(
       system: provider.modelConfig.systemPrompt,
       model: provider.apiChat,
       messages: provider.chatHistory,
-      maxTokens: provider.modelConfig.maxTokens,
-      temperature: provider.modelConfig.temperature,
       abortSignal: provider.abortController?.signal,
       tools: provider.toolSet?.tools || undefined,
       maxSteps: provider.maxSteps,
       headers: getHeaders(),
+      ...(isOpenAIOModel(provider.model ? provider.model : "") && {
+        providerOptions: {
+          openai: {
+            reasoningEffort: provider.reasoningEffort,
+            maxCompletionTokens: provider.modelConfig.maxTokens,
+          },
+        },
+      }),
+      ...(!isOpenAIOModel(provider.model ? provider.model : "") && {
+        maxTokens: provider.modelConfig.maxTokens,
+        temperature: provider.modelConfig.temperature,
+        // topP: provider.modelConfig.topP,
+      }),
     });
     for await (const part of result.fullStream) {
       // logger.appendLine(`INFO: deepclaude.model: ${provider.model} deepclaude.question: ${question} response: ${JSON.stringify(part, null, 2)}`);

@@ -22,7 +22,7 @@ import {
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
 import { ModelConfig, getHeaders } from "./model-config";
-import { isReasoningModel } from "./types";
+import { isOpenAIOModel, isReasoningModel } from "./types";
 
 const azureAPIVersion = "2025-02-01-preview";
 
@@ -132,13 +132,23 @@ export async function chatGpt(
       system: provider.modelConfig.systemPrompt,
       model: provider.apiChat,
       messages: provider.chatHistory,
-      maxTokens: provider.modelConfig.maxTokens,
-      // topP: provider.modelConfig.topP,
-      temperature: provider.modelConfig.temperature,
       abortSignal: provider.abortController?.signal,
       tools: provider.toolSet?.tools || undefined,
       maxSteps: provider.maxSteps,
       headers: getHeaders(),
+      ...(isOpenAIOModel(provider.model ? provider.model : "") && {
+        providerOptions: {
+          openai: {
+            reasoningEffort: provider.reasoningEffort,
+            maxCompletionTokens: provider.modelConfig.maxTokens,
+          },
+        },
+      }),
+      ...(!isOpenAIOModel(provider.model ? provider.model : "") && {
+        maxTokens: provider.modelConfig.maxTokens,
+        temperature: provider.modelConfig.temperature,
+        // topP: provider.modelConfig.topP,
+      }),
     };
     const result = await streamText(inputs);
     for await (const part of result.fullStream) {

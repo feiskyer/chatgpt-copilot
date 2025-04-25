@@ -21,11 +21,20 @@ export interface PromptStore {
   prompts: Prompt[];
 }
 
-export function isReasoningModel(model: string) {
+export function isOpenAIOModel(model: string) {
   const m = model.toLowerCase();
   return (
     m.includes("o1") ||
     m.includes("o3") ||
+    m.includes("o4")
+  );
+}
+
+
+export function isReasoningModel(model: string) {
+  const m = model.toLowerCase();
+  return (
+    isOpenAIOModel(model) ||
     m.includes("deepseek-r1") ||
     m.includes("reason")
   );

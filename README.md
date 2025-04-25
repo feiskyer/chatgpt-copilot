@@ -64,6 +64,9 @@ Refer to the following sections for more details on configuring various AI servi
 
 <summary> OpenAI </summary>
 
+> **Special notes for ChatGPT users**:
+> OpenAI API is billed separately from ChatGPT App. You need to add credits to your OpenAI for API usage [here](https://platform.openai.com/settings/organization/billing/overview). Once you add credits to your API, create a new api key and it should work.
+
 | Configuration | Example |
 | ------------- | ----------- |
 | API Key     | your-api-key |
@@ -285,18 +288,11 @@ code --install-extension chatgpt-copilot-*.vsix
 ## Acknowledgement
 
 <details>
-<summary>AI Toolkit for TypeScript</summary>
 
-This extension utilizes the [AI Toolkit for TypeScript](https://sdk.vercel.ai/) to seamlessly integrate with a variety of AI providers. This allows for flexible and robust AI functionality within the editor. We appreciate the work by Vercel in creating this valuable resource.
+<summary>Acknowledgements</summary>
 
-</details>
+Inspired by [gencay/vscode-chatgpt](https://github.com/gencay/vscode-chatgpt) project and made effortlessly accessible thanks to the intuitive client provided by the [Vercel AI Toolkit](https://sdk.vercel.ai), this extension continues the open-source legacy, bringing seamless and robust AI functionalities directly into the editor with telemetry free.
 
-<details>
-<summary>gencay/vscode-chatgpt</summary>
-
-This extension is built on the widely-used [gencay/vscode-chatgpt](https://github.com/gencay/vscode-chatgpt) project, which has garnered over 500,000 downloads. We are deeply grateful for the foundation laid by the original author, Gencay, and the community that supported it.
-
-Unfortunately, the original author has decided to stop maintaining the project, and the new recommended Genie AI extension is not open-source. This fork continues the development to keep the project open and accessible to everyone.
 </details>
 
 ## License
