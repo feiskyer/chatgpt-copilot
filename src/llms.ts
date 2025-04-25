@@ -17,6 +17,7 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createGroq } from "@ai-sdk/groq";
 import { createMistral } from "@ai-sdk/mistral";
 import { createPerplexity } from "@ai-sdk/perplexity";
+import { createReplicate } from '@ai-sdk/replicate';
 import { createTogetherAI } from "@ai-sdk/togetherai";
 import { createXai } from "@ai-sdk/xai";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
@@ -381,6 +382,43 @@ export async function initAzureAIModel(
     });
   } else {
     const model = viewProvider.model ? viewProvider.model : "DeepSeek-R1";
+    if (isReasoningModel(model)) {
+      viewProvider.apiChat = wrapLanguageModel({
+        model: ai.languageModel(model),
+        middleware: extractReasoningMiddleware({ tagName: "think" }),
+      });
+    } else {
+      viewProvider.apiChat = ai.languageModel(model);
+    }
+  }
+}
+
+// TODO: pending https://github.com/vercel/ai/issues/4918 to support language model.
+export async function initReplicateModel(
+  viewProvider: ChatGptViewProvider,
+  config: ModelConfig,
+) {
+  let apiBaseUrl = config.apiBaseUrl;
+  if (!apiBaseUrl || apiBaseUrl == "https://api.openai.com/v1") {
+    apiBaseUrl = "https://api.replicate.com/v1";
+  }
+
+  const ai = createReplicate({
+    apiToken: config.apiKey,
+    baseURL: apiBaseUrl,
+  });
+
+  if (config.isReasoning) {
+    const model = viewProvider.reasoningModel
+      ? viewProvider.reasoningModel
+      : "deepseek-ai/deepseek-r1";
+
+    viewProvider.apiReasoning = wrapLanguageModel({
+      model: ai.languageModel(model),
+      middleware: extractReasoningMiddleware({ tagName: "think" }),
+    });
+  } else {
+    const model = viewProvider.model ? viewProvider.model : "deepseek-ai/deepseek-r1";
     if (isReasoningModel(model)) {
       viewProvider.apiChat = wrapLanguageModel({
         model: ai.languageModel(model),

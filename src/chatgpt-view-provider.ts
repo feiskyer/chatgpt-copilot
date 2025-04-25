@@ -32,6 +32,7 @@ import {
   initOllamaModel,
   initOpenRouterModel,
   initPerplexityModel,
+  initReplicateModel,
   initTogetherModel,
   initXAIModel,
 } from "./llms";
@@ -700,67 +701,76 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         this.apiReasoning = undefined;
       }
 
-      for (const modelConfig of configList) {
-        switch (modelConfig.provider) {
-          case "OpenAI":
-            await initGptModel(this, modelConfig);
-            break;
+      try {
+        for (const modelConfig of configList) {
+          switch (modelConfig.provider) {
+            case "OpenAI":
+              await initGptModel(this, modelConfig);
+              break;
 
-          case "Azure":
-            await initGptModel(this, modelConfig);
-            break;
+            case "Azure":
+              await initGptModel(this, modelConfig);
+              break;
 
-          case "AzureAI":
-            await initAzureAIModel(this, modelConfig);
-            break;
+            case "AzureAI":
+              await initAzureAIModel(this, modelConfig);
+              break;
 
-          case "Anthropic":
-            await initClaudeModel(this, modelConfig);
-            break;
+            case "Anthropic":
+              await initClaudeModel(this, modelConfig);
+              break;
 
-          case "Google":
-            await initGeminiModel(this, modelConfig);
-            break;
+            case "Google":
+              await initGeminiModel(this, modelConfig);
+              break;
 
-          case "Ollama":
-            await initOllamaModel(this, modelConfig);
-            break;
+            case "Ollama":
+              await initOllamaModel(this, modelConfig);
+              break;
 
-          case "Mistral":
-            await initMistralModel(this, modelConfig);
-            break;
+            case "Mistral":
+              await initMistralModel(this, modelConfig);
+              break;
 
-          case "xAI":
-            await initXAIModel(this, modelConfig);
-            break;
+            case "xAI":
+              await initXAIModel(this, modelConfig);
+              break;
 
-          case "Together":
-            await initTogetherModel(this, modelConfig);
-            break;
+            case "Together":
+              await initTogetherModel(this, modelConfig);
+              break;
 
-          case "DeepSeek":
-            await initDeepSeekModel(this, modelConfig);
-            break;
+            case "DeepSeek":
+              await initDeepSeekModel(this, modelConfig);
+              break;
 
-          case "Groq":
-            await initGroqModel(this, modelConfig);
-            break;
+            case "Groq":
+              await initGroqModel(this, modelConfig);
+              break;
 
-          case "Perplexity":
-            await initPerplexityModel(this, modelConfig);
-            break;
+            case "Perplexity":
+              await initPerplexityModel(this, modelConfig);
+              break;
 
-          case "OpenRouter":
-            await initOpenRouterModel(this, modelConfig);
-            break;
+            case "OpenRouter":
+              await initOpenRouterModel(this, modelConfig);
+              break;
 
-          case "GitHubCopilot":
-            break;
+            case "GitHubCopilot":
+              break;
 
-          default:
-            initGptLegacyModel(this, modelConfig);
-            break;
+            case "Replicate":
+              await initReplicateModel(this, modelConfig);
+              break;
+
+            default:
+              initGptLegacyModel(this, modelConfig);
+              break;
+          }
         }
+      } catch (error) {
+        this.logError(`"Unable to initialize model ${error}"`);
+        return false;
       }
 
       if (provider == "GithubCopilot") {
