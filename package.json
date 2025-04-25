@@ -660,7 +660,7 @@
     "esbuild": "^0.25.3",
     "eslint": "^9.25.1",
     "glob": "^11.0.2",
-    "mocha": "^11.2.0",
+    "mocha": "^11.2.2",
     "npm-check-updates": "^18.0.1",
     "prettier": "^3.5.3",
     "rimraf": "^6.0.1",
