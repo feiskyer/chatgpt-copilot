@@ -7,16 +7,18 @@ on:
 
 jobs:
   release:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Install Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: latest
-    - run: yarn install
-    - run: yarn run package
-    - run: yarn run publish
-      env:
-        VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: latest
+      - run: yarn install
+      - run: yarn run package
+      - run: yarn run publish
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
