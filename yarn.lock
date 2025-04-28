@@ -76,10 +76,10 @@
     "@ai-sdk/provider" "1.1.3"
     "@ai-sdk/provider-utils" "2.2.7"
 
-"@ai-sdk/perplexity@^1.1.7":
-  version "1.1.7"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/perplexity/-/perplexity-1.1.7.tgz#ac5f70166c9b1881871c592485be64dcfffe9e0e"
-  integrity sha512-FH2zEADLU/NTuRkQXMbZkUZ0qSsJ5qhufQ+7IsFMuhhKShGt0M8gOZlnkxuolnIjDrOdD3r1r59nZKMsFHuwqw==
+"@ai-sdk/perplexity@^1.1.8":
+  version "1.1.8"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/perplexity/-/perplexity-1.1.8.tgz#b093c487c05e00c9f900aa2861bbb6ce5cb09acc"
+  integrity sha512-hdyMknEKRhUr4AwIswUNsrT5XdQ35tZl9jAiyi1VbhxfW0mCr5dxPt/nYWYN0sc+2m7yfG3L3D5J5V7GIJiqzg==
   dependencies:
     "@ai-sdk/provider" "1.1.3"
     "@ai-sdk/provider-utils" "2.2.7"
