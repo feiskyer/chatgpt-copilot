@@ -60,10 +60,18 @@
     "@ai-sdk/provider" "1.1.3"
     "@ai-sdk/provider-utils" "2.2.7"
 
-"@ai-sdk/openai@1.3.20", "@ai-sdk/openai@^1.3.20":
+"@ai-sdk/openai@1.3.20":
   version "1.3.20"
   resolved "https://registry.yarnpkg.com/@ai-sdk/openai/-/openai-1.3.20.tgz#5ef85e61663c1a387d98d36ff6d24b5162c5aa61"
   integrity sha512-/DflUy7ROG9k6n6YTXMBFPbujBKnbGY58f3CwvicLvDar9nDAloVnUWd3LUoOxpSVnX8vtQ7ngxF52SLWO6RwQ==
+  dependencies:
+    "@ai-sdk/provider" "1.1.3"
+    "@ai-sdk/provider-utils" "2.2.7"
+
+"@ai-sdk/openai@^1.3.21":
+  version "1.3.21"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/openai/-/openai-1.3.21.tgz#d2ae02e2bc2e03a350c16c218c680d718ad30b40"
+  integrity sha512-ipAhkRKUd2YaMmn7DAklX3N7Ywx/rCsJHVyb0V/lKRqPcc612qAFVbjg+Uve8QYJlbPxgfsM4s9JmCFp6PSdYw==
   dependencies:
     "@ai-sdk/provider" "1.1.3"
     "@ai-sdk/provider-utils" "2.2.7"
