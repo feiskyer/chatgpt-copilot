@@ -10,12 +10,12 @@
     "@ai-sdk/provider" "1.1.3"
     "@ai-sdk/provider-utils" "2.2.7"
 
-"@ai-sdk/azure@^1.3.20":
-  version "1.3.20"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/azure/-/azure-1.3.20.tgz#d3104567fe264f3a6e7461066062ed34a4c71c46"
-  integrity sha512-wt0VnNbnXuUB9UZ91yF6zYK1aiuS+wTis4LK+0d7s4A1Cm8aEzwyXpxH2iIK59CFfwnhYOCSdQ9hzQidpPbDXw==
+"@ai-sdk/azure@^1.3.21":
+  version "1.3.21"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/azure/-/azure-1.3.21.tgz#bbd6be6ba8797641e7f87c19ff4d24f80dd35b3d"
+  integrity sha512-GiLnGScVUerruvkS6E3Rd55YXBb1TI15c5y9GxphJEPsU8jzVha5GKpN3+9hWM9OBgIrJlWKumlSfpVpbcNFJA==
   dependencies:
-    "@ai-sdk/openai" "1.3.19"
+    "@ai-sdk/openai" "1.3.20"
     "@ai-sdk/provider" "1.1.3"
     "@ai-sdk/provider-utils" "2.2.7"
 
@@ -28,10 +28,10 @@
     "@ai-sdk/provider" "1.1.3"
     "@ai-sdk/provider-utils" "2.2.7"
 
-"@ai-sdk/google@^1.2.13":
-  version "1.2.13"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/google/-/google-1.2.13.tgz#28e47603d97b99823d05720a78f231c12f53f43d"
-  integrity sha512-nnHDzbX1Zst28AjP3718xSWsEqx++qmFuqmnDc2Htelc02HyO6WkWOXMH+YVK3W8zdIyZEKpHL9KKlql7pa10A==
+"@ai-sdk/google@^1.2.14":
+  version "1.2.14"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/google/-/google-1.2.14.tgz#bd165e3ed673574e46b4d01dfbb86d1509f71312"
+  integrity sha512-r3FSyyWl0KVjUlKn5o+vMl+Nk8Z/mV6xrqW+49g7fMoRVr/wkRxJZtHorrdDGRreCJubZyAk8ziSQSLpgv2H6w==
   dependencies:
     "@ai-sdk/provider" "1.1.3"
     "@ai-sdk/provider-utils" "2.2.7"
@@ -60,15 +60,7 @@
     "@ai-sdk/provider" "1.1.3"
     "@ai-sdk/provider-utils" "2.2.7"
 
-"@ai-sdk/openai@1.3.19":
-  version "1.3.19"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/openai/-/openai-1.3.19.tgz#a065c17a1def24a099575d13a01538c2aa9e797a"
-  integrity sha512-VB0ZutZwb6LJBIAV5pJZsSuL3O+GeTAeG4OifRpf014nJF/QlbZIWDvEWfcTq65d85fO/vg1NTv8jVKYRi+JFQ==
-  dependencies:
-    "@ai-sdk/provider" "1.1.3"
-    "@ai-sdk/provider-utils" "2.2.7"
-
-"@ai-sdk/openai@^1.3.20":
+"@ai-sdk/openai@1.3.20", "@ai-sdk/openai@^1.3.20":
   version "1.3.20"
   resolved "https://registry.yarnpkg.com/@ai-sdk/openai/-/openai-1.3.20.tgz#5ef85e61663c1a387d98d36ff6d24b5162c5aa61"
   integrity sha512-/DflUy7ROG9k6n6YTXMBFPbujBKnbGY58f3CwvicLvDar9nDAloVnUWd3LUoOxpSVnX8vtQ7ngxF52SLWO6RwQ==
@@ -76,10 +68,10 @@
     "@ai-sdk/provider" "1.1.3"
     "@ai-sdk/provider-utils" "2.2.7"
 
-"@ai-sdk/perplexity@^1.1.7":
-  version "1.1.7"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/perplexity/-/perplexity-1.1.7.tgz#ac5f70166c9b1881871c592485be64dcfffe9e0e"
-  integrity sha512-FH2zEADLU/NTuRkQXMbZkUZ0qSsJ5qhufQ+7IsFMuhhKShGt0M8gOZlnkxuolnIjDrOdD3r1r59nZKMsFHuwqw==
+"@ai-sdk/perplexity@^1.1.8":
+  version "1.1.8"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/perplexity/-/perplexity-1.1.8.tgz#b093c487c05e00c9f900aa2861bbb6ce5cb09acc"
+  integrity sha512-hdyMknEKRhUr4AwIswUNsrT5XdQ35tZl9jAiyi1VbhxfW0mCr5dxPt/nYWYN0sc+2m7yfG3L3D5J5V7GIJiqzg==
   dependencies:
     "@ai-sdk/provider" "1.1.3"
     "@ai-sdk/provider-utils" "2.2.7"
@@ -117,13 +109,13 @@
   dependencies:
     json-schema "^0.4.0"
 
-"@ai-sdk/react@1.2.9":
-  version "1.2.9"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/react/-/react-1.2.9.tgz#ca8f4cc3e791059ada9276a3e0e0fe4988928fb0"
-  integrity sha512-/VYm8xifyngaqFDLXACk/1czDRCefNCdALUyp+kIX6DUIYUWTM93ISoZ+qJ8+3E+FiJAKBQz61o8lIIl+vYtzg==
+"@ai-sdk/react@1.2.10":
+  version "1.2.10"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/react/-/react-1.2.10.tgz#993d0e22cf86b99dd8f135a19499c900e8454108"
+  integrity sha512-iUZfApc6aftVT7f41y9b1NPk0dZFt9vRR0/gkZsKdP56ShcKtuTu44BkjtWdrBs7fcTbN2BQZtDao1AY1GxzsQ==
   dependencies:
     "@ai-sdk/provider-utils" "2.2.7"
-    "@ai-sdk/ui-utils" "1.2.8"
+    "@ai-sdk/ui-utils" "1.2.9"
     swr "^2.2.5"
     throttleit "2.1.0"
 
@@ -144,10 +136,10 @@
     "@ai-sdk/provider" "1.1.3"
     "@ai-sdk/provider-utils" "2.2.7"
 
-"@ai-sdk/ui-utils@1.2.8":
-  version "1.2.8"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/ui-utils/-/ui-utils-1.2.8.tgz#2e65e18a8d23bd361885aa1b26abe9a1e30f4e15"
-  integrity sha512-nls/IJCY+ks3Uj6G/agNhXqQeLVqhNfoJbuNgCny+nX2veY5ADB91EcZUqVeQ/ionul2SeUswPY6Q/DxteY29Q==
+"@ai-sdk/ui-utils@1.2.9":
+  version "1.2.9"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/ui-utils/-/ui-utils-1.2.9.tgz#35bc97759f86ad45fb849c05090432aed58ed732"
+  integrity sha512-cbiLzgXDv3+460f61UVSykn3XdKOS+SHs/EANw+pdOQKwn8JN7rZJL/ggPyMuZ7D9lO3oWOfOJ1QS+9uClfVug==
   dependencies:
     "@ai-sdk/provider" "1.1.3"
     "@ai-sdk/provider-utils" "2.2.7"
@@ -761,10 +753,10 @@
   dependencies:
     undici-types "~5.26.4"
 
-"@types/node@^22.15.2":
-  version "22.15.2"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.2.tgz#1db55aa64618ee93a58c8912f74beefe44aca905"
-  integrity sha512-uKXqKN9beGoMdBfcaTY1ecwz6ctxuJAcUlwE55938g0ZJ8lRxwAZqRz2AJ4pzpt5dHdTPMB863UZ0ESiFUcP7A==
+"@types/node@^22.15.3":
+  version "22.15.3"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.3.tgz#b7fb9396a8ec5b5dfb1345d8ac2502060e9af68b"
+  integrity sha512-lX7HFZeHf4QG/J7tBZqrCAXwz9J5RD56Y6MpP0eJkka8p+K0RY/yBTW7CYFJ4VGCclxqOLKmiGP5juQc6MKgcw==
   dependencies:
     undici-types "~6.21.0"
 
@@ -1078,15 +1070,15 @@ agentkeepalive@^4.2.1:
   dependencies:
     humanize-ms "^1.2.1"
 
-ai@^4.3.10:
-  version "4.3.10"
-  resolved "https://registry.yarnpkg.com/ai/-/ai-4.3.10.tgz#920c1b799b7372d8c57e180d53b8f898383b0ff3"
-  integrity sha512-jw+ahNu+T4SHj9gtraIKtYhanJI6gj2IZ5BFcfEHgoyQVMln5a5beGjzl/nQSX6FxyLqJ/UBpClRa279EEKK/Q==
+ai@^4.3.11:
+  version "4.3.11"
+  resolved "https://registry.yarnpkg.com/ai/-/ai-4.3.11.tgz#f6d707d372f98b1130e0b48607f6a88d00aab1b2"
+  integrity sha512-5korDAKCsDXE5HwglOJ7NxJ32TEj2NmKGQPefcMJMKkjxeJJjC6NfM8qLtPCCk8FoAVtYdIMYPy8dzux423QLg==
   dependencies:
     "@ai-sdk/provider" "1.1.3"
     "@ai-sdk/provider-utils" "2.2.7"
-    "@ai-sdk/react" "1.2.9"
-    "@ai-sdk/ui-utils" "1.2.8"
+    "@ai-sdk/react" "1.2.10"
+    "@ai-sdk/ui-utils" "1.2.9"
     "@opentelemetry/api" "1.9.0"
     jsondiffpatch "0.6.0"
 
@@ -3565,10 +3557,10 @@ open@^10.1.0:
     is-inside-container "^1.0.0"
     is-wsl "^3.1.0"
 
-openai@^4.96.0:
-  version "4.96.0"
-  resolved "https://registry.yarnpkg.com/openai/-/openai-4.96.0.tgz#d1a821e99949ac2c55709f4e28e18bb1d9fd8ef9"
-  integrity sha512-dKoW56i02Prv2XQolJ9Rl9Svqubqkzg3QpwEOBuSVZLk05Shelu7s+ErRTwFc1Bs3JZ2qBqBfVpXQiJhwOGG8A==
+openai@^4.96.2:
+  version "4.96.2"
+  resolved "https://registry.yarnpkg.com/openai/-/openai-4.96.2.tgz#a7d360597f273a5f6ed8dd22914e598013022fa4"
+  integrity sha512-R2XnxvMsizkROr7BV3uNp1q/3skwPZ7fmPjO1bXLnfB4Tu5xKxrT1EVwzjhxn0MZKBKAvOaGWS63jTMN6KrIXA==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"

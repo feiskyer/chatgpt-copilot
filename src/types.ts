@@ -36,6 +36,8 @@ export function isReasoningModel(model: string) {
   return (
     isOpenAIOModel(model) ||
     m.includes("deepseek-r1") ||
-    m.includes("reason")
+    m.includes("reason") ||
+    m.includes("claude-3-7") ||
+    m.includes("qwen3")
   );
 }

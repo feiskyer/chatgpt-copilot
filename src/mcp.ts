@@ -105,16 +105,16 @@ export async function createToolSet(config: MCPServerConfig): Promise<ToolSet> {
       const toolList = await client.listTools();
       for (const t of toolList.tools) {
         let toolName = t.name;
-        // Prefix tool names with server name to avoid collisions,
-        // unless the tool name is already the server name
-        if (toolName !== serverName) {
-          toolName = `${serverName}-${toolName}`;
-        }
-
         const parameters = jsonSchema(t.inputSchema as JSONSchema7);
         if (parameters.jsonSchema.additionalProperties == null) {
           parameters.jsonSchema.additionalProperties = false;
         }
+        // const parameters = jsonSchema(
+        //   Object.fromEntries(
+        //     Object.entries(t.inputSchema as JSONSchema7)
+        //       .filter(([key]) => key !== "additionalProperties" && key !== "$schema")
+        //   )
+        // );
         toolset.tools[toolName] = tool({
           description: t.description || toolName,
           parameters: parameters,

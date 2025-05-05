@@ -45,17 +45,17 @@ export async function initGptModel(
 
     if (config.isReasoning) {
       viewProvider.apiReasoning = wrapLanguageModel({
-        model: azure.chat(deployName),
+        model: azure.languageModel(deployName),
         middleware: extractReasoningMiddleware({ tagName: "think" }),
       });
     } else {
       if (isReasoningModel(deployName)) {
         viewProvider.apiChat = wrapLanguageModel({
-          model: azure.chat(deployName),
+          model: azure.languageModel(deployName),
           middleware: extractReasoningMiddleware({ tagName: "think" }),
         });
       } else {
-        viewProvider.apiChat = azure.chat(deployName);
+        viewProvider.apiChat = azure.languageModel(deployName);
       }
     }
   } else {
@@ -71,18 +71,18 @@ export async function initGptModel(
         ? viewProvider.reasoningModel
         : "o3-mini";
       viewProvider.apiReasoning = wrapLanguageModel({
-        model: openai.chat(model),
+        model: openai.languageModel(model),
         middleware: extractReasoningMiddleware({ tagName: "think" }),
       });
     } else {
       const model = viewProvider.model ? viewProvider.model : "gpt-4o";
       if (isReasoningModel(model)) {
         viewProvider.apiChat = wrapLanguageModel({
-          model: openai.chat(model),
+          model: openai.languageModel(model),
           middleware: extractReasoningMiddleware({ tagName: "think" }),
         });
       } else {
-        viewProvider.apiChat = openai.chat(model);
+        viewProvider.apiChat = openai.languageModel(model);
       }
     }
   }
@@ -128,6 +128,7 @@ export async function chatGpt(
     const chunks = [];
     const reasonChunks = [];
     provider.chatHistory.push(chatMessage);
+    const modelName = provider.model ? provider.model : "gpt-4o";
     var inputs: any = {
       system: provider.modelConfig.systemPrompt,
       model: provider.apiChat,
@@ -136,15 +137,16 @@ export async function chatGpt(
       tools: provider.toolSet?.tools || undefined,
       maxSteps: provider.maxSteps,
       headers: getHeaders(),
-      ...(isOpenAIOModel(provider.model ? provider.model : "") && {
+      ...(isOpenAIOModel(modelName) && {
         providerOptions: {
           openai: {
+            reasoningSummary: "auto",
             reasoningEffort: provider.reasoningEffort,
             maxCompletionTokens: provider.modelConfig.maxTokens,
           },
         },
       }),
-      ...(!isOpenAIOModel(provider.model ? provider.model : "") && {
+      ...(!isOpenAIOModel(modelName) && {
         maxTokens: provider.modelConfig.maxTokens,
         temperature: provider.modelConfig.temperature,
         // topP: provider.modelConfig.topP,
@@ -182,7 +184,7 @@ export async function chatGpt(
           break;
         }
 
-        // @ts-ignore
+        // @ts-ignore;
         case "tool-result": {
           // @ts-ignore
           logger.appendLine(`INFO: Tool ${part.toolName} result received: ${JSON.stringify(part.result)}`);
@@ -208,9 +210,10 @@ export async function chatGpt(
         }
 
         case "error":
+          chunks.push(`Request failed: ${part.error}`);
           provider.sendMessage({
             type: "addError",
-            value: part.error,
+            value: `Request failed: ${part.error}`,
             autoScroll: provider.autoScroll,
           });
           break;
@@ -225,7 +228,14 @@ export async function chatGpt(
     }
 
     provider.response = chunks.join("");
-    provider.reasoning = reasonChunks.join("");
+    if (reasonChunks.join("") != "") {
+      provider.reasoning = reasonChunks.join("");
+    }
+    const reasoning = await result.reasoning;
+    if (reasoning && reasoning != "") {
+      provider.reasoning = reasoning;
+      updateReasoning(reasoning);
+    }
 
     // Save both the text response and tool calls in the chat history
     const assistantResponse: any = {
@@ -241,6 +251,10 @@ export async function chatGpt(
     logger.appendLine(
       `ERROR: chatgpt.model: ${provider.model} error: ${error}, backtrace: ${new Error().stack}`,
     );
-    throw error;
+    provider.sendMessage({
+      type: "addError",
+      value: `Error: ${error}`,
+      autoScroll: provider.autoScroll,
+    });
   }
 }

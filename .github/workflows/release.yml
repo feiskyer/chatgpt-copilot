@@ -22,3 +22,6 @@ jobs:
       - run: yarn run publish
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      - run: npx ovsx publish -p ${OPEN_VSX_TOKEN}
+        env:
+          OPEN_VSX_TOKEN: ${{ secrets.OPEN_VSX_TOKEN }}
