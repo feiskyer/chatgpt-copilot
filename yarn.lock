@@ -10,12 +10,12 @@
     "@ai-sdk/provider" "1.1.3"
     "@ai-sdk/provider-utils" "2.2.7"
 
-"@ai-sdk/azure@^1.3.21":
-  version "1.3.21"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/azure/-/azure-1.3.21.tgz#bbd6be6ba8797641e7f87c19ff4d24f80dd35b3d"
-  integrity sha512-GiLnGScVUerruvkS6E3Rd55YXBb1TI15c5y9GxphJEPsU8jzVha5GKpN3+9hWM9OBgIrJlWKumlSfpVpbcNFJA==
+"@ai-sdk/azure@^1.3.22":
+  version "1.3.22"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/azure/-/azure-1.3.22.tgz#9882a47cf16d8520a7bcda713f0f3932af4f03d9"
+  integrity sha512-X3Vlxwh0MSmmZ8Q7LgzCXHvPq0XsNL1dTODIZ3ziC7n8cME8yHvjpwPwMAHLK0a7YbWO7eOW0OsDnZXdong10g==
   dependencies:
-    "@ai-sdk/openai" "1.3.20"
+    "@ai-sdk/openai" "1.3.21"
     "@ai-sdk/provider" "1.1.3"
     "@ai-sdk/provider-utils" "2.2.7"
 
@@ -60,10 +60,10 @@
     "@ai-sdk/provider" "1.1.3"
     "@ai-sdk/provider-utils" "2.2.7"
 
-"@ai-sdk/openai@1.3.20", "@ai-sdk/openai@^1.3.20":
-  version "1.3.20"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/openai/-/openai-1.3.20.tgz#5ef85e61663c1a387d98d36ff6d24b5162c5aa61"
-  integrity sha512-/DflUy7ROG9k6n6YTXMBFPbujBKnbGY58f3CwvicLvDar9nDAloVnUWd3LUoOxpSVnX8vtQ7ngxF52SLWO6RwQ==
+"@ai-sdk/openai@1.3.21", "@ai-sdk/openai@^1.3.20":
+  version "1.3.21"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/openai/-/openai-1.3.21.tgz#d2ae02e2bc2e03a350c16c218c680d718ad30b40"
+  integrity sha512-ipAhkRKUd2YaMmn7DAklX3N7Ywx/rCsJHVyb0V/lKRqPcc612qAFVbjg+Uve8QYJlbPxgfsM4s9JmCFp6PSdYw==
   dependencies:
     "@ai-sdk/provider" "1.1.3"
     "@ai-sdk/provider-utils" "2.2.7"
