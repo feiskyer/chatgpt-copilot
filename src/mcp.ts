@@ -1,11 +1,16 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import type { Tool } from "ai";
 import { jsonSchema, tool } from "ai";
+import { EventSource } from 'eventsource';
 import { JSONSchema7 } from "json-schema";
 import { logger } from "./logger";
+
+// define EventSource globally
+globalThis.EventSource = EventSource;
 
 export type MCPServerConfig = {
   mcpServers: {
@@ -15,7 +20,8 @@ export type MCPServerConfig = {
       url: string;
       env?: Record<string, string>;
       isEnabled: boolean;
-      type: string;
+      type: string;  // "sse", "stdio", or "streamable-http"
+      headers?: Record<string, string>;  // Added headers for HTTP/SSE requests
     };
   };
 
@@ -67,8 +73,26 @@ export async function createToolSet(config: MCPServerConfig): Promise<ToolSet> {
     let transport: Transport;
     try {
       if (serverConfig.type === "sse") {
-        // Refer https://github.com/modelcontextprotocol/typescript-sdk/issues/213#issuecomment-2758113743 for workarounds.
-        transport = new SSEClientTransport(new URL(serverConfig.url));
+        transport = new SSEClientTransport(new URL(serverConfig.url), {
+          requestInit: {
+            headers: serverConfig.headers,
+          },
+          eventSourceInit: {
+            fetch: (url, init) => {
+              const headers = new Headers(init?.headers || {});
+              return fetch(url, {
+                ...init,
+                headers
+              });
+            }
+          }
+        });
+      } else if (serverConfig.type === "streamable-http") {
+        transport = new StreamableHTTPClientTransport(new URL(serverConfig.url), {
+          requestInit: {
+            headers: serverConfig.headers,
+          },
+        });
       } else {
         transport = new StdioClientTransport({
           command: serverConfig.command,
@@ -91,7 +115,7 @@ export async function createToolSet(config: MCPServerConfig): Promise<ToolSet> {
 
       const client = new Client(
         {
-          name: `${serverName}-client`,
+          name: "ChatGPT Copilot (VSCode Extension)",
           version: "1.0.0",
         },
         {

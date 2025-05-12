@@ -7,13 +7,14 @@ import * as vscode from "vscode";
 export interface MCPServer {
   id: string;
   name: string;
-  type: string;
+  type: string;  // "sse", "stdio", or "streamable-http"
   isEnabled: boolean;
   command?: string;
   url?: string;
   arguments?: string[];
   env?: Record<string, string>;
   tools?: string[];
+  headers?: Record<string, string>;  // Added headers for HTTP/SSE requests
 }
 
 export interface MCPServerStore {
@@ -26,7 +27,7 @@ export interface MCPServerStore {
 
 export default class MCPServerProvider implements vscode.WebviewViewProvider {
   private webView?: vscode.WebviewView;
-  private store: { servers: MCPServer[] } = { servers: [] };
+  private store: { servers: MCPServer[]; } = { servers: [] };
   private _panel?: vscode.WebviewPanel;
 
   constructor(private context: vscode.ExtensionContext) {
@@ -34,7 +35,7 @@ export default class MCPServerProvider implements vscode.WebviewViewProvider {
   }
 
   private loadServers() {
-    this.store = this.context.globalState.get<{ servers: MCPServer[] }>(
+    this.store = this.context.globalState.get<{ servers: MCPServer[]; }>(
       "mcpServers",
       { servers: [] },
     );

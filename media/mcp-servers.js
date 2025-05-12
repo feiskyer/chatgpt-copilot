@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="server-details">
                     <div>${server.type}</div>
                     <div>${server.isEnabled ? 'Enabled' : 'Disabled'}</div>
-                    ${server.type === 'sse'
+                    ${server.type === 'sse' || server.type === 'streamable-http'
                     ? `<div>URL: ${server.url || ''}</div>`
                     : `${server.command ? `<div>Command: ${server.command}</div>` : ''}
                            ${server.arguments && server.arguments.length > 0
@@ -143,6 +143,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 ${server.env && Object.keys(server.env).length > 0
                     ? `<div>Environment: ${Object.entries(server.env)
+                        .map(([key, value]) => `${key}=${value}`)
+                        .join('; ')}</div>`
+                    : ''}
+                ${server.headers && Object.keys(server.headers).length > 0
+                    ? `<div>Headers: ${Object.entries(server.headers)
                         .map(([key, value]) => `${key}=${value}`)
                         .join('; ')}</div>`
                     : ''}
@@ -260,24 +265,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     <select id="server-type" name="type" class="form-input" required>
                     <option value="local" ${isEdit && server.type === 'local' ? 'selected' : ''}>Local</option>
                     <option value="sse" ${isEdit && server.type === 'sse' ? 'selected' : ''}>SSE</option>
+                    <option value="streamable-http" ${isEdit && server.type === 'streamable-http' ? 'selected' : ''}>Streamable HTTP</option>
                     </select>
                 </div>
-                <div class="form-group command-group" ${isEdit && server.type === 'sse' ? 'style="display:none"' : ''}>
+                <div class="form-group command-group" ${isEdit && (server.type === 'sse' || server.type === 'streamable-http') ? 'style="display:none"' : ''}>
                     <label for="command" class="form-label">Command</label>
                     <input type="text" id="command" name="command" class="form-input" value="${isEdit && server.command ? server.command : ''}">
                 </div>
-                <div class="form-group command-group" ${isEdit && server.type === 'sse' ? 'style="display:none"' : ''}>
+                <div class="form-group command-group" ${isEdit && (server.type === 'sse' || server.type === 'streamable-http') ? 'style="display:none"' : ''}>
                     <label for="arguments" class="form-label">Arguments (space-separated)</label>
                     <input type="text" id="arguments" name="arguments" class="form-input"
                        value="${isEdit && server.arguments ? escapeHtml(formatArgumentsForDisplay(server.arguments)) : ''}">
                 </div>
-                <div class="form-group url-group" ${isEdit && server.type === 'sse' ? '' : 'style="display:none"'}>
+                <div class="form-group url-group" ${isEdit && (server.type === 'sse' || server.type === 'streamable-http') ? '' : 'style="display:none"'}>
                     <label for="url" class="form-label">URL</label>
                     <input type="url" id="url" name="url" class="form-input" value="${isEdit && server.url ? escapeHtml(server.url) : ''}">
                 </div>
                 <div class="form-group">
                     <label for="env" class="form-label">Environment Variables (key=value;key=value)</label>
                     <input type="text" id="env" name="env" class="form-input" value="${isEdit && server.env ? escapeHtml(formatEnvForDisplay(server.env)) : ''}">
+                </div>
+                 <div class="form-group">
+                    <label for="headers" class="form-label">Headers (key=value;key=value)</label>
+                    <input type="text" id="headers" name="headers" class="form-input" value="${isEdit && server.headers ? escapeHtml(formatEnvForDisplay(server.headers)) : ''}">
                 </div>
                 <div class="form-group">
                     <label class="form-label" style="display: inline-flex; align-items: center; gap: 8px;">
@@ -308,9 +318,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const urlGroup = dialogOverlay.querySelector('.url-group');
 
         serverTypeSelect.addEventListener('change', (e) => {
-            const isSSE = e.target.value === 'sse';
-            commandGroups.forEach(group => group.style.display = isSSE ? 'none' : '');
-            urlGroup.style.display = isSSE ? '' : 'none';
+            const isHTTP = e.target.value === 'sse' || e.target.value === 'streamable-http';
+            commandGroups.forEach(group => group.style.display = isHTTP ? 'none' : '');
+            urlGroup.style.display = isHTTP ? '' : 'none';
         });
 
         document.body.appendChild(dialogOverlay);
@@ -462,6 +472,33 @@ document.addEventListener('DOMContentLoaded', () => {
             if (Object.keys(envObject).length > 0) {
                 serverData.env = envObject;
             }
+        } else {
+            serverData.env = {};
+        }
+
+        // Parse headers from string format "key=value;key=value" into an object
+        const headerString = formData.get('headers') || '';
+        if (headerString.trim()) {
+            const headerObject = {};
+            const headerPairs = headerString.split(';');
+
+            headerPairs.forEach(pair => {
+                const parts = pair.trim().split('=');
+                if (parts.length === 2) {
+                    const key = parts[0].trim();
+                    const value = parts[1].trim();
+                    if (key) {
+                        headerObject[key] = value;
+                    }
+                }
+            });
+
+            // Only add env if we have at least one valid key-value pair
+            if (Object.keys(headerObject).length > 0) {
+                serverData.headers = headerObject;
+            }
+        } else {
+            serverData.headers = {};
         }
 
         if (id) {
