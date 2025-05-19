@@ -739,10 +739,10 @@
     "@types/node" "*"
     form-data "^4.0.0"
 
-"@types/node@*":
-  version "22.14.0"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.14.0.tgz#d3bfa3936fef0dbacd79ea3eb17d521c628bb47e"
-  integrity sha512-Kmpl+z84ILoG+3T/zQFyAJsU6EPTmOCj8/2+83fSN6djd6I4o7uOuGIH6vq3PrjY5BGitSbFuMN18j3iknubbA==
+"@types/node@*", "@types/node@^22.15.3":
+  version "22.15.3"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.3.tgz#b7fb9396a8ec5b5dfb1345d8ac2502060e9af68b"
+  integrity sha512-lX7HFZeHf4QG/J7tBZqrCAXwz9J5RD56Y6MpP0eJkka8p+K0RY/yBTW7CYFJ4VGCclxqOLKmiGP5juQc6MKgcw==
   dependencies:
     undici-types "~6.21.0"
 
@@ -752,13 +752,6 @@
   integrity sha512-fifKayi175wLyKyc5qUfyENhQ1dCNI1UNjp653d8kuYcPQN5JhX3dGuP/XmvPTg/xRBn1VTLpbmi+H/Mr7tLfQ==
   dependencies:
     undici-types "~5.26.4"
-
-"@types/node@^22.15.3":
-  version "22.15.3"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.3.tgz#b7fb9396a8ec5b5dfb1345d8ac2502060e9af68b"
-  integrity sha512-lX7HFZeHf4QG/J7tBZqrCAXwz9J5RD56Y6MpP0eJkka8p+K0RY/yBTW7CYFJ4VGCclxqOLKmiGP5juQc6MKgcw==
-  dependencies:
-    undici-types "~6.21.0"
 
 "@types/react-dom@^19":
   version "19.1.2"
@@ -3557,10 +3550,10 @@ open@^10.1.0:
     is-inside-container "^1.0.0"
     is-wsl "^3.1.0"
 
-openai@^4.96.2:
-  version "4.96.2"
-  resolved "https://registry.yarnpkg.com/openai/-/openai-4.96.2.tgz#a7d360597f273a5f6ed8dd22914e598013022fa4"
-  integrity sha512-R2XnxvMsizkROr7BV3uNp1q/3skwPZ7fmPjO1bXLnfB4Tu5xKxrT1EVwzjhxn0MZKBKAvOaGWS63jTMN6KrIXA==
+openai@^4.100.0:
+  version "4.100.0"
+  resolved "https://registry.yarnpkg.com/openai/-/openai-4.100.0.tgz#eb630a97f3531b7c91906b3a42920f9873efa392"
+  integrity sha512-9soq/wukv3utxcuD7TWFqKdKp0INWdeyhUCvxwrne5KwnxaCp4eHL4GdT/tMFhYolxgNhxFzg5GFwM331Z5CZg==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
