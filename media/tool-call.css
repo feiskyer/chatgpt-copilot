@@ -1,0 +1,353 @@
+/* Enhanced Tool Call Styles - Claude-inspired Design */
+
+.tool-call-block {
+    background: var(--vscode-editorWidget-background);
+    border: 1px solid var(--vscode-editorWidget-border);
+    border-radius: 8px;
+    margin: 12px 0;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.tool-call-block:hover {
+    border-color: var(--vscode-focusBorder);
+}
+
+.tool-call-header {
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    user-select: none;
+    background: var(--vscode-editorWidget-background);
+    border-bottom: 1px solid var(--vscode-editorWidget-border);
+    transition: background-color 0.2s ease;
+}
+
+.tool-call-header:hover {
+    background: var(--vscode-list-hoverBackground);
+}
+
+/* Chevron icon for expand/collapse */
+.tool-chevron {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s ease;
+    color: var(--vscode-foreground);
+    flex-shrink: 0;
+}
+
+/* Tool name and icon container */
+.tool-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.tool-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--vscode-symbolIcon-functionForeground);
+    flex-shrink: 0;
+}
+
+.tool-name {
+    font-weight: 500;
+    color: var(--vscode-foreground);
+    font-size: 14px;
+}
+
+/* Status badge */
+.tool-status {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+
+.status-running {
+    background: var(--vscode-editorInfo-background);
+    color: var(--vscode-editorInfo-foreground);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.status-success {
+    background: rgba(34, 197, 94, 0.2); /* Green background */
+    color: rgb(34, 197, 94); /* Green text */
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.status-error {
+    background: rgba(239, 68, 68, 0.2); /* Red background */
+    color: rgb(239, 68, 68); /* Red text */
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 0.8;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Tool call content area */
+.tool-call-content {
+    padding: 16px;
+    background: var(--vscode-editor-background);
+    overflow-y: auto;
+    transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+    max-height: 600px;
+    opacity: 1;
+}
+
+.tool-call-content.collapsed {
+    max-height: 0 !important;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* Arguments section */
+.tool-call-args {
+    margin-bottom: 16px;
+}
+
+.args-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.section-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--vscode-descriptionForeground);
+}
+
+.copy-button {
+    padding: 4px 8px;
+    font-size: 11px;
+    background: var(--vscode-button-secondaryBackground);
+    color: var(--vscode-button-secondaryForeground);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.copy-button:hover {
+    background: var(--vscode-button-secondaryHoverBackground);
+}
+
+.copy-button.copy-success {
+    background: var(--vscode-terminal-ansiGreen);
+    color: white;
+}
+
+/* Code blocks within tool calls */
+.tool-call-content pre {
+    margin: 8px 0;
+    background: var(--vscode-textCodeBlock-background);
+    border: 1px solid var(--vscode-editorWidget-border);
+    border-radius: 6px;
+    overflow-x: auto;
+}
+
+.tool-call-content pre code {
+    display: block;
+    padding: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    font-family: var(--vscode-editor-font-family);
+}
+
+/* Result section */
+.tool-call-result {
+    border-top: 1px solid var(--vscode-editorWidget-border);
+    padding-top: 16px;
+    margin-top: 16px;
+}
+
+.tool-call-result:empty {
+    display: none;
+}
+
+.tool-call-result .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--vscode-descriptionForeground);
+    margin-bottom: 8px;
+}
+
+/* Empty state for results */
+.result-empty {
+    color: var(--vscode-descriptionForeground);
+    font-style: italic;
+    padding: 8px 0;
+}
+
+/* Scrollbar styling */
+.tool-call-content::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.tool-call-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.tool-call-content::-webkit-scrollbar-thumb {
+    background: var(--vscode-scrollbarSlider-background);
+    border-radius: 4px;
+}
+
+.tool-call-content::-webkit-scrollbar-thumb:hover {
+    background: var(--vscode-scrollbarSlider-hoverBackground);
+}
+
+/* Batch controls */
+.tool-call-controls {
+    display: flex;
+    gap: 8px;
+    margin: 8px 0;
+    justify-content: flex-end;
+}
+
+.tool-call-controls button {
+    padding: 4px 12px;
+    font-size: 12px;
+    background: var(--vscode-button-secondaryBackground);
+    color: var(--vscode-button-secondaryForeground);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tool-call-controls button:hover {
+    background: var(--vscode-button-secondaryHoverBackground);
+}
+
+/* Tool result formatting */
+.tool-call-result p {
+    margin: 8px 0;
+    line-height: 1.6;
+}
+
+.tool-call-result ul,
+.tool-call-result ol {
+    margin: 8px 0;
+    padding-left: 24px;
+}
+
+.tool-call-result li {
+    margin: 4px 0;
+}
+
+.tool-call-result img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin: 8px 0;
+}
+
+.tool-call-result table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0;
+}
+
+.tool-call-result th,
+.tool-call-result td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid var(--vscode-editorWidget-border);
+}
+
+.tool-call-result th {
+    background: var(--vscode-editor-background);
+    font-weight: 600;
+}
+
+/* Loading state */
+.tool-loading {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--vscode-descriptionForeground);
+}
+
+.tool-loading-spinner {
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--vscode-progressBar-background);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Streaming result indicator */
+.result-streaming::after {
+    content: "▋";
+    animation: blink 1s steps(5, start) infinite;
+    margin-left: 2px;
+    vertical-align: baseline;
+}
+
+@keyframes blink {
+    to {
+        visibility: hidden;
+    }
+}
+
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+    .tool-call-block {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+}
+
+/* Light theme adjustments */
+@media (prefers-color-scheme: light) {
+    .tool-call-block {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+    .tool-call-header {
+        padding: 10px 12px;
+    }
+
+    .tool-call-content {
+        padding: 12px;
+    }
+
+    .tool-name {
+        font-size: 13px;
+    }
+}

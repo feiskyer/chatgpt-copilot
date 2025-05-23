@@ -139,28 +139,32 @@
 
             case "addResponse":
                 let existingMessage = message.id && document.getElementById(message.id);
-                let updatedValue = "";
 
                 const unEscapeHtml = (unsafe) => {
                     return unsafe.replaceAll('&amp;', '&').replaceAll('&lt;', '<').replaceAll('&gt;', '>').replaceAll('&quot;', '"').replaceAll('&#039;', "'");
                 };
 
-                if (!message.responseInMarkdown) {
-                    updatedValue = "```\r\n" + unEscapeHtml(message.value) + " \r\n ```";
-                } else {
-                    updatedValue = message.value.split("```").length % 2 === 1 ? message.value : message.value + "\n\n```\n\n";
-                }
+                // Check if this update contains any tool-result tags
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = message.value;
+                const hasToolResult = tempDiv.querySelector('tool-result');
 
-                const markedResponse = marked.parse(updatedValue.trim().replace(/^\s+|\s+$/g, ''));
-
+                let updatedValue = message.value.split("```").length % 2 === 1 ? message.value : message.value + "\n\n```\n\n";
+                let formattedResponse = marked.parse(updatedValue.trim().replace(/^\s+|\s+$/g, ''));
                 if (existingMessage) {
-                    existingMessage.innerHTML = markedResponse;
+                    existingMessage.innerHTML = formattedResponse;
                 } else {
                     list.innerHTML +=
                         `<div class="p-4 self-end mt-2 pb-4 answer-element-ext">
-                        <div class="result-streaming" id="${message.id}">${markedResponse}</div>
+                        <div class="result-streaming" id="${message.id}">${formattedResponse}</div>
                     </div>`;
                 }
+
+                // Initialize tool call blocks with collapsed state
+                const toolCallBlocks = list.querySelectorAll('.tool-call-header:not(.initialized)');
+                toolCallBlocks.forEach(header => {
+                    header.classList.add('collapsed', 'initialized');
+                });
 
                 if (message.done) {
                     const preCodeList = list.lastChild.querySelectorAll("pre > code");

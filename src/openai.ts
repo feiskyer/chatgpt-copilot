@@ -23,6 +23,7 @@ import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
 import { ModelConfig, getHeaders } from "./model-config";
 import { isOpenAIOModel, isReasoningModel } from "./types";
+import { fetchOpenAI } from "./utils";
 
 const azureAPIVersion = "2025-02-01-preview";
 
@@ -41,6 +42,7 @@ export async function initGptModel(
       resourceName: instanceName,
       apiKey: config.apiKey,
       apiVersion: azureAPIVersion,
+      fetch: fetchOpenAI, // workaround for https://github.com/vercel/ai/issues/4662
     });
 
     if (config.isReasoning) {
@@ -64,6 +66,7 @@ export async function initGptModel(
       baseURL: config.apiBaseUrl,
       apiKey: config.apiKey,
       organization: config.organization,
+      fetch: fetchOpenAI, // workaround for https://github.com/vercel/ai/issues/4662
     });
 
     if (config.isReasoning) {
@@ -127,6 +130,8 @@ export async function chatGpt(
 
     const chunks = [];
     const reasonChunks = [];
+    // Add a counter for tool calls to generate unique IDs
+    let toolCallCounter = 0;
     provider.chatHistory.push(chatMessage);
     const modelName = provider.model ? provider.model : "gpt-4o";
     var inputs: any = {
@@ -178,9 +183,48 @@ export async function chatGpt(
             }
           }
 
-          const toolCallText = `\nCalling tool ${part.toolName} with args\n\`\`\`json\n${JSON.stringify(formattedArgs, null, 2)}\n\`\`\`\n`;
-          updateResponse(toolCallText);
-          chunks.push(toolCallText);
+          // Generate a unique ID for this tool call
+          toolCallCounter++;
+          const toolCallId = `tool-call-${Date.now()}-${toolCallCounter}`;
+
+          // Create tool icon based on the tool name
+          const toolIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="tool-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+</svg>`;
+
+          // Create an enhanced collapsible HTML structure for the tool call
+          const toolCallHtml = `
+<div class="tool-call-block" id="${toolCallId}" data-tool-name="${part.toolName}" data-tool-counter="${toolCallCounter}">
+  <div class="tool-call-header" onclick="toggleToolCall('${toolCallId}')">
+    <svg class="tool-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M9 18l6-6-6-6"/>
+    </svg>
+    <div class="tool-info">
+      ${toolIcon}
+      <span class="tool-name">${part.toolName}</span>
+    </div>
+    <span class="tool-status status-running">Running</span>
+  </div>
+  <div class="tool-call-content collapsed">
+    <div class="tool-call-args">
+      <div class="args-header">
+        <span class="section-label">Arguments</span>
+        <button class="copy-button" onclick="copyToolArgs(this, '${toolCallId}')">Copy</button>
+      </div>
+      <pre><code class="language-json">${JSON.stringify(formattedArgs, null, 2)}</code></pre>
+    </div>
+    <div class="tool-call-result">
+      <div class="tool-loading">
+        <div class="tool-loading-spinner"></div>
+        <span>Waiting for result...</span>
+      </div>
+    </div>
+  </div>
+</div>`;
+
+          updateResponse(toolCallHtml);
+          chunks.push(toolCallHtml);
           break;
         }
 
@@ -200,9 +244,12 @@ export async function chatGpt(
               formattedResult = part.result;
             }
           }
-
+          // Create a special marker for tool results that will be processed by tool-call.js
           // @ts-ignore
-          const toolResultText = `\nTool ${part.toolName} result:\n\`\`\`json\n${JSON.stringify(formattedResult, null, 2)}\n\`\`\`\n`;
+          // Store the complete result object with full structure to allow proper extraction in tool-call.js
+          const toolResultText = `<tool-result data-tool-name="${part.toolName}" data-counter="${toolCallCounter}">
+          ${JSON.stringify(formattedResult)}
+          </tool-result>`;
 
           updateResponse(toolResultText);
           chunks.push(toolResultText);

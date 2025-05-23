@@ -1179,6 +1179,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 				<script src="${vendorTurndownJs}"></script>
         <script src="${vendorJqueryJs}"></script>
         <script src="${vendorJqueryUIMinJs}"></script>
+        <link href="${webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "tool-call.css"))}" rel="stylesheet">
+        <script src="${webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "tool-call.js"))}"></script>
        </head>
       <body class="overflow-hidden">
 				<div class="flex flex-col h-screen">

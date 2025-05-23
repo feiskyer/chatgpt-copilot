@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v4.9.0
+
+* Refine tool call UX for MCP
+* Add new claude 4 and Gemini 2.5 Pro models
+* Fix tool call schema issues for OpenAI/AzureOpenAI o-series models
+
 ## v4.8.3
 
 * Add request headers
