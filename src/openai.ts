@@ -23,7 +23,7 @@ import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
 import { ModelConfig, getHeaders } from "./model-config";
 import { isOpenAIOModel, isReasoningModel } from "./types";
-import { fetchOpenAI } from "./utils";
+import { fetchOpenAI, setDisableSSLVerification } from "./utils";
 
 const azureAPIVersion = "2025-02-01-preview";
 
@@ -32,6 +32,9 @@ export async function initGptModel(
   viewProvider: ChatGptViewProvider,
   config: ModelConfig,
 ) {
+  // Set SSL verification option
+  setDisableSSLVerification(config.disableSSLVerification);
+  
   // AzureOpenAI
   if (config.apiBaseUrl?.includes("openai.azure.com")) {
     const instanceName = config.apiBaseUrl.split(".")[0].split("//")[1];
