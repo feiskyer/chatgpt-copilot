@@ -682,7 +682,7 @@
     "@ai-sdk/togetherai": "^0.2.14",
     "@ai-sdk/xai": "^1.2.16",
     "@modelcontextprotocol/sdk": "^1.12.0",
-    "@openrouter/ai-sdk-provider": "^0.4.6",
+    "@openrouter/ai-sdk-provider": "^0.5.0",
     "@quail-ai/azure-ai-provider": "1.2.0",
     "@types/minimatch": "^5.1.2",
     "ai": "^4.3.16",
