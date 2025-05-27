@@ -42,7 +42,7 @@ export async function initGptModel(
       resourceName: instanceName,
       apiKey: config.apiKey,
       apiVersion: azureAPIVersion,
-      fetch: fetchOpenAI, // workaround for https://github.com/vercel/ai/issues/4662
+      fetch: (url: string, options: RequestInit) => fetchOpenAI(url, options, config.sslVerify), // workaround for https://github.com/vercel/ai/issues/4662
     });
 
     if (config.isReasoning) {
@@ -66,7 +66,7 @@ export async function initGptModel(
       baseURL: config.apiBaseUrl,
       apiKey: config.apiKey,
       organization: config.organization,
-      fetch: fetchOpenAI, // workaround for https://github.com/vercel/ai/issues/4662
+      fetch: (url: string, options: RequestInit) => fetchOpenAI(url, options, config.sslVerify), // workaround for https://github.com/vercel/ai/issues/4662
     });
 
     if (config.isReasoning) {

@@ -36,6 +36,7 @@ export async function activate(context: vscode.ExtensionContext) {
     context.globalState.get("chatgpt-adhoc-prompt") || "";
 
   const provider = new ChatGptViewProvider(context);
+  provider.sslVerify = !!vscode.workspace.getConfiguration("chatgpt").get("ssl.verify");
 
   const view = vscode.window.registerWebviewViewProvider(
     "chatgpt-copilot.view",
@@ -106,6 +107,12 @@ export async function activate(context: vscode.ExtensionContext) {
         .get("gpt3.model");
     }
 
+    if (e.affectsConfiguration("chatgpt.ssl.verify")) {
+      provider.sslVerify = !!vscode.workspace
+        .getConfiguration("chatgpt")
+        .get("ssl.verify");
+    }
+
     if (e.affectsConfiguration("chatgpt.gpt3.customModel")) {
       if (provider.model === "custom") {
         provider.model = vscode.workspace
@@ -129,7 +136,8 @@ export async function activate(context: vscode.ExtensionContext) {
       e.affectsConfiguration("chatgpt.gpt3.reasoning.apiBaseUrl") ||
       e.affectsConfiguration("chatgpt.gpt3.reasoning.organization") ||
       e.affectsConfiguration("chatgpt.systemPrompt") ||
-      e.affectsConfiguration("chatgpt.gpt3.top_p")
+      e.affectsConfiguration("chatgpt.gpt3.top_p") ||
+      e.affectsConfiguration("chatgpt.ssl.verify")
     ) {
       provider.prepareConversation(true);
     }

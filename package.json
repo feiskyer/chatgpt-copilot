@@ -337,6 +337,12 @@
           "markdownDescription": "Optional override for the API base URL. Please start with `https://` without a trailing slash. The completions endpoint suffix is added internally, e.g. for reference: `${apiBaseUrl}/v1/completions`",
           "order": 2
         },
+        "chatgpt.ssl.verify": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Controls SSL certificate verification. Set to `false` if you are using a custom OpenAI-compatible endpoint with a self-signed certificate.",
+          "order": 3
+        },
         "chatgpt.gpt3.organization": {
           "type": "string",
           "markdownDescription": "OpenAI Organization ID. [Documentation](https://beta.openai.com/docs/api-reference/requesting-organization).",

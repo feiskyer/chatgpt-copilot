@@ -51,6 +51,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public autoScroll: boolean;
   public provider: string = "Auto";
   public model?: string;
+  public sslVerify: boolean = true;
   public reasoningEffort: string = "high";
   public maxSteps: number = 0;
   private apiBaseUrl?: string;
@@ -119,6 +120,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.maxSteps = vscode.workspace
       .getConfiguration("chatgpt")
       .get("gpt3.maxSteps") as number;
+    this.sslVerify = !!vscode.workspace.getConfiguration("chatgpt").get("ssl.verify");
 
     this.reasoningModel = vscode.workspace
       .getConfiguration("chatgpt")
@@ -668,6 +670,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         organization,
         systemPrompt,
         searchGrounding,
+        sslVerify: this.sslVerify,
         isReasoning: false,
       });
       if (this.reasoningModel != "") {
@@ -690,6 +693,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           organization,
           systemPrompt: "",
           searchGrounding,
+          sslVerify: this.sslVerify,
           isReasoning: true,
         });
       }
