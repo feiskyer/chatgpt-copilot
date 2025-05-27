@@ -56,6 +56,7 @@ Configure the extension by setting your API keys and preferences in the settings
 | ------------- | ----------- |
 | API Key     | Required, get from [OpenAI](https://platform.openai.com/account/api-keys), [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service), [Anthropic](https://console.anthropic.com/settings/keys) or other AI services |
 | API Base URL | Optional, default to "<https://api.openai.com/v1>" |
+| Disable SSL Verification | Optional, set to true when connecting to internal OpenAI instances with self-signed certificates |
 | Model      | Optional, default to "gpt-4o" |
 
 Refer to the following sections for more details on configuring various AI services.

@@ -24,6 +24,7 @@ export class ModelConfig {
   public systemPromptOverride: string;
   public searchGrounding: boolean;
   public isReasoning: boolean;
+  public disableSSLVerification: boolean;
 
   constructor({
     provider,
@@ -37,6 +38,7 @@ export class ModelConfig {
     systemPromptOverride,
     searchGrounding,
     isReasoning,
+    disableSSLVerification,
   }: {
     provider: string;
     apiKey: string;
@@ -49,6 +51,7 @@ export class ModelConfig {
     systemPromptOverride?: string;
     searchGrounding?: boolean;
     isReasoning?: boolean;
+    disableSSLVerification?: boolean;
   }) {
     this.provider = provider;
     this.apiKey = apiKey;
@@ -61,6 +64,7 @@ export class ModelConfig {
     this.systemPromptOverride = systemPromptOverride ?? "";
     this.searchGrounding = searchGrounding ?? false;
     this.isReasoning = isReasoning ?? false;
+    this.disableSSLVerification = disableSSLVerification ?? false;
   }
 }
 

@@ -11,6 +11,13 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  */
+
+let disableSSLVerification = false;
+
+export function setDisableSSLVerification(value: boolean) {
+    disableSSLVerification = value;
+}
+
 export async function fetchOpenAI(url: RequestInfo | URL, options?: RequestInit): Promise<Response> {
     if (!options?.body) {
         return fetch(url, options);
@@ -46,6 +53,18 @@ export async function fetchOpenAI(url: RequestInfo | URL, options?: RequestInit)
             null,
             2
         )}`);
+
+    // Configure fetch to ignore SSL verification if disabled
+    if (disableSSLVerification) {
+        // @ts-ignore - Node.js specific options
+        if (!newOptions.agent) {
+            const https = require('https');
+            // @ts-ignore - Node.js specific options
+            newOptions.agent = new https.Agent({
+                rejectUnauthorized: false
+            });
+        }
+    }
 
     // Make the actual fetch call
     return fetch(url, newOptions);

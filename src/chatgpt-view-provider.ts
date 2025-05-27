@@ -599,6 +599,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       }
 
       let apiBaseUrl = configuration.get("gpt3.apiBaseUrl") as string;
+      const disableSSLVerification = configuration.get("gpt3.disableSSLVerification") as boolean;
       if (!apiBaseUrl && this.isOpenAIModel) {
         apiBaseUrl = "https://api.openai.com/v1";
       }
@@ -669,6 +670,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         systemPrompt,
         searchGrounding,
         isReasoning: false,
+        disableSSLVerification,
       });
       if (this.reasoningModel != "") {
         const provider = this.reasoningModelProvider;
@@ -691,6 +693,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           systemPrompt: "",
           searchGrounding,
           isReasoning: true,
+          disableSSLVerification,
         });
       }
 
