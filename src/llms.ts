@@ -176,6 +176,11 @@ export async function initXAIModel(
     apiBaseUrl = "https://api.x.ai/v1";
   }
 
+  // Ensure the base URL includes the /v1 path component
+  if (apiBaseUrl && !apiBaseUrl.endsWith('/v1') && !apiBaseUrl.includes('/v1/')) {
+    apiBaseUrl = `${apiBaseUrl}/v1`;
+  }
+
   const ai = createXai({
     baseURL: apiBaseUrl,
     apiKey: config.apiKey,
