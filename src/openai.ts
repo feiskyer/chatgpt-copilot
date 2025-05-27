@@ -256,14 +256,11 @@ export async function chatGpt(
           break;
         }
 
-        case "error":
-          chunks.push(`Request failed: ${part.error}`);
-          provider.sendMessage({
-            type: "addError",
-            value: `Request failed: ${part.error}`,
-            autoScroll: provider.autoScroll,
-          });
-          break;
+        case "error": {
+          // raise the error to be caught by the catch block
+          throw new Error(`${part.error}`);
+        }
+
 
         default: {
           logger.appendLine(
