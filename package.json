@@ -711,7 +711,7 @@
     "strip-markdown": "^6.0.0",
     "uri-js": "^4.4.1",
     "uuid": "^11.1.0",
-    "zod": "^3.25.23"
+    "zod": "^3.25.32"
   },
   "resolutions": {
     "punycode": "2.3.1",
