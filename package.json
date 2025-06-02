@@ -630,6 +630,12 @@
           "default": 15,
           "markdownDescription": "Max steps for agent mode (useful when using MCP servers).",
           "order": 155
+        },
+        "chatgpt.promptBasedTools.enabled": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Enable prompt-based tool calls for models that don't support native tool calling. This allows tool usage through text parsing instead of native API support.",
+          "order": 156
         }
       }
     }

@@ -937,14 +937,32 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           updateReasoning,
         );
       } else {
-        await chatGpt(
-          this,
-          question,
-          imageFiles,
-          startResponse,
-          updateResponse,
-          updateReasoning,
-        );
+        // Check if we should use prompt-based tools
+        const configuration = vscode.workspace.getConfiguration("chatgpt");
+        const promptBasedToolsEnabled = configuration.get("promptBasedTools.enabled") || false;
+
+        if (promptBasedToolsEnabled && this.toolSet && Object.keys(this.toolSet.tools).length > 0) {
+          // Use prompt-based tools implementation
+          const { chatGptWithPromptTools } = require("./prompt-based-chat");
+          await chatGptWithPromptTools(
+            this,
+            question,
+            imageFiles,
+            startResponse,
+            updateResponse,
+            updateReasoning,
+          );
+        } else {
+          // Use LLM tools call
+          await chatGpt(
+            this,
+            question,
+            imageFiles,
+            startResponse,
+            updateResponse,
+            updateReasoning,
+          );
+        }
       }
 
       if (options.previousAnswer != null) {

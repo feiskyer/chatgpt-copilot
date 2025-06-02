@@ -21,7 +21,7 @@ import {
 } from "ai";
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
-import { ModelConfig, getHeaders } from "./model-config";
+import { getHeaders, ModelConfig } from "./model-config";
 import { isOpenAIOModel, isReasoningModel } from "./types";
 import { fetchOpenAI } from "./utils";
 

@@ -41,3 +41,24 @@ export function isReasoningModel(model: string) {
     m.includes("qwen3")
   );
 }
+
+// Prompt-based tool call types
+export interface PromptBasedToolCall {
+  id: string;
+  toolName: string;
+  arguments: Record<string, any>;
+  rawText: string;
+}
+
+export interface PromptBasedToolResult {
+  id: string;
+  toolName: string;
+  result: any;
+  error?: string;
+}
+
+export interface PromptBasedToolConfig {
+  enabled: boolean;
+  toolCallPattern: string;
+  maxToolCalls: number;
+}
