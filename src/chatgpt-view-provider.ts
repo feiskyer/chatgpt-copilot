@@ -945,6 +945,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           imageFiles,
           startResponse,
           updateResponse,
+          updateReasoning,
         );
       } else if (this.reasoningModel != "") {
         await reasoningChat(
