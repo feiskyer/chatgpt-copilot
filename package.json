@@ -410,7 +410,7 @@
         },
         "chatgpt.gpt3.maxTokens": {
           "type": "number",
-          "default": 1024,
+          "default": 0,
           "markdownDescription": "The maximum number of tokens to generate in the completion. \n\nThe token count of your prompt plus max_tokens cannot exceed the model's context length. Most models have a context length of 2048 tokens (except for the newest models, which support 4096). [Documentation](https://beta.openai.com/docs/api-reference/completions/create#completions/create-max_tokens)**",
           "order": 6
         },

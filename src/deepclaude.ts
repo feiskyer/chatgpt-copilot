@@ -24,7 +24,7 @@ export async function reasoningChat(
   images: Record<string, string>,
   startResponse: () => void,
   updateResponse: (message: string) => void,
-  updateReasoning: (message: string) => void,
+  updateReasoning: (message: string, roundNumber?: number) => void,
 ) {
   if (!provider.apiChat) {
     throw new Error("apiChat is undefined");
@@ -71,12 +71,14 @@ export async function reasoningChat(
           providerOptions: {
             openai: {
               reasoningEffort: provider.reasoningEffort,
-              maxCompletionTokens: provider.modelConfig.maxTokens,
+              ...provider.modelConfig.maxTokens > 0 && {
+                maxCompletionTokens: provider.modelConfig.maxTokens,
+              },
             },
           },
         }),
         ...(!isOpenAIOModel(provider.reasoningModel) && {
-          maxTokens: provider.modelConfig.maxTokens,
+          maxTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
           temperature: provider.modelConfig.temperature,
           // topP: provider.modelConfig.topP,
         }),
@@ -98,14 +100,14 @@ export async function reasoningChat(
                 reasoningDone = true;
               }
             } else {
-              updateReasoning(part.textDelta);
+              updateReasoning(part.textDelta, 1); // First reasoning phase
               chunks.push(part.textDelta);
             }
             break;
           }
           case "reasoning": {
             hasReasoning = true;
-            updateReasoning(part.textDelta);
+            updateReasoning(part.textDelta, 1); // First reasoning phase
             reasonChunks.push(part.textDelta);
             break;
           }
@@ -184,12 +186,14 @@ export async function reasoningChat(
         providerOptions: {
           openai: {
             reasoningEffort: provider.reasoningEffort,
-            maxCompletionTokens: provider.modelConfig.maxTokens,
+            ...provider.modelConfig.maxTokens > 0 && {
+              maxCompletionTokens: provider.modelConfig.maxTokens,
+            },
           },
         },
       }),
       ...(!isOpenAIOModel(provider.model ? provider.model : "") && {
-        maxTokens: provider.modelConfig.maxTokens,
+        maxTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
         temperature: provider.modelConfig.temperature,
         // topP: provider.modelConfig.topP,
       }),
@@ -203,7 +207,7 @@ export async function reasoningChat(
           break;
         }
         case "reasoning": {
-          updateReasoning(part.textDelta);
+          updateReasoning(part.textDelta, 2); // Second reasoning phase (chat phase)
           reasonChunks.push(part.textDelta);
           break;
         }

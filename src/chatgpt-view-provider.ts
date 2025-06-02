@@ -72,6 +72,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public response: string = "";
   public chatHistory: CoreMessage[] = [];
   public toolSet?: ToolSet;
+  public reasoningRounds: Map<string, number> = new Map(); // Track reasoning rounds per message
+  public contentSequence: number = 0; // Sequence counter for ordering content
   /**
    * Message to be rendered lazily if they haven't been rendered
    * in time before resolveWebviewView is called.
@@ -193,6 +195,11 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
             files: {},
             filesSent: false,
           };
+          // Clear reasoning-related state
+          this.reasoning = "";
+          this.response = "";
+          this.reasoningRounds.clear();
+          this.contentSequence = 0;
           this.sendMessage({
             type: "clearFileReferences",
           });
@@ -843,6 +850,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       showStopButton: true,
     });
     this.currentMessageId = this.getRandomId();
+    this.contentSequence = 0; // Reset sequence counter for new message
 
     this.sendMessage({
       type: "addQuestion",
@@ -869,21 +877,32 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         value: this.response,
         id: this.currentMessageId,
         messageId: this.currentMessageId,
+        sequence: ++this.contentSequence,
         autoScroll: this.autoScroll,
         responseInMarkdown,
       });
     };
-    const updateReasoning = (message: string) => {
+
+    const updateReasoning = (message: string, roundNumber?: number) => {
       this.reasoning += message;
+
+      // Determine the current round number
+      const currentRound = roundNumber || this.reasoningRounds.get(this.currentMessageId) || 1;
+      this.reasoningRounds.set(this.currentMessageId, currentRound);
+
       this.sendMessage({
         type: "addReasoning",
-        value: this.reasoning,
+        value: this.reasoning, // Send accumulated reasoning content
         id: this.currentMessageId,
         messageId: this.currentMessageId,
+        roundNumber: currentRound,
+        sequence: ++this.contentSequence,
         autoScroll: this.autoScroll,
         responseInMarkdown,
       });
     };
+
+
     try {
       const imageFiles: Record<string, string> = {};
       if (
@@ -1075,6 +1094,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
+
+
   /**
    * Message sender, stores if a message cannot be delivered
    * @param message Message to be sent to WebView
@@ -1199,6 +1220,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         <script src="${vendorJqueryUIMinJs}"></script>
         <link href="${webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "tool-call.css"))}" rel="stylesheet">
         <script src="${webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "tool-call.js"))}"></script>
+        <script src="${webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, "media", "reasoning.js"))}"></script>
        </head>
       <body class="overflow-hidden">
 				<div class="flex flex-col h-screen">

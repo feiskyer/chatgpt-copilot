@@ -31,7 +31,7 @@ function getPromptBasedToolConfig(): PromptBasedToolConfig {
   return {
     enabled: configuration.get("promptBasedTools.enabled") || false,
     toolCallPattern: "<tool_call>",
-    maxToolCalls: configuration.get("gpt3.maxSteps") || 10,
+    maxToolCalls: configuration.get("gpt3.maxSteps") || 15,
   };
 }
 
@@ -45,7 +45,7 @@ export async function chatGptWithPromptTools(
   images: Record<string, string>,
   startResponse: () => void,
   updateResponse: (message: string) => void,
-  updateReasoning: (message: string) => void,
+  updateReasoning: (message: string, roundNumber?: number) => void,
 ) {
   if (!provider.apiChat) {
     throw new Error("apiChat is undefined");
@@ -151,9 +151,9 @@ async function executePromptBasedToolLoop(
   reasonChunks: string[],
   toolCallCounter: number,
   updateResponse: (message: string) => void,
-  updateReasoning: (message: string) => void
+  updateReasoning: (message: string, roundNumber?: number) => void
 ): Promise<number> {
-  const maxSteps = provider.maxSteps || 5;
+  const maxSteps = provider.maxSteps || 15;
   let currentStep = 0;
   let conversationHistory = [...provider.chatHistory];
 
@@ -174,12 +174,14 @@ async function executePromptBasedToolLoop(
           openai: {
             reasoningSummary: "auto",
             reasoningEffort: provider.reasoningEffort,
-            maxCompletionTokens: provider.modelConfig.maxTokens,
+            ...(provider.modelConfig.maxTokens > 0 && {
+              maxCompletionTokens: provider.modelConfig.maxTokens,
+            }),
           },
         },
       }),
       ...(!isOpenAIOModel(modelName) && {
-        maxTokens: provider.modelConfig.maxTokens,
+        maxTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
         temperature: provider.modelConfig.temperature,
       }),
     };
@@ -199,7 +201,7 @@ async function executePromptBasedToolLoop(
           break;
         }
         case "reasoning": {
-          updateReasoning(part.textDelta);
+          updateReasoning(part.textDelta, currentStep);
           reasonChunks.push(part.textDelta);
           break;
         }
@@ -281,7 +283,7 @@ async function executeStandardChat(
   reasonChunks: string[],
   toolCallCounter: number,
   updateResponse: (message: string) => void,
-  updateReasoning: (message: string) => void
+  updateReasoning: (message: string, roundNumber?: number) => void
 ): Promise<number> {
   const inputs: any = {
     system: systemPrompt,
@@ -296,12 +298,14 @@ async function executeStandardChat(
         openai: {
           reasoningSummary: "auto",
           reasoningEffort: provider.reasoningEffort,
-          maxCompletionTokens: provider.modelConfig.maxTokens,
+          ...(provider.modelConfig.maxTokens > 0 && {
+            maxCompletionTokens: provider.modelConfig.maxTokens,
+          }),
         },
       },
     }),
     ...(!isOpenAIOModel(modelName) && {
-      maxTokens: provider.modelConfig.maxTokens,
+      maxTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
       temperature: provider.modelConfig.temperature,
     }),
   };
@@ -315,7 +319,7 @@ async function executeStandardChat(
         break;
       }
       case "reasoning": {
-        updateReasoning(part.textDelta);
+        updateReasoning(part.textDelta, 1); // Standard chat only has one reasoning round
         reasonChunks.push(part.textDelta);
         break;
       }
@@ -347,35 +351,6 @@ async function executeStandardChat(
 
   return toolCallCounter;
 }
-
-// /**
-//  * Process prompt-based tool calls in streaming response
-//  */
-// async function processPromptBasedToolCallsInStream(
-//   text: string,
-//   provider: ChatGptViewProvider,
-//   toolCallCounter: number,
-//   updateResponse: (message: string) => void
-// ) {
-//   if (!provider.toolSet) return;
-
-//   const { toolCalls, results } = await processPromptBasedToolCalls(
-//     text,
-//     provider.toolSet,
-//     (toolCall) => {
-//       // Create tool call UI when tool is detected
-//       const toolCallHtml = createPromptToolCallHtml(toolCall, ++toolCallCounter);
-//       updateResponse(toolCallHtml);
-//     },
-//     (result) => {
-//       // Create tool result UI when result is available
-//       const toolResultText = createPromptToolResultHtml(result, toolCallCounter);
-//       updateResponse(toolResultText);
-//     }
-//   );
-
-//   logger.appendLine(`INFO: Processed ${toolCalls.length} prompt-based tool calls`);
-// }
 
 /**
  * Create HTML for native tool calls
@@ -465,24 +440,6 @@ function createPromptToolCallHtml(toolCall: any, toolCallCounter: number): strin
   </div>
 </div>`;
 }
-
-// /**
-//  * Create HTML for native tool results
-//  */
-// function createToolResultHtml(part: any, toolCallCounter: number): string {
-//   let formattedResult = part.result;
-//   if (typeof formattedResult === 'string') {
-//     try {
-//       formattedResult = JSON.parse(formattedResult);
-//     } catch (e) {
-//       formattedResult = part.result;
-//     }
-//   }
-
-//   return `<tool-result data-tool-name="${part.toolName}" data-counter="${toolCallCounter}">
-// ${JSON.stringify(formattedResult)}
-// </tool-result>`;
-// }
 
 /**
  * Create HTML for prompt-based tool results

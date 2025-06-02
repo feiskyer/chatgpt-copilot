@@ -538,84 +538,187 @@ pre>code {
     margin: 1em 0;
 }
 
+/* Enhanced Reasoning Styles - Similar to tool calls but with gray theme */
+
 .reasoning-block {
-    background: var(--vscode-textCodeBlock-background);
-    border-radius: 6px;
-    margin: 1em 0;
-    border: 1px solid var(--vscode-input-border);
+    background: var(--vscode-editorWidget-background);
+    border: 1px solid var(--vscode-editorWidget-border);
+    border-radius: 8px;
+    margin: 12px 0;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    /* Gray tint for reasoning blocks */
+    filter: brightness(0.95) saturate(0.8);
+}
+
+.reasoning-block:hover {
+    border-color: var(--vscode-focusBorder);
+    filter: brightness(0.98) saturate(0.85);
 }
 
 .reasoning-header {
-    padding: 8px 12px;
+    padding: 12px 16px;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     user-select: none;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 6px 6px 0 0;
+    background: var(--vscode-editorWidget-background);
+    border-bottom: 1px solid var(--vscode-editorWidget-border);
+    transition: background-color 0.2s ease;
+    /* Slightly darker gray for header */
+    filter: brightness(0.92);
 }
 
 .reasoning-header:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--vscode-list-hoverBackground);
+    filter: brightness(0.95);
 }
 
-.reasoning-content {
-    padding: 12px;
-}
-
-.reasoning-collapsed .reasoning-content {
-    display: none;
-}
-
-.reasoning-caret {
+/* Chevron icon for expand/collapse */
+.reasoning-chevron {
+    width: 16px;
+    height: 16px;
     transition: transform 0.2s ease;
-    width: 12px;
-    height: 12px;
+    color: var(--vscode-descriptionForeground);
+    flex-shrink: 0;
 }
 
-.reasoning-collapsed .reasoning-caret {
-    transform: rotate(-90deg);
+/* Reasoning info container */
+.reasoning-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
 }
 
-.reasoning-block {
+.reasoning-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--vscode-descriptionForeground);
+    flex-shrink: 0;
+}
+
+.reasoning-title {
+    font-weight: 500;
+    color: var(--vscode-descriptionForeground);
+    font-size: 14px;
+}
+
+
+
+/* Reasoning content area */
+.reasoning-content {
+    padding: 16px;
+    background: var(--vscode-editor-background);
+    overflow-y: auto;
+    transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+    max-height: 600px;
+    opacity: 1;
+    /* Subtle gray tint for content */
+    filter: brightness(0.96);
+}
+
+.reasoning-content.collapsed {
+    max-height: 0 !important;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* Code blocks within reasoning */
+.reasoning-content pre {
+    margin: 8px 0;
     background: var(--vscode-textCodeBlock-background);
+    border: 1px solid var(--vscode-editorWidget-border);
     border-radius: 6px;
-    margin: 1em 0;
-    border: 1px solid var(--vscode-input-border);
+    overflow-x: auto;
+    filter: brightness(0.94);
 }
 
-.reasoning-header {
-    padding: 8px 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    user-select: none;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 6px 6px 0 0;
-}
-
-.reasoning-header:hover {
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.reasoning-content {
+.reasoning-content pre code {
+    display: block;
     padding: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    font-family: var(--vscode-editor-font-family);
 }
 
-.reasoning-collapsed .reasoning-content {
-    display: none;
+/* Scrollbar styling for reasoning */
+.reasoning-content::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
 }
 
-.reasoning-caret {
-    transition: transform 0.2s ease;
-    width: 12px;
-    height: 12px;
+.reasoning-content::-webkit-scrollbar-track {
+    background: transparent;
 }
 
-.reasoning-collapsed .reasoning-caret {
-    transform: rotate(-90deg);
+.reasoning-content::-webkit-scrollbar-thumb {
+    background: var(--vscode-scrollbarSlider-background);
+    border-radius: 4px;
+}
+
+.reasoning-content::-webkit-scrollbar-thumb:hover {
+    background: var(--vscode-scrollbarSlider-hoverBackground);
+}
+
+/* Reasoning text formatting */
+.reasoning-content p {
+    margin: 8px 0;
+    line-height: 1.6;
+    color: var(--vscode-descriptionForeground);
+}
+
+.reasoning-content ul,
+.reasoning-content ol {
+    margin: 8px 0;
+    padding-left: 24px;
+    color: var(--vscode-descriptionForeground);
+}
+
+.reasoning-content li {
+    margin: 4px 0;
+}
+
+/* Dark theme adjustments for reasoning */
+@media (prefers-color-scheme: dark) {
+    .reasoning-block {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+}
+
+/* Light theme adjustments for reasoning */
+@media (prefers-color-scheme: light) {
+    .reasoning-block {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+}
+
+/* Streaming state for reasoning */
+.reasoning-streaming::after {
+    content: "▋";
+    animation: blink 1s steps(5, start) infinite;
+    margin-left: 2px;
+    vertical-align: baseline;
+    color: var(--vscode-descriptionForeground);
+}
+
+/* Responsive design for reasoning */
+@media (max-width: 600px) {
+    .reasoning-header {
+        padding: 10px 12px;
+    }
+
+    .reasoning-content {
+        padding: 12px;
+    }
+
+    .reasoning-title {
+        font-size: 13px;
+    }
 }
 
 .file-references-container {

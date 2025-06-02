@@ -98,7 +98,7 @@ export async function chatGpt(
   images: Record<string, string>,
   startResponse: () => void,
   updateResponse: (message: string) => void,
-  updateReasoning: (message: string) => void,
+  updateReasoning: (message: string, roundNumber?: number) => void,
 ) {
   if (!provider.apiChat) {
     throw new Error("apiChat is undefined");
@@ -147,12 +147,14 @@ export async function chatGpt(
           openai: {
             reasoningSummary: "auto",
             reasoningEffort: provider.reasoningEffort,
-            maxCompletionTokens: provider.modelConfig.maxTokens,
+            ...(provider.modelConfig.maxTokens > 0 && {
+              maxCompletionTokens: provider.modelConfig.maxTokens,
+            }),
           },
         },
       }),
       ...(!isOpenAIOModel(modelName) && {
-        maxTokens: provider.modelConfig.maxTokens,
+        maxTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
         temperature: provider.modelConfig.temperature,
         // topP: provider.modelConfig.topP,
       }),
@@ -167,7 +169,7 @@ export async function chatGpt(
           break;
         }
         case "reasoning": {
-          updateReasoning(part.textDelta);
+          updateReasoning(part.textDelta, 1); // Main chat only has one reasoning round
           reasonChunks.push(part.textDelta);
           break;
         }
@@ -278,7 +280,7 @@ export async function chatGpt(
     const reasoning = await result.reasoning;
     if (reasoning && reasoning != "") {
       provider.reasoning = reasoning;
-      updateReasoning(reasoning);
+      updateReasoning(reasoning, 1); // Main chat only has one reasoning round
     }
 
     // Save both the text response and tool calls in the chat history

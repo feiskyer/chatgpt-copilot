@@ -80,10 +80,61 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
     </svg>`;
 
+    // Message queue for ordered processing
+    window.messageQueue = window.messageQueue || new Map(); // Map by messageId
+    window.processedSequences = window.processedSequences || new Map(); // Track processed sequences per message
+
+    // Process queued messages in sequence order
+    function processMessageQueue(messageId) {
+        const queue = window.messageQueue.get(messageId) || [];
+        const processed = window.processedSequences.get(messageId) || 0;
+
+        // Sort queue by sequence number
+        queue.sort((a, b) => a.sequence - b.sequence);
+
+        // Process messages in order
+        let nextSequence = processed + 1;
+        while (queue.length > 0 && queue[0].sequence === nextSequence) {
+            const message = queue.shift();
+            processMessageImmediate(message);
+            nextSequence++;
+        }
+
+        // Update processed sequence counter
+        window.processedSequences.set(messageId, nextSequence - 1);
+
+        // Update the queue
+        window.messageQueue.set(messageId, queue);
+    }
+
+    // Process a message immediately (original logic)
+    function processMessageImmediate(message) {
+        const list = document.getElementById("qa-list");
+
+        // Original message processing logic will go here
+        processMessageByType(message, list);
+    }
+
     // Handle messages sent from the extension to the webview
     window.addEventListener("message", (event) => {
         const message = event.data;
-        const list = document.getElementById("qa-list");
+
+        // If message has sequence number, add to queue for ordered processing
+        if (message.sequence !== undefined && message.messageId) {
+            const queue = window.messageQueue.get(message.messageId) || [];
+            queue.push(message);
+            window.messageQueue.set(message.messageId, queue);
+
+            // Try to process queued messages
+            processMessageQueue(message.messageId);
+        } else {
+            // Process immediately for messages without sequence
+            processMessageImmediate(message);
+        }
+    });
+
+    // Process message by type (extracted from original logic)
+    function processMessageByType(message, list) {
 
         switch (message.type) {
             case "showInProgress":
@@ -151,6 +202,7 @@
 
                 let updatedValue = message.value.split("```").length % 2 === 1 ? message.value : message.value + "\n\n```\n\n";
                 let formattedResponse = marked.parse(updatedValue.trim().replace(/^\s+|\s+$/g, ''));
+
                 if (existingMessage) {
                     existingMessage.innerHTML = formattedResponse;
                 } else {
@@ -314,34 +366,76 @@
                 break;
 
             case "addReasoning":
-                const reasoningElement = document.getElementById(`${message.id}-reasoning`);
+                // Handle single reasoning block with proper ordering
+                const reasoningId = `${message.id}-reasoning`;
+                const existingReasoningElement = document.getElementById(reasoningId);
 
-                if (reasoningElement) {
-                    reasoningElement.innerHTML = marked.parse(message.value);
+                if (existingReasoningElement) {
+                    // Update existing reasoning content with auto-scroll
+                    const contentElement = existingReasoningElement.querySelector('.reasoning-content');
+                    if (contentElement) {
+                        contentElement.innerHTML = marked.parse(message.value);
+
+                        // Auto-scroll to bottom if content is expanded and overflowing
+                        if (!contentElement.classList.contains('collapsed')) {
+                            // Use setTimeout to ensure DOM is updated before scrolling
+                            setTimeout(() => {
+                                contentElement.scrollTop = contentElement.scrollHeight;
+                            }, 0);
+                        }
+                    }
                 } else {
-                    list.innerHTML += `
-                            <div class="reasoning-block" style="margin: 0.5rem 0;">
-                                <div class="reasoning-header" style="margin-bottom: 0.25rem;">
-                                    <svg class="reasoning-caret" viewBox="0 0 24 24" width="12" height="12">
-                                        <path fill="currentColor" d="M7 10l5 5 5-5z"/>
+                    // Create new reasoning block using enhanced functionality
+                    const reasoningHtml = window.createReasoningHtml ?
+                        window.createReasoningHtml(
+                            marked.parse(message.value),
+                            message.id
+                        ) :
+                        // Fallback to basic reasoning block if enhanced function not available
+                        `<div class="reasoning-block" id="${reasoningId}">
+                            <div class="reasoning-header" onclick="toggleReasoning('${reasoningId}')">
+                                <svg class="reasoning-chevron" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M7 10l5 5 5-5z"/>
+                                </svg>
+                                <div class="reasoning-info">
+                                    <svg class="reasoning-icon" viewBox="0 0 24 24">
+                                        <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                                     </svg>
-                                    <span>Reasoning</span>
+                                    <span class="reasoning-title">Reasoning</span>
                                 </div>
-                                <div class="reasoning-content" id="${message.id}-reasoning" style="line-height: 1.6;">
-                                    ${marked.parse(message.value)}
-                                </div>
-                            </div>`;
+                            </div>
+                            <div class="reasoning-content collapsed">
+                                ${marked.parse(message.value)}
+                            </div>
+                        </div>`;
+
+                    // Find the message container for this reasoning
+                    const messageContainer = document.querySelector(`[id="${message.id}"]`)?.closest('.answer-element-ext');
+
+                    if (messageContainer) {
+                        // Insert reasoning block within the same message container
+                        messageContainer.insertAdjacentHTML('beforeend', reasoningHtml);
+                    } else {
+                        // Fallback: create a new message container for reasoning
+                        list.innerHTML += `<div class="p-4 self-end mt-2 pb-4 answer-element-ext">${reasoningHtml}</div>`;
+                    }
                 }
 
                 if (message.autoScroll) {
-                    list.lastChild?.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+                    // For reasoning blocks, scroll to the message container, not just the last child
+                    const messageContainer = document.querySelector(`[id="${message.id}"]`)?.closest('.answer-element-ext');
+                    if (messageContainer) {
+                        messageContainer.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+                    } else {
+                        list.lastChild?.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+                    }
                 }
                 break;
 
             default:
                 break;
         }
-    });
+    }
 
     const addFreeTextQuestion = () => {
         const input = document.getElementById("question-input");
@@ -365,6 +459,10 @@
         document.getElementById("qa-list").innerHTML = "";
 
         document.getElementById("introduction")?.classList?.remove("hidden");
+
+        // Clear message queue and processed sequences
+        window.messageQueue.clear();
+        window.processedSequences.clear();
 
         vscode.postMessage({
             type: "clearConversation"
@@ -606,10 +704,7 @@
             return;
         }
 
-        if (e.target.closest('.reasoning-header')) {
-            const block = e.target.closest('.reasoning-block');
-            block.classList.toggle('reasoning-collapsed');
-        }
+        // Reasoning header clicks are now handled by reasoning.js event delegation
     });
 
     $(function () {
