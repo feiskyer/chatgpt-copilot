@@ -23,10 +23,9 @@ ChatGPT Copilot is a powerful and telemetry-free extension for Visual Studio Cod
 - 📂 Chat with your Files: Add multiple files and images to your chat using `@` for seamless collaboration.
 - 📃 Streaming Answers: Receive real-time responses to your prompts in the sidebar conversation window.
 - 📖 Prompt Manager: Chat with your own prompts (use # to search).
-- 🔥 Stop Responses: Interrupt responses at any time to save your tokens.
+- 🔥 Tool calls via prompt parsing for models that don't support native tool calling.
 - 📝 Code Assistance: Create files or fix your code with one click or keyboard shortcuts.
 - ➡️ Export Conversations: Export all your conversation history at once in Markdown format.
-- 🐛 Automatic Partial Code Detection: Automatically continues and combines responses when they are cut off.
 - 📰 Custom Prompt Prefixes: Customize what you are asking ChatGPT with ad-hoc prompt prefixes.
 - 💻 Seamless Code Integration: Copy, insert, or create new files directly from ChatGPT's code suggestions.
 - ➕ Editable Prompts: Edit and resend previous prompts.
@@ -34,19 +33,38 @@ ChatGPT Copilot is a powerful and telemetry-free extension for Visual Studio Cod
 
 ## Recent Release Highlights
 
-* **v4.8.0**: New LOGO and new models.
-* **v4.7.0**: Added Model Context Protocol (MCP) integration.
-* **v4.6.9**: Added Github Copilot provider.
-* **v4.6.7**: Added DeepClaude mode (DeepSeek + Claude) for best AI responses.
-* **v4.6.5**: Added reasoning models (DeepSeek R1 and o3-mini)
-* **v4.6.3**: Added chatting with files (including text files and images)
-* **v4.6.0**: Added flexible prompt management with `/manage-prompt` command and use prompts with `#promptname`.
-* **v4.5.0**: Added support of Google Generative AI models and reduce extension size.
+* **v4.9**: Add prompt based tool calls for models that don't support native tool calling.
+* **v4.8**: New LOGO and new models.
+* **v4.7**: Added Model Context Protocol (MCP) integration.
+* **v4.6**: Added prompt manager, DeepClaude mode (DeepSeek + Claude) mode, Github Copilot provider and chat with files.
 
 ## Installation
 
 - Install the extension from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=feiskyer.chatgpt-copilot) or search `ChatGPT Copilot` in VScode Extensions and click install.
 - Reload Visual Studio Code after installation.
+
+## Supported Models & Providers
+
+### **AI Providers**
+
+The extension supports major AI providers with hundreds of models:
+
+| Provider | Models | Special Features |
+| -------- | ------ | ---------------- |
+| **OpenAI** | GPT-4o, GPT-4, GPT-3.5-turbo, o1, o3, o4-mini | Reasoning models, function calling |
+| **Anthropic** | Claude Sonnet 4, Claude 3.5 Sonnet, Claude Opus 4 | Advanced reasoning, large context |
+| **Google** | Gemini 2.5 Pro, Gemini 2.0 Flash, Gemini Pro | Search grounding, multimodal |
+| **GitHub Copilot** | GPT-4o, Claude Sonnet 4, o3-mini, Gemini 2.5 Pro | Built-in VS Code authentication |
+| **DeepSeek** | DeepSeek R1, DeepSeek Reasoner | Advanced reasoning capabilities |
+| **Azure OpenAI** | GPT-4o, GPT-4, o1 | Enterprise-grade security |
+| **Azure AI** | Various non-OpenAI models | Microsoft's AI model hub |
+| **Ollama** | Llama, Qwen, CodeLlama, Mistral | Local model execution |
+| **Groq** | Llama, Mixtral, Gemma | Ultra-fast inference |
+| **Perplexity** | Llama, Mistral models | Web-enhanced responses |
+| **xAI** | Grok models | Real-time information |
+| **Mistral** | Mistral Large, Codestral | Code-specialized models |
+| **Together** | Various open-source models | Community models |
+| **OpenRouter** | 200+ models | Access to multiple providers |
 
 ## AI Services
 
@@ -166,16 +184,20 @@ For Azure OpenAI Service, apiBaseUrl should be set to format `https://[YOUR-ENDP
 <details>
 <summary> Github Copilot </summary>
 
-[Github Copilot](https://github.com/features/copilot) is supported with build-in authentication (a popup would ask your permission when using Github Copilot models).
+[Github Copilot](https://github.com/features/copilot) is supported with built-in authentication (a popup will ask your permission when using Github Copilot models).
 
-> Note: Currently, gpt-4o, gpt-4o-mini, o1, o1-mini, claude-3.5-sonnet are supported (refer the doc [here](https://code.visualstudio.com/api/extension-guides/language-model#send-the-language-model-request) for the details). And MCP tools are not supported yet via ChatGPT Copilot extension.
+**Supported Models:**
+- **OpenAI Models**: `gpt-3.5-turbo`, `gpt-4`, `gpt-4-turbo`, `gpt-4o`, `gpt-4o-mini`, `gpt-4.1`, `gpt-4.5`
+- **Reasoning Models**: `o1-ga`, `o3-mini`, `o3`, `o4-mini`
+- **Claude Models**: `claude-3.5-sonnet`, `claude-3.7-sonnet`, `claude-3.7-sonnet-thought`, `claude-sonnet-4`, `claude-opus-4`
+- **Gemini Models**: `gemini-2.0-flash`, `gemini-2.5-pro`
 
 | Configuration | Example |
 | ------------- | ----------- |
 | Provider | GitHubCopilot |
 | API Key     | github |
 | Model      | custom |
-| Custom Model | claude-3.5-sonnet |
+| Custom Model | claude-sonnet-4 |
 
 </details>
 
@@ -222,44 +244,211 @@ Example for [groq](https://console.groq.com/):
 
 </details>
 
+## Commands & Keyboard Shortcuts
+
+The extension provides various commands accessible through the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and keyboard shortcuts.
+
+<details>
+
+<summary> Context Menu Commands </summary>
+
+### **Context Menu Commands** (Right-click on selected code)
+| Command | Keyboard Shortcut | Description |
+| ------- | ----------------- | ----------- |
+| **Generate Code** | `Ctrl+Shift+A` / `Cmd+Shift+A` | Generate code based on comments or requirements |
+| **Add Tests** | `Ctrl+K Ctrl+Shift+1` / `Cmd+K Cmd+Shift+1` | Generate unit tests for selected code |
+| **Find Problems** | `Ctrl+K Ctrl+Shift+2` / `Cmd+K Cmd+Shift+2` | Analyze code for bugs and issues |
+| **Optimize** | `Ctrl+K Ctrl+Shift+3` / `Cmd+K Cmd+Shift+3` | Optimize and improve selected code |
+| **Explain** | `Ctrl+K Ctrl+Shift+4` / `Cmd+K Cmd+Shift+4` | Explain how the selected code works |
+| **Add Comments** | `Ctrl+K Ctrl+Shift+5` / `Cmd+K Cmd+Shift+5` | Add documentation comments to code |
+| **Complete Code** | `Ctrl+K Ctrl+Shift+6` / `Cmd+K Cmd+Shift+6` | Complete partial or incomplete code |
+| **Ad-hoc Prompt** | `Ctrl+K Ctrl+Shift+7` / `Cmd+K Cmd+Shift+7` | Use custom prompt with selected code |
+| **Custom Prompt 1** | `Ctrl+K Ctrl+Shift+8` / `Cmd+K Cmd+Shift+8` | Apply your first custom prompt |
+| **Custom Prompt 2** | `Ctrl+K Ctrl+Shift+9` / `Cmd+K Cmd+Shift+9` | Apply your second custom prompt |
+
+</details>
+
+
+<details>
+<summary> General Commands </summary>
+
+### **General Commands**
+| Command | Description |
+| ------- | ----------- |
+| `ChatGPT: Ask anything` | Open input box to ask any question |
+| `ChatGPT: Reset session` | Clear current conversation and start fresh |
+| `ChatGPT: Clear conversation` | Clear the conversation history |
+| `ChatGPT: Export conversation` | Export chat history to Markdown file |
+| `ChatGPT: Manage Prompts` | Open prompt management interface |
+| `ChatGPT: Toggle Prompt Manager` | Show/hide the prompt manager panel |
+| `Add Current File to Chat Context` | Add the currently open file to chat context |
+| `ChatGPT: Open MCP Servers` | Manage Model Context Protocol servers |
+
+
+</details>
+
+<details>
+
+<summary> Prompt Management </summary>
+
+### **Prompt Management**
+- Use `#` followed by prompt name to search and apply saved prompts
+- Use `@` to add files to your conversation context
+- Access the Prompt Manager through the sidebar for full prompt management
+
+</details>
+
+## Model Context Protocol (MCP)
+
+The extension supports the **Model Context Protocol (MCP)**, allowing you to extend AI capabilities with custom tools and integrations.
+
+<details>
+
+<summary> What is MCP? </summary>
+
+### **What is MCP?**
+
+MCP enables AI models to securely connect to external data sources and tools, providing:
+- **Custom Tools**: Integrate your own tools and APIs
+- **Data Sources**: Connect to databases, file systems, APIs, and more
+- **Secure Execution**: Sandboxed tool execution environment
+- **Multi-Step Workflows**: Agent-like behavior with tool chaining
+
+### **MCP Server Types**
+The extension supports three types of MCP servers:
+
+| Type | Description | Use Case |
+| ---- | ----------- | -------- |
+| **stdio** | Standard input/output communication | Local command-line tools and scripts |
+| **sse** | Server-Sent Events over HTTP | Web-based tools and APIs |
+| **streamable-http** | HTTP streaming communication | Real-time data sources |
+
+
+</details>
+
+<details>
+
+<summary> How to configure MCP? </summary>
+
+### **MCP Configuration**
+1. **Access MCP Manager**: Use `ChatGPT: Open MCP Servers` command or click the MCP icon in the sidebar
+2. **Add MCP Server**: Configure your MCP servers with:
+   - **Name**: Unique identifier for the server
+   - **Type**: Choose from stdio, sse, or streamable-http
+   - **Command/URL**: Executable path or HTTP endpoint
+   - **Arguments**: Command-line arguments (for stdio)
+   - **Environment Variables**: Custom environment settings
+   - **Headers**: HTTP headers (for sse/streamable-http)
+
+### **Example MCP Configurations**
+
+**File System Access (stdio):**
+```json
+{
+  "name": "filesystem",
+  "type": "stdio",
+  "command": "npx",
+  "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/directory"],
+  "isEnabled": true
+}
+```
+
+**Web Search (sse):**
+```json
+{
+  "name": "web-search",
+  "type": "sse",
+  "url": "https://api.example.com/mcp/search",
+  "headers": {"Authorization": "Bearer your-token"},
+  "isEnabled": true
+}
+```
+
+</details>
+
+<details>
+<summary> Agent Mode </summary>
+
+### **Agent Mode**
+
+When MCP servers are enabled, the extension operates in **Agent Mode**:
+- **Max Steps**: Configure up to 15 tool execution steps
+- **Tool Chaining**: Automatic multi-step workflows
+- **Error Handling**: Robust error recovery and retry logic
+- **Progress Tracking**: Real-time tool execution feedback
+
+</details>
+
 ## Configurations
 
 <details>
 
 <summary> Full list of configuration options </summary>
 
-| Setting                                      | Default                                  | Description                                                  |
-| -------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------ |
-| `chatgpt.gpt3.apiKey`                        |                                          | OpenAI API key. [Get your API Key from OpenAI](https://beta.openai.com/account/api-keys). |
-| `chatgpt.gpt3.apiBaseUrl`                    | `https://api.openai.com/v1`              | Optional override for the OpenAI API base URL. If you customize it, please make sure you have the same format. e.g. starts with `https://` without a trailing slash. The completions endpoint suffix is added internally, e.g. for reference: `${apiBaseUrl}/v1/completions` |
-| `chatgpt.gpt3.organization`                  |                                          | OpenAI Organization ID.                                      |
-| `chatgpt.gpt3.model`                         | `gpt-4o`                          | OpenAI models to use for your prompts. [Documentation](https://beta.openai.com/docs/models/models).  **If you face 400 Bad Request please make sure you are using the right model for your integration method.**  For local or self-hosted LLMs compatible with OpenAI, you can select `custom` and specify your custom model name in `#chatgpt.gpt3.customModel#`. |
-| `chatgpt.gpt3.customModel`                   |                                          | Specify your custom model name here if you selected `custom` in `#chatgpt.gpt3.model#`. This allows you to use a custom model name for local or self-hosted LLMs compatible with OpenAI. |
-| `chatgpt.gpt3.maxTokens`                     | `0` (unlimited)                                   | The maximum number of tokens to generate in the completion.  |
-| `chatgpt.gpt3.temperature`                   | `1`                                      | What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer. |
-| `chatgpt.gpt3.top_p`                         | `1`                                      | An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered. |
-| `chatgpt.systemPrompt`                       |                                          | System prompts for the copilot.                              |
-| `chatgpt.gpt3.generateCode-enabled`          | `true`                                   | Enable the code generation context menu item for the selected comment/code for Codex. |
-| `chatgpt.gpt3.searchGrounding.enabled`       | `false`                                  | Enable search grounding for Gemini model. Only available for Google Gemini models. |
-| `chatgpt.promptPrefix.addTests`              | `Implement tests for the following code` | The prompt prefix used for adding tests for the selected code |
-| `chatgpt.promptPrefix.addTests-enabled`      | `true`                                   | Enable the prompt prefix used for adding tests for the selected code in the context menu |
-| `chatgpt.promptPrefix.findProblems`          | `Find problems with the following code`  | The prompt prefix used for finding problems for the selected code |
-| `chatgpt.promptPrefix.findProblems-enabled`  | `true`                                   | Enable the prompt prefix used for finding problems for the selected code in the context menu |
-| `chatgpt.promptPrefix.optimize`              | `Optimize the following code`            | The prompt prefix used for optimizing the selected code      |
-| `chatgpt.promptPrefix.optimize-enabled`      | `true`                                   | Enable the prompt prefix used for optimizing the selected code in the context menu |
-| `chatgpt.promptPrefix.explain`               | `Explain the following code`             | The prompt prefix used for explaining the selected code      |
-| `chatgpt.promptPrefix.explain-enabled`       | `true`                                   | Enable the prompt prefix used for explaining the selected code in the context menu |
-| `chatgpt.promptPrefix.addComments`           | `Add comments for the following code`    | The prompt prefix used for adding comments for the selected code |
-| `chatgpt.promptPrefix.addComments-enabled`   | `true`                                   | Enable the prompt prefix used for adding comments for the selected code in the context menu |
-| `chatgpt.promptPrefix.completeCode`          | `Complete the following code`            | The prompt prefix used for completing the selected code      |
-| `chatgpt.promptPrefix.completeCode-enabled`  | `true`                                   | Enable the prompt prefix used for completing the selected code in the context menu |
-| `chatgpt.promptPrefix.adhoc-enabled`         | `true`                                   | Enable the prompt prefix used for adhoc command for the selected code in the context menu |
-| `chatgpt.promptPrefix.customPrompt1`         |                                          | Your custom prompt 1. It's disabled by default, please set to a custom prompt and enable it if you prefer using customized prompt |
-| `chatgpt.promptPrefix.customPrompt1-enabled` | `false`                                  | Enable custom prompt 1. If you enable this item make sure to set this `#chatgpt.promptPrefix.customPrompt1#` |
-| `chatgpt.promptPrefix.customPrompt2`         |                                          | Your custom prompt 2. It's disabled by default, please set to a custom prompt and enable it if you prefer using customized prompt |
-| `chatgpt.promptPrefix.customPrompt2-enabled` | `false`                                  | Enable custom prompt 2. If you enable this item make sure to set this `#chatgpt.promptPrefix.customPrompt2#` |
-| `chatgpt.response.showNotification`          | `false`                                  | Choose whether you'd like to receive a notification when ChatGPT bot responds to your query. |
-| `chatgpt.response.autoScroll`                | `true`                                   | Whenever there is a new question or response added to the conversation window, extension will automatically scroll to the bottom. You can change that behaviour by disabling this setting. |
+### **Core Configuration**
+| Setting | Default | Description |
+| ------- | ------- | ----------- |
+| `chatgpt.gpt3.provider` | `Auto` | AI Provider: Auto, OpenAI, Azure, AzureAI, Anthropic, GitHubCopilot, Google, Mistral, xAI, Together, DeepSeek, Groq, Perplexity, OpenRouter, Ollama |
+| `chatgpt.gpt3.apiKey` | | API key for your chosen provider |
+| `chatgpt.gpt3.apiBaseUrl` | `https://api.openai.com/v1` | API base URL for your provider |
+| `chatgpt.gpt3.model` | `gpt-4o` | Model to use for conversations |
+| `chatgpt.gpt3.customModel` | | Custom model name when using `custom` model option |
+| `chatgpt.gpt3.organization` | | Organization ID (OpenAI only) |
+
+### **Model Parameters**
+| Setting | Default | Description |
+| ------- | ------- | ----------- |
+| `chatgpt.gpt3.maxTokens` | `0` (unlimited) | Maximum tokens to generate in completion |
+| `chatgpt.gpt3.temperature` | `1` | Sampling temperature (0-2). Higher = more creative |
+| `chatgpt.gpt3.top_p` | `1` | Nucleus sampling parameter (0-1) |
+| `chatgpt.systemPrompt` | | System prompt for the AI assistant |
+
+### **DeepClaude (Reasoning + Chat) Configuration**
+| Setting | Default | Description |
+| ------- | ------- | ----------- |
+| `chatgpt.gpt3.reasoning.provider` | `Auto` | Provider for reasoning model (Auto, OpenAI, Azure, AzureAI, Google, DeepSeek, Groq, OpenRouter, Ollama) |
+| `chatgpt.gpt3.reasoning.apiKey` | | API key for reasoning model |
+| `chatgpt.gpt3.reasoning.apiBaseUrl` | `https://api.openai.com/v1` | API base URL for reasoning model |
+| `chatgpt.gpt3.reasoning.model` | | Model to use for reasoning (e.g., deepseek-reasoner, o1) |
+| `chatgpt.gpt3.reasoning.organization` | | Organization ID for reasoning model (OpenAI only) |
+
+### **Agent & MCP Configuration**
+| Setting | Default | Description |
+| ------- | ------- | ----------- |
+| `chatgpt.gpt3.maxSteps` | `15` | Maximum steps for agent mode when using MCP servers |
+
+### **Feature Toggles**
+| Setting | Default | Description |
+| ------- | ------- | ----------- |
+| `chatgpt.gpt3.generateCode-enabled` | `true` | Enable code generation context menu |
+| `chatgpt.gpt3.searchGrounding.enabled` | `false` | Enable search grounding (Gemini models only) |
+
+### **Prompt Prefixes & Context Menu**
+| Setting | Default | Description |
+| ------- | ------- | ----------- |
+| `chatgpt.promptPrefix.addTests` | `Implement tests for the following code` | Prompt for generating unit tests |
+| `chatgpt.promptPrefix.addTests-enabled` | `true` | Enable "Add Tests" context menu item |
+| `chatgpt.promptPrefix.findProblems` | `Find problems with the following code` | Prompt for finding bugs and issues |
+| `chatgpt.promptPrefix.findProblems-enabled` | `true` | Enable "Find Problems" context menu item |
+| `chatgpt.promptPrefix.optimize` | `Optimize the following code` | Prompt for code optimization |
+| `chatgpt.promptPrefix.optimize-enabled` | `true` | Enable "Optimize" context menu item |
+| `chatgpt.promptPrefix.explain` | `Explain the following code` | Prompt for code explanation |
+| `chatgpt.promptPrefix.explain-enabled` | `true` | Enable "Explain" context menu item |
+| `chatgpt.promptPrefix.addComments` | `Add comments for the following code` | Prompt for adding documentation |
+| `chatgpt.promptPrefix.addComments-enabled` | `true` | Enable "Add Comments" context menu item |
+| `chatgpt.promptPrefix.completeCode` | `Complete the following code` | Prompt for code completion |
+| `chatgpt.promptPrefix.completeCode-enabled` | `true` | Enable "Complete Code" context menu item |
+| `chatgpt.promptPrefix.adhoc-enabled` | `true` | Enable "Ad-hoc Prompt" context menu item |
+| `chatgpt.promptPrefix.customPrompt1` | | Your first custom prompt template |
+| `chatgpt.promptPrefix.customPrompt1-enabled` | `false` | Enable first custom prompt in context menu |
+| `chatgpt.promptPrefix.customPrompt2` | | Your second custom prompt template |
+| `chatgpt.promptPrefix.customPrompt2-enabled` | `false` | Enable second custom prompt in context menu |
+
+### **User Interface**
+| Setting | Default | Description |
+| ------- | ------- | ----------- |
+| `chatgpt.response.showNotification` | `false` | Show notification when AI responds |
+| `chatgpt.response.autoScroll` | `true` | Auto-scroll to bottom when new content is added |
 
 </details>
 
