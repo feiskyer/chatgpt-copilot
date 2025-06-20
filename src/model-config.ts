@@ -25,6 +25,7 @@ export class ModelConfig {
   public searchGrounding: boolean;
   public enableResponsesAPI: boolean;
   public isReasoning: boolean;
+  public disableSSLVerification: boolean;
 
   constructor({
     provider,
@@ -39,6 +40,7 @@ export class ModelConfig {
     searchGrounding,
     enableResponsesAPI,
     isReasoning,
+    disableSSLVerification,
   }: {
     provider: string;
     apiKey: string;
@@ -52,6 +54,7 @@ export class ModelConfig {
     searchGrounding?: boolean;
     enableResponsesAPI?: boolean;
     isReasoning?: boolean;
+    disableSSLVerification?: boolean;
   }) {
     this.provider = provider;
     this.apiKey = apiKey;
@@ -65,6 +68,7 @@ export class ModelConfig {
     this.searchGrounding = searchGrounding ?? false;
     this.enableResponsesAPI = enableResponsesAPI ?? false;
     this.isReasoning = isReasoning ?? false;
+    this.disableSSLVerification = disableSSLVerification ?? false;
   }
 }
 
