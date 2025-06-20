@@ -197,6 +197,13 @@ export async function reasoningChat(
         temperature: provider.modelConfig.temperature,
         // topP: provider.modelConfig.topP,
       }),
+      // ...(provider.provider === "Google" && provider.modelConfig.searchGrounding && {
+      //   providerOptions: {
+      //     google: {
+      //       useSearchGrounding: true,
+      //     },
+      //   },
+      // }),
     });
     for await (const part of result.fullStream) {
       // logger.appendLine(`INFO: deepclaude.model: ${provider.model} deepclaude.question: ${question} response: ${JSON.stringify(part, null, 2)}`);

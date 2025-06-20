@@ -599,6 +599,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       const searchGrounding = configuration.get(
         "gpt3.searchGrounding.enabled",
       ) as boolean;
+      const enableResponsesAPI = configuration.get(
+        "gpt3.responsesAPI.enabled",
+      ) as boolean;
 
       let systemPrompt = configuration.get("systemPrompt") as string;
       if (this.systemPromptOverride != "") {
@@ -675,6 +678,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         organization,
         systemPrompt,
         searchGrounding,
+        enableResponsesAPI,
         isReasoning: false,
       });
       if (this.reasoningModel != "") {
@@ -697,6 +701,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           organization,
           systemPrompt: "",
           searchGrounding,
+          enableResponsesAPI,
           isReasoning: true,
         });
       }

@@ -23,6 +23,7 @@ export class ModelConfig {
   public systemPrompt: string;
   public systemPromptOverride: string;
   public searchGrounding: boolean;
+  public enableResponsesAPI: boolean;
   public isReasoning: boolean;
 
   constructor({
@@ -36,6 +37,7 @@ export class ModelConfig {
     systemPrompt,
     systemPromptOverride,
     searchGrounding,
+    enableResponsesAPI,
     isReasoning,
   }: {
     provider: string;
@@ -48,6 +50,7 @@ export class ModelConfig {
     systemPrompt: string;
     systemPromptOverride?: string;
     searchGrounding?: boolean;
+    enableResponsesAPI?: boolean;
     isReasoning?: boolean;
   }) {
     this.provider = provider;
@@ -60,6 +63,7 @@ export class ModelConfig {
     this.systemPrompt = systemPrompt;
     this.systemPromptOverride = systemPromptOverride ?? "";
     this.searchGrounding = searchGrounding ?? false;
+    this.enableResponsesAPI = enableResponsesAPI ?? false;
     this.isReasoning = isReasoning ?? false;
   }
 }

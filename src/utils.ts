@@ -22,14 +22,18 @@ export async function fetchOpenAI(url: RequestInfo | URL, options?: RequestInit)
     // Check if there are tools with functions
     if (body.tools?.length > 0) {
         body.tools = body.tools.map((tool: any) => {
-            if (tool.type === 'function' && tool.function.strict) {
-                // Remove the strict flag if present
-                const { strict, ...functionWithoutStrict } = tool.function;
-                return {
-                    ...tool,
-                    function: functionWithoutStrict
-                };
+            if (tool.type === 'function') {
+                // Remove the strict property if present
+                tool.hasOwnProperty('strict') && delete tool.strict;
+                if (tool.function && tool.function.strict) {
+                    const { strict, ...functionWithoutStrict } = tool.function;
+                    return {
+                        ...tool,
+                        function: functionWithoutStrict
+                    };
+                }
             }
+
             return tool;
         });
     }

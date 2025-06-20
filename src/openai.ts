@@ -25,7 +25,7 @@ import { getHeaders, ModelConfig } from "./model-config";
 import { isOpenAIOModel, isReasoningModel } from "./types";
 import { fetchOpenAI } from "./utils";
 
-const azureAPIVersion = "2025-02-01-preview";
+const azureAPIVersion = "2025-04-01-preview";
 
 // initGptModel initializes the GPT model.
 export async function initGptModel(
@@ -44,20 +44,24 @@ export async function initGptModel(
       apiVersion: azureAPIVersion,
       fetch: fetchOpenAI, // workaround for https://github.com/vercel/ai/issues/4662
     });
+    let azureModel = azure.languageModel(deployName);
+    if (config.enableResponsesAPI) {
+      azureModel = azure.responses(deployName);
+    }
 
     if (config.isReasoning) {
       viewProvider.apiReasoning = wrapLanguageModel({
-        model: azure.languageModel(deployName),
+        model: azureModel,
         middleware: extractReasoningMiddleware({ tagName: "think" }),
       });
     } else {
       if (isReasoningModel(deployName)) {
         viewProvider.apiChat = wrapLanguageModel({
-          model: azure.languageModel(deployName),
+          model: azureModel,
           middleware: extractReasoningMiddleware({ tagName: "think" }),
         });
       } else {
-        viewProvider.apiChat = azure.languageModel(deployName);
+        viewProvider.apiChat = azureModel;
       }
     }
   } else {
@@ -74,14 +78,14 @@ export async function initGptModel(
         ? viewProvider.reasoningModel
         : "o3-mini";
       viewProvider.apiReasoning = wrapLanguageModel({
-        model: openai.languageModel(model),
+        model: config.enableResponsesAPI ? openai.responses(model) : openai.languageModel(model),
         middleware: extractReasoningMiddleware({ tagName: "think" }),
       });
     } else {
       const model = viewProvider.model ? viewProvider.model : "gpt-4o";
       if (isReasoningModel(model)) {
         viewProvider.apiChat = wrapLanguageModel({
-          model: openai.languageModel(model),
+          model: config.enableResponsesAPI ? openai.responses(model) : openai.languageModel(model),
           middleware: extractReasoningMiddleware({ tagName: "think" }),
         });
       } else {
@@ -158,7 +162,15 @@ export async function chatGpt(
         temperature: provider.modelConfig.temperature,
         // topP: provider.modelConfig.topP,
       }),
+      // ...(provider.provider === "Google" && provider.modelConfig.searchGrounding && {
+      //   providerOptions: {
+      //     google: {
+      //       useSearchGrounding: true,
+      //     },
+      //   },
+      // }),
     };
+    // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question.trim()} inputs: ${JSON.stringify(inputs, null, 2)}`);
     const result = await streamText(inputs);
     for await (const part of result.fullStream) {
       // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question.trim()} response: ${JSON.stringify(part, null, 2)}`);

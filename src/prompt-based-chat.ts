@@ -184,6 +184,13 @@ async function executePromptBasedToolLoop(
         maxTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
         temperature: provider.modelConfig.temperature,
       }),
+      // ...(provider.provider === "Google" && provider.modelConfig.searchGrounding && {
+      //   providerOptions: {
+      //     google: {
+      //       useSearchGrounding: true,
+      //     },
+      //   },
+      // }),
     };
 
     const result = await streamText(inputs);
@@ -308,6 +315,13 @@ async function executeStandardChat(
       maxTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
       temperature: provider.modelConfig.temperature,
     }),
+    // ...(provider.provider === "Google" && provider.modelConfig.searchGrounding && {
+    //   providerOptions: {
+    //     google: {
+    //       useSearchGrounding: true,
+    //     },
+    //   },
+    // }),
   };
 
   const result = await streamText(inputs);

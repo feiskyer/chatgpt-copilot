@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v4.9.3
+
+* Add support for OpenAI Responses API
+
 ## v4.9.2
 
 * Add prompt-based tool calling

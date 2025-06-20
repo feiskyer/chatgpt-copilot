@@ -187,6 +187,7 @@ For Azure OpenAI Service, apiBaseUrl should be set to format `https://[YOUR-ENDP
 [Github Copilot](https://github.com/features/copilot) is supported with built-in authentication (a popup will ask your permission when using Github Copilot models).
 
 **Supported Models:**
+
 - **OpenAI Models**: `gpt-3.5-turbo`, `gpt-4`, `gpt-4-turbo`, `gpt-4o`, `gpt-4o-mini`, `gpt-4.1`, `gpt-4.5`
 - **Reasoning Models**: `o1-ga`, `o3-mini`, `o3`, `o4-mini`
 - **Claude Models**: `claude-3.5-sonnet`, `claude-3.7-sonnet`, `claude-3.7-sonnet-thought`, `claude-sonnet-4`, `claude-opus-4`
@@ -253,6 +254,7 @@ The extension provides various commands accessible through the Command Palette (
 <summary> Context Menu Commands </summary>
 
 ### **Context Menu Commands** (Right-click on selected code)
+
 | Command | Keyboard Shortcut | Description |
 | ------- | ----------------- | ----------- |
 | **Generate Code** | `Ctrl+Shift+A` / `Cmd+Shift+A` | Generate code based on comments or requirements |
@@ -268,11 +270,11 @@ The extension provides various commands accessible through the Command Palette (
 
 </details>
 
-
 <details>
 <summary> General Commands </summary>
 
 ### **General Commands**
+
 | Command | Description |
 | ------- | ----------- |
 | `ChatGPT: Ask anything` | Open input box to ask any question |
@@ -284,7 +286,6 @@ The extension provides various commands accessible through the Command Palette (
 | `Add Current File to Chat Context` | Add the currently open file to chat context |
 | `ChatGPT: Open MCP Servers` | Manage Model Context Protocol servers |
 
-
 </details>
 
 <details>
@@ -292,6 +293,7 @@ The extension provides various commands accessible through the Command Palette (
 <summary> Prompt Management </summary>
 
 ### **Prompt Management**
+
 - Use `#` followed by prompt name to search and apply saved prompts
 - Use `@` to add files to your conversation context
 - Access the Prompt Manager through the sidebar for full prompt management
@@ -309,12 +311,14 @@ The extension supports the **Model Context Protocol (MCP)**, allowing you to ext
 ### **What is MCP?**
 
 MCP enables AI models to securely connect to external data sources and tools, providing:
+
 - **Custom Tools**: Integrate your own tools and APIs
 - **Data Sources**: Connect to databases, file systems, APIs, and more
 - **Secure Execution**: Sandboxed tool execution environment
 - **Multi-Step Workflows**: Agent-like behavior with tool chaining
 
 ### **MCP Server Types**
+
 The extension supports three types of MCP servers:
 
 | Type | Description | Use Case |
@@ -323,7 +327,6 @@ The extension supports three types of MCP servers:
 | **sse** | Server-Sent Events over HTTP | Web-based tools and APIs |
 | **streamable-http** | HTTP streaming communication | Real-time data sources |
 
-
 </details>
 
 <details>
@@ -331,6 +334,7 @@ The extension supports three types of MCP servers:
 <summary> How to configure MCP? </summary>
 
 ### **MCP Configuration**
+
 1. **Access MCP Manager**: Use `ChatGPT: Open MCP Servers` command or click the MCP icon in the sidebar
 2. **Add MCP Server**: Configure your MCP servers with:
    - **Name**: Unique identifier for the server
@@ -343,6 +347,7 @@ The extension supports three types of MCP servers:
 ### **Example MCP Configurations**
 
 **File System Access (stdio):**
+
 ```json
 {
   "name": "filesystem",
@@ -354,6 +359,7 @@ The extension supports three types of MCP servers:
 ```
 
 **Web Search (sse):**
+
 ```json
 {
   "name": "web-search",
@@ -372,6 +378,7 @@ The extension supports three types of MCP servers:
 ### **Agent Mode**
 
 When MCP servers are enabled, the extension operates in **Agent Mode**:
+
 - **Max Steps**: Configure up to 15 tool execution steps
 - **Tool Chaining**: Automatic multi-step workflows
 - **Error Handling**: Robust error recovery and retry logic
@@ -386,6 +393,7 @@ When MCP servers are enabled, the extension operates in **Agent Mode**:
 <summary> Full list of configuration options </summary>
 
 ### **Core Configuration**
+
 | Setting | Default | Description |
 | ------- | ------- | ----------- |
 | `chatgpt.gpt3.provider` | `Auto` | AI Provider: Auto, OpenAI, Azure, AzureAI, Anthropic, GitHubCopilot, Google, Mistral, xAI, Together, DeepSeek, Groq, Perplexity, OpenRouter, Ollama |
@@ -396,6 +404,7 @@ When MCP servers are enabled, the extension operates in **Agent Mode**:
 | `chatgpt.gpt3.organization` | | Organization ID (OpenAI only) |
 
 ### **Model Parameters**
+
 | Setting | Default | Description |
 | ------- | ------- | ----------- |
 | `chatgpt.gpt3.maxTokens` | `0` (unlimited) | Maximum tokens to generate in completion |
@@ -404,6 +413,7 @@ When MCP servers are enabled, the extension operates in **Agent Mode**:
 | `chatgpt.systemPrompt` | | System prompt for the AI assistant |
 
 ### **DeepClaude (Reasoning + Chat) Configuration**
+
 | Setting | Default | Description |
 | ------- | ------- | ----------- |
 | `chatgpt.gpt3.reasoning.provider` | `Auto` | Provider for reasoning model (Auto, OpenAI, Azure, AzureAI, Google, DeepSeek, Groq, OpenRouter, Ollama) |
@@ -413,17 +423,21 @@ When MCP servers are enabled, the extension operates in **Agent Mode**:
 | `chatgpt.gpt3.reasoning.organization` | | Organization ID for reasoning model (OpenAI only) |
 
 ### **Agent & MCP Configuration**
+
 | Setting | Default | Description |
 | ------- | ------- | ----------- |
 | `chatgpt.gpt3.maxSteps` | `15` | Maximum steps for agent mode when using MCP servers |
 
 ### **Feature Toggles**
+
 | Setting | Default | Description |
 | ------- | ------- | ----------- |
 | `chatgpt.gpt3.generateCode-enabled` | `true` | Enable code generation context menu |
 | `chatgpt.gpt3.searchGrounding.enabled` | `false` | Enable search grounding (Gemini models only) |
+| `chatgpt.gpt3.responsesAPI.enabled` | `false` | Enable OpenAI Responses API. Only available for OpenAI/AzureOpenAI models |
 
 ### **Prompt Prefixes & Context Menu**
+
 | Setting | Default | Description |
 | ------- | ------- | ----------- |
 | `chatgpt.promptPrefix.addTests` | `Implement tests for the following code` | Prompt for generating unit tests |
@@ -445,6 +459,7 @@ When MCP servers are enabled, the extension operates in **Agent Mode**:
 | `chatgpt.promptPrefix.customPrompt2-enabled` | `false` | Enable second custom prompt in context menu |
 
 ### **User Interface**
+
 | Setting | Default | Description |
 | ------- | ------- | ----------- |
 | `chatgpt.response.showNotification` | `false` | Show notification when AI responds |

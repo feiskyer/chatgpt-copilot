@@ -133,12 +133,7 @@ export async function createToolSet(config: MCPServerConfig): Promise<ToolSet> {
         if (parameters.jsonSchema.additionalProperties == null) {
           parameters.jsonSchema.additionalProperties = false;
         }
-        // const parameters = jsonSchema(
-        //   Object.fromEntries(
-        //     Object.entries(t.inputSchema as JSONSchema7)
-        //       .filter(([key]) => key !== "additionalProperties" && key !== "$schema")
-        //   )
-        // );
+
         toolset.tools[toolName] = tool({
           description: t.description || toolName,
           parameters: parameters,
