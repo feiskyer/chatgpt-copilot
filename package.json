@@ -704,7 +704,7 @@
     "keyv": "^5.3.4",
     "minimatch": "^10.0.3",
     "ollama-ai-provider": "^1.2.0",
-    "openai": "^5.5.1",
+    "openai": "^5.8.2",
     "p-timeout": "^6.1.4",
     "punycode": "^2.3.1",
     "puppeteer": "^24.10.2",

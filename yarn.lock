@@ -3944,10 +3944,10 @@ open@^10.1.0:
     is-inside-container "^1.0.0"
     is-wsl "^3.1.0"
 
-openai@^5.5.1:
-  version "5.5.1"
-  resolved "https://registry.yarnpkg.com/openai/-/openai-5.5.1.tgz#94615a5d9b9e09e5238d9cb976a5794200f72910"
-  integrity sha512-5i19097mGotHA1eFsM6Tjd/tJ8uo9sa5Ysv4Q6bKJ2vtN6rc0MzMrUefXnLXYAJcmMQrC1Efhj0AvfIkXrQamw==
+openai@^5.8.2:
+  version "5.8.2"
+  resolved "https://registry.yarnpkg.com/openai/-/openai-5.8.2.tgz#b12f968618deb87f6231b35a21b590d0b529d70b"
+  integrity sha512-8C+nzoHYgyYOXhHGN6r0fcb4SznuEn1R7YZMvlqDbnCuE0FM2mm3T1HiYW6WIcMS/F1Of2up/cSPjLPaWt0X9Q==
 
 optionator@^0.9.3:
   version "0.9.4"
