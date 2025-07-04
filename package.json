@@ -689,7 +689,7 @@
     "@ai-sdk/replicate": "^0.2.8",
     "@ai-sdk/togetherai": "^0.2.14",
     "@ai-sdk/xai": "^1.2.16",
-    "@modelcontextprotocol/sdk": "^1.13.0",
+    "@modelcontextprotocol/sdk": "^1.15.0",
     "@openrouter/ai-sdk-provider": "^0.7.2",
     "@quail-ai/azure-ai-provider": "1.2.0",
     "@types/minimatch": "^5.1.2",
