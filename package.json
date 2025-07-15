@@ -11,7 +11,7 @@
   },
   "engines": {
     "yarn": ">=1 <2",
-    "vscode": "^1.96.0"
+    "vscode": "^1.94.0"
   },
   "categories": [
     "AI",
@@ -661,7 +661,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/uuid": "^10.0.0",
-    "@types/vscode": "1.96.0",
+    "@types/vscode": "1.94.0",
     "@types/vscode-webview": "^1.57.5",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/vsce": "^3.5.1-3",
