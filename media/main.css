@@ -14,6 +14,107 @@
     --input-padding-horizontal: 4px;
     --input-margin-vertical: 4px;
     --input-margin-horizontal: 0;
+
+    /* Theme-aware custom properties for modern input */
+    --modern-input-bg: var(--vscode-input-background);
+    --modern-input-bg-hover: var(--vscode-list-hoverBackground);
+    --modern-input-bg-focus: var(--vscode-list-focusBackground);
+    --modern-button-inactive-bg: rgba(0, 0, 0, 0.02);
+    --modern-button-inactive-color: var(--vscode-foreground);
+    --modern-button-inactive-hover-bg: rgba(0, 0, 0, 0.04);
+    --modern-button-inactive-hover-color: var(--vscode-foreground);
+    --modern-button-active-bg: rgba(0, 123, 255, 0.08);
+    --modern-button-active-color: rgb(0, 123, 255);
+    --modern-button-active-hover-bg: rgba(0, 123, 255, 0.12);
+    --modern-shadow-light: transparent;
+    --modern-shadow-medium: transparent;
+    --modern-border-light: var(--vscode-contrastBorder);
+    --modern-border-medium: var(--vscode-contrastBorder);
+    --modern-accent-primary: var(--vscode-button-background);
+    --modern-accent-primary-alpha: var(--vscode-button-background);
+    --modern-accent-success: var(--vscode-button-background);
+    --modern-accent-success-alpha: var(--vscode-button-background);
+    --modern-accent-warning: var(--vscode-button-background);
+    --modern-accent-warning-alpha: var(--vscode-button-background);
+    --modern-accent-error: var(--vscode-errorForeground);
+    --modern-accent-error-alpha: var(--vscode-errorForeground);
+}
+
+/* Dark theme overrides */
+body[data-vscode-theme-kind="vscode-dark"],
+body[data-vscode-theme-name*="dark"],
+body[data-vscode-theme-name*="Dark"] {
+    --modern-input-bg: var(--vscode-input-background);
+    --modern-input-bg-hover: var(--vscode-list-hoverBackground);
+    --modern-input-bg-focus: var(--vscode-list-focusBackground);
+    --modern-button-inactive-bg: rgba(255, 255, 255, 0.06);
+    --modern-button-inactive-color: var(--vscode-foreground);
+    --modern-button-inactive-hover-bg: rgba(255, 255, 255, 0.1);
+    --modern-button-inactive-hover-color: var(--vscode-foreground);
+    --modern-button-active-bg: rgba(100, 181, 246, 0.15);
+    --modern-button-active-color: rgb(100, 181, 246);
+    --modern-button-active-hover-bg: rgba(100, 181, 246, 0.22);
+    --modern-shadow-light: transparent;
+    --modern-shadow-medium: transparent;
+    --modern-border-light: var(--vscode-contrastBorder);
+    --modern-border-medium: var(--vscode-contrastBorder);
+    --modern-accent-primary: var(--vscode-button-background);
+    --modern-accent-primary-alpha: var(--vscode-button-background);
+    --modern-accent-success: var(--vscode-button-background);
+    --modern-accent-success-alpha: var(--vscode-button-background);
+    --modern-accent-warning: var(--vscode-button-background);
+    --modern-accent-warning-alpha: var(--vscode-button-background);
+    --modern-accent-error: var(--vscode-errorForeground);
+    --modern-accent-error-alpha: var(--vscode-errorForeground);
+}
+
+/* High contrast theme overrides */
+body[data-vscode-theme-kind="vscode-high-contrast"],
+body[data-vscode-theme-name*="high-contrast"],
+body[data-vscode-theme-name*="High Contrast"] {
+    --modern-input-bg: transparent;
+    --modern-input-bg-hover: var(--vscode-list-hoverBackground);
+    --modern-input-bg-focus: var(--vscode-list-focusBackground);
+    --modern-button-inactive-bg: transparent;
+    --modern-button-inactive-color: var(--vscode-foreground);
+    --modern-button-inactive-hover-bg: var(--vscode-list-hoverBackground);
+    --modern-button-inactive-hover-color: var(--vscode-foreground);
+    --modern-button-active-bg: var(--vscode-button-background);
+    --modern-button-active-color: var(--vscode-button-foreground);
+    --modern-button-active-hover-bg: var(--vscode-button-hoverBackground);
+    --modern-shadow-light: transparent;
+    --modern-shadow-medium: transparent;
+    --modern-border-light: var(--vscode-contrastBorder);
+    --modern-border-medium: var(--vscode-contrastBorder);
+    --modern-accent-primary: var(--vscode-button-background);
+    --modern-accent-primary-alpha: var(--vscode-button-background);
+    --modern-accent-success: var(--vscode-button-background);
+    --modern-accent-success-alpha: var(--vscode-button-background);
+    --modern-accent-warning: var(--vscode-button-background);
+    --modern-accent-warning-alpha: var(--vscode-button-background);
+    --modern-accent-error: var(--vscode-errorForeground);
+    --modern-accent-error-alpha: var(--vscode-errorForeground);
+}
+
+/* Special high contrast button visibility */
+body[data-vscode-theme-kind="vscode-high-contrast"] .modern-button,
+body[data-vscode-theme-name*="high-contrast"] .modern-button,
+body[data-vscode-theme-name*="High Contrast"] .modern-button {
+    border: 1px solid var(--vscode-contrastBorder) !important;
+}
+
+body[data-vscode-theme-kind="vscode-high-contrast"] .modern-button-inactive,
+body[data-vscode-theme-name*="high-contrast"] .modern-button-inactive,
+body[data-vscode-theme-name*="High Contrast"] .modern-button-inactive {
+    background: transparent !important;
+    border: 1px solid var(--vscode-contrastBorder) !important;
+}
+
+body[data-vscode-theme-kind="vscode-high-contrast"] .modern-button-inactive:hover,
+body[data-vscode-theme-name*="high-contrast"] .modern-button-inactive:hover,
+body[data-vscode-theme-name*="High Contrast"] .modern-button-inactive:hover {
+    background: var(--vscode-list-hoverBackground) !important;
+    border: 1px solid var(--vscode-contrastActiveBorder) !important;
 }
 
 body {
@@ -22,7 +123,7 @@ body {
     font-size: var(--vscode-editor-font-size);
     font-weight: var(--vscode-font-weight);
     font-family: var(--vscode-font-family);
-    background-color: var(--vscode-editor-background);
+    background-color: var(--vscode-sideBar-background);
 }
 
 ol,
@@ -354,9 +455,14 @@ textarea::placeholder {
     font-size: var(--vscode-font-size);
 }
 
-.input-background {
+/* .input-background {
     background: var(--vscode-input-background);
-}
+} */
+
+/* Fix user message background to match chat area, not VS Code input background */
+/* .question-element-ext.input-background {
+    background: var(--vscode-editor-background);
+} */
 
 .send-element-ext,
 .cancel-element-ext {
@@ -933,4 +1039,1165 @@ h2.mb-3 {
 /* Hide tool-result elements */
 tool-result {
     display: none;
+}
+
+/* Modern Input Container Styles */
+.modern-input-container {
+    width: 100%;
+    max-width: 36rem;
+    /* 576px */
+    margin: 0 auto;
+    padding: 1rem;
+    /* background: var(--vscode-editor-background); */
+    border: 1px solid var(--vscode-widget-border);
+    border-radius: 0.5rem;
+    position: relative;
+    z-index: 10;
+}
+
+.modern-input-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0.75rem;
+    /* 12px */
+    overflow: hidden;
+    background: var(--modern-input-bg);
+    border: 1px solid var(--vscode-input-border);
+    transition: all 0.2s ease;
+}
+
+.modern-input-wrapper:hover {
+    background: var(--modern-input-bg-hover);
+}
+
+.modern-input-wrapper:focus-within {
+    border-color: var(--vscode-focusBorder);
+    box-shadow: 0 0 0 1px var(--vscode-focusBorder);
+    background: var(--modern-input-bg-focus);
+}
+
+/* File References Modern Styling */
+.file-references-modern {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0 1rem;
+    min-height: 0;
+    transition: all 0.3s ease;
+}
+
+.file-references-modern:empty {
+    display: none;
+    margin-bottom: 0;
+    padding: 0;
+}
+
+.file-reference-modern {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    background: var(--modern-accent-primary-alpha);
+    color: var(--modern-accent-primary);
+    border: 1px solid var(--modern-border-medium);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: file-reference-appear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+    max-width: 200px;
+}
+
+/* Enhanced appear animation with bounce */
+@keyframes file-reference-appear {
+    0% {
+        opacity: 0;
+        transform: translateY(-12px) scale(0.9);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: translateY(-2px) scale(1.02);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Disappear animation */
+@keyframes file-reference-disappear {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        max-width: 200px;
+        margin-right: 0.5rem;
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: translateY(-4px) scale(0.95);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.9);
+        max-width: 0;
+        margin-right: 0;
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+.file-reference-modern.removing {
+    animation: file-reference-disappear 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.file-reference-modern:hover {
+    background: var(--modern-accent-primary-alpha);
+    border-color: var(--modern-border-medium);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--modern-shadow-medium);
+}
+
+/* File type specific colors */
+.file-reference-modern.file-type-image {
+    background: var(--modern-accent-warning-alpha);
+    color: var(--modern-accent-warning);
+    border-color: var(--modern-border-medium);
+}
+
+.file-reference-modern.file-type-image:hover {
+    background: var(--modern-accent-warning-alpha);
+    border-color: var(--modern-border-medium);
+    box-shadow: 0 4px 12px var(--modern-shadow-medium);
+}
+
+.file-reference-modern.file-type-code {
+    background: var(--modern-accent-success-alpha);
+    color: var(--modern-accent-success);
+    border-color: var(--modern-border-medium);
+}
+
+.file-reference-modern.file-type-code:hover {
+    background: var(--modern-accent-success-alpha);
+    border-color: var(--modern-border-medium);
+    box-shadow: 0 4px 12px var(--modern-shadow-medium);
+}
+
+.file-reference-modern.file-type-document {
+    background: var(--modern-accent-warning-alpha);
+    color: var(--modern-accent-warning);
+    border-color: var(--modern-border-medium);
+}
+
+.file-reference-modern.file-type-document:hover {
+    background: var(--modern-accent-warning-alpha);
+    border-color: var(--modern-border-medium);
+    box-shadow: 0 4px 12px var(--modern-shadow-medium);
+}
+
+/* File reference remove button theme-aware styling */
+.file-reference-remove:hover {
+    background: var(--modern-accent-error-alpha);
+    color: var(--modern-accent-error);
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Enhanced remove button */
+.file-reference-remove {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    opacity: 0.7;
+    margin-left: 0.25rem;
+    flex-shrink: 0;
+}
+
+.file-reference-remove:hover {
+    background: rgba(239, 68, 68, 0.2);
+    /* red-500/20 */
+    color: rgb(239, 68, 68);
+    /* red-500 */
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.file-reference-remove:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+}
+
+/* Enhanced file icon styling */
+.file-reference-modern .file-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.9;
+}
+
+.file-reference-modern:hover .file-icon {
+    transform: scale(1.1);
+    opacity: 1;
+}
+
+/* File name truncation */
+.file-reference-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+    font-weight: 500;
+}
+
+/* Tooltip for full file name */
+.file-reference-modern[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--vscode-editorHoverWidget-background);
+    color: var(--vscode-editorHoverWidget-foreground);
+    border: 1px solid var(--vscode-editorHoverWidget-border);
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: tooltip-appear 0.2s ease-out;
+}
+
+@keyframes tooltip-appear {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(4px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Shimmer effect for loading state */
+.file-reference-modern.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.file-reference-modern.loading::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent);
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        left: -100%;
+    }
+
+    100% {
+        left: 100%;
+    }
+}
+
+/* Success pulse animation */
+.file-reference-modern.success {
+    animation: success-pulse 0.6s ease-out;
+}
+
+@keyframes success-pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+    }
+
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    }
+}
+
+/* Accessibility Improvements */
+
+/* Screen reader only content */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Enhanced focus indicators for better keyboard navigation */
+.modern-textarea:focus {
+    outline: 2px solid var(--vscode-focusBorder);
+    outline-offset: 2px;
+    border-color: var(--vscode-focusBorder);
+}
+
+.modern-button:focus {
+    outline: 2px solid var(--vscode-focusBorder);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--vscode-focusBorder);
+}
+
+/* High contrast mode focus indicators */
+body[data-vscode-theme-kind="vscode-high-contrast"] .modern-textarea:focus,
+body[data-vscode-theme-name*="high-contrast"] .modern-textarea:focus,
+body[data-vscode-theme-name*="High Contrast"] .modern-textarea:focus {
+    outline: 3px solid var(--vscode-contrastActiveBorder);
+    outline-offset: 2px;
+    border-color: var(--vscode-contrastActiveBorder);
+}
+
+body[data-vscode-theme-kind="vscode-high-contrast"] .modern-button:focus,
+body[data-vscode-theme-name*="high-contrast"] .modern-button:focus,
+body[data-vscode-theme-name*="High Contrast"] .modern-button:focus {
+    outline: 3px solid var(--vscode-contrastActiveBorder);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px var(--vscode-contrastActiveBorder);
+}
+
+/* File reference accessibility */
+.file-reference-modern:focus {
+    outline: 2px solid var(--vscode-focusBorder);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--vscode-focusBorder);
+}
+
+.file-reference-remove:focus {
+    outline: 2px solid var(--vscode-focusBorder);
+    outline-offset: 1px;
+    box-shadow: 0 0 0 2px var(--vscode-focusBorder);
+}
+
+/* Menu accessibility */
+#chat-button-wrapper[aria-hidden="false"] {
+    display: block;
+}
+
+#chat-button-wrapper[role="menu"] button:focus {
+    outline: 2px solid var(--vscode-focusBorder);
+    outline-offset: 1px;
+    background: var(--vscode-list-focusBackground);
+}
+
+/* jQuery UI Menu overrides to match VS Code theme */
+.ui-menu {
+    background: var(--vscode-dropdown-background) !important;
+    border: 1px solid var(--vscode-dropdown-border) !important;
+    border-radius: 3px !important;
+    box-shadow: 0 2px 8px var(--vscode-widget-shadow) !important;
+    font-family: var(--vscode-font-family) !important;
+    font-size: var(--vscode-font-size) !important;
+    color: var(--vscode-dropdown-foreground) !important;
+    padding: 2px 0 !important;
+}
+
+.ui-menu .ui-menu-item {
+    background: transparent !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.ui-menu .ui-menu-item-wrapper {
+    background: transparent !important;
+    border: none !important;
+    color: var(--vscode-dropdown-foreground) !important;
+    padding: 4px 16px !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+    border-radius: 0 !important;
+    text-decoration: none !important;
+    display: block !important;
+    line-height: 1.4 !important;
+}
+
+.ui-menu .ui-menu-item-wrapper:hover,
+.ui-menu .ui-menu-item-wrapper.ui-state-focus,
+.ui-menu .ui-menu-item-wrapper.ui-state-active {
+    background: var(--vscode-list-hoverBackground) !important;
+    color: var(--vscode-list-hoverForeground) !important;
+    border: none !important;
+}
+
+.ui-menu .ui-menu-item-wrapper.ui-state-focus {
+    background: var(--vscode-list-focusBackground) !important;
+    color: var(--vscode-list-focusForeground) !important;
+    outline: 1px solid var(--vscode-focusBorder) !important;
+    outline-offset: -1px !important;
+}
+
+/* Autocomplete widget overrides */
+.ui-autocomplete {
+    max-height: 200px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    z-index: 999999 !important;
+}
+
+.ui-autocomplete::-webkit-scrollbar {
+    width: 10px !important;
+}
+
+.ui-autocomplete::-webkit-scrollbar-track {
+    background: var(--vscode-scrollbarSlider-background) !important;
+}
+
+.ui-autocomplete::-webkit-scrollbar-thumb {
+    background: var(--vscode-scrollbarSlider-background) !important;
+    border-radius: 5px !important;
+}
+
+.ui-autocomplete::-webkit-scrollbar-thumb:hover {
+    background: var(--vscode-scrollbarSlider-hoverBackground) !important;
+}
+
+/* Input field improvements for better theme matching */
+.modern-textarea {
+    border: 1px solid var(--vscode-input-border) !important;
+    background: var(--vscode-input-background) !important;
+    color: var(--vscode-input-foreground) !important;
+}
+
+.modern-textarea:focus {
+    border-color: var(--vscode-focusBorder) !important;
+    outline: 1px solid var(--vscode-focusBorder) !important;
+    outline-offset: -1px !important;
+}
+
+.modern-textarea::placeholder {
+    color: var(--vscode-input-placeholderForeground) !important;
+}
+
+/* Button improvements for better integration */
+.modern-button {
+    border: 1px solid transparent !important;
+    font-family: var(--vscode-font-family) !important;
+    font-size: var(--vscode-font-size) !important;
+}
+
+.modern-button:focus-visible {
+    outline: 1px solid var(--vscode-focusBorder) !important;
+    outline-offset: -1px !important;
+}
+
+/* File reference tags to match VS Code style */
+.file-reference-modern {
+    background: var(--vscode-badge-background) !important;
+    color: var(--vscode-badge-foreground) !important;
+    border: 1px solid var(--vscode-badge-background) !important;
+    font-family: var(--vscode-font-family) !important;
+    font-size: calc(var(--vscode-font-size) * 0.9) !important;
+}
+
+/* Keyboard navigation styles */
+.modern-button[aria-pressed="true"] {
+    background: var(--modern-button-active-bg);
+    color: var(--modern-button-active-color);
+}
+
+.modern-button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.modern-button[disabled]:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Enhanced button states for accessibility */
+.modern-button-active {
+    background: var(--modern-button-active-bg);
+    color: var(--modern-button-active-color);
+}
+
+.modern-button-active:hover {
+    background: var(--modern-button-active-hover-bg);
+}
+
+.modern-button-inactive {
+    background: var(--modern-button-inactive-bg);
+    color: var(--modern-button-inactive-color);
+}
+
+.modern-button-inactive:hover:not([disabled]) {
+    background: var(--modern-button-inactive-hover-bg);
+    color: var(--modern-button-inactive-hover-color);
+}
+
+/* Loading state accessibility */
+.modern-button.loading {
+    position: relative;
+    color: transparent;
+}
+
+.modern-button.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--modern-button-inactive-color);
+    border-top: 2px solid var(--modern-accent-primary);
+    border-radius: 50%;
+    animation: button-spin 1s linear infinite;
+}
+
+@keyframes button-spin {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+/* Success and error states for file attachment */
+.modern-button.success {
+    background: var(--modern-accent-success-alpha);
+    color: var(--modern-accent-success);
+}
+
+.modern-button.error {
+    background: var(--modern-accent-error-alpha);
+    color: var(--modern-accent-error);
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+
+    .modern-textarea,
+    .modern-button,
+    .file-reference-modern,
+    .file-reference-remove {
+        transition: none;
+        animation: none;
+    }
+
+    .file-reference-modern.removing {
+        animation: none;
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    .modern-button.loading::after {
+        animation: none;
+        border: 2px solid var(--modern-accent-primary);
+        border-radius: 50%;
+    }
+}
+
+/* Skip link for keyboard users */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    padding: 8px;
+    text-decoration: none;
+    border-radius: 4px;
+    z-index: 1000;
+    transition: top 0.3s;
+}
+
+.skip-link:focus {
+    top: 6px;
+    outline: 2px solid var(--vscode-focusBorder);
+    outline-offset: 2px;
+}
+
+/* Modern textarea accessibility enhancements */
+.modern-textarea {
+    resize: none;
+    overflow-y: auto;
+    min-height: 48px;
+    max-height: 164px;
+    line-height: 1.5;
+    font-family: var(--vscode-font-family);
+    font-size: var(--vscode-editor-font-size);
+    color: var(--vscode-input-foreground);
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 12px 16px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modern-textarea::placeholder {
+    color: var(--vscode-input-placeholderForeground);
+    opacity: 0.7;
+}
+
+.modern-textarea:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Button area accessibility */
+.modern-button-area {
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    border-top: 1px solid var(--modern-border-light);
+}
+
+.modern-button-left,
+.modern-button-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modern-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.modern-button svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modern-button:hover:not([disabled]) svg {
+    transform: scale(1.1);
+}
+
+.modern-button:active:not([disabled]) {
+    transform: scale(0.95);
+}
+
+/* Tooltip improvements for accessibility */
+.modern-button[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--vscode-editorHoverWidget-background);
+    color: var(--vscode-editorHoverWidget-foreground);
+    border: 1px solid var(--vscode-editorHoverWidget-border);
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: tooltip-appear 0.2s ease-out;
+    pointer-events: none;
+}
+
+/* Live region for announcements */
+.live-region {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+0 0 0 8px rgba(34, 197, 94, 0.1);
+}
+
+100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+}
+}
+
+/* Responsive adjustments for file references */
+@media (max-width: 640px) {
+    .file-references-modern {
+        padding: 0 0.75rem;
+        gap: 0.375rem;
+    }
+
+    .file-reference-modern {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.8125rem;
+        max-width: 150px;
+    }
+
+    .file-reference-name {
+        max-width: 80px;
+    }
+
+    .file-reference-modern .file-icon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .file-reference-remove {
+        width: 1rem;
+        height: 1rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Modern Textarea Area */
+.modern-textarea-area {
+    overflow-y: auto;
+    max-height: 164px;
+    /* ~10 lines */
+}
+
+.modern-textarea {
+    width: 100%;
+    min-height: 48px;
+    max-height: 164px;
+    padding: 0.75rem 1rem;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--vscode-input-foreground);
+    font-family: var(--vscode-font-family);
+    font-size: var(--vscode-editor-font-size);
+    line-height: 1.5;
+    resize: none;
+    overflow: hidden;
+    transition: height 0.2s ease;
+    box-sizing: border-box;
+}
+
+/* Auto-resize specific styles */
+.modern-textarea.auto-resize {
+    height: 48px;
+    transition: height 0.2s ease;
+}
+
+.modern-textarea.auto-resize:focus {
+    transition: height 0.2s ease;
+}
+
+.modern-textarea::placeholder {
+    color: var(--vscode-input-placeholderForeground);
+}
+
+.modern-textarea::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modern-textarea::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modern-textarea::-webkit-scrollbar-thumb {
+    background: var(--vscode-scrollbarSlider-background);
+    border-radius: 3px;
+}
+
+.modern-textarea::-webkit-scrollbar-thumb:hover {
+    background: var(--vscode-scrollbarSlider-hoverBackground);
+}
+
+/* Modern Button Area */
+.modern-button-area {
+    height: 3rem;
+    /* 48px */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0.75rem;
+    border-top: 1px solid var(--vscode-input-border);
+    background: var(--vscode-input-background);
+}
+
+.modern-button-left,
+.modern-button-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Modern Button Styling */
+.modern-button {
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    min-width: 2rem;
+    min-height: 2rem;
+    position: relative;
+}
+
+.modern-button-inactive {
+    background: var(--modern-button-inactive-bg);
+    color: var(--modern-button-inactive-color);
+}
+
+.modern-button-active {
+    background: var(--modern-button-active-bg);
+    color: var(--modern-button-active-color);
+}
+
+/* Enhanced hover states for all interactive buttons */
+.modern-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px var(--modern-shadow-light);
+}
+
+.modern-button-inactive:hover:not(:disabled) {
+    background: var(--modern-button-inactive-hover-bg);
+    color: var(--modern-button-inactive-hover-color);
+}
+
+.modern-button-active:hover:not(:disabled) {
+    background: var(--modern-button-active-hover-bg);
+    color: var(--modern-button-active-color);
+    /* sky-600 */
+}
+
+/* Enhanced focus states */
+.modern-button:focus {
+    outline: 2px solid var(--vscode-focusBorder);
+    outline-offset: 2px;
+    transform: translateY(-1px);
+}
+
+.modern-button:focus:not(:focus-visible) {
+    outline: none;
+}
+
+.modern-button:focus-visible {
+    outline: 2px solid var(--vscode-focusBorder);
+    outline-offset: 2px;
+}
+
+/* Active/pressed state */
+.modern-button:active {
+    transform: translateY(0);
+    transition: transform 0.1s ease;
+}
+
+.modern-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.modern-button:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.modern-button svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    transition: all 0.2s ease;
+}
+
+/* SVG icon color transitions */
+.modern-button-inactive svg {
+    transition: color 0.2s ease;
+}
+
+.modern-button-active svg {
+    transition: color 0.2s ease;
+}
+
+/* Special styling for send button when active */
+.modern-button-active#ask-button {
+    background: rgba(34, 197, 94, 0.15);
+    /* green-500/15 */
+    color: rgb(34, 197, 94);
+    /* green-500 */
+}
+
+.modern-button-active#ask-button:hover:not(:disabled) {
+    background: var(--modern-accent-success-alpha);
+    color: var(--modern-accent-success);
+    /* green-600 */
+}
+
+/* Pulse animation for active send button */
+.modern-button-active#ask-button {
+    animation: subtle-pulse 2s ease-in-out infinite;
+}
+
+@keyframes subtle-pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+    }
+}
+
+/* File attachment button specific styling */
+.modern-button#file-attachment-button {
+    position: relative;
+    overflow: hidden;
+}
+
+.modern-button#file-attachment-button:hover:not(:disabled) {
+    background: rgba(168, 85, 247, 0.1);
+    /* purple-500/10 */
+    color: rgb(168, 85, 247);
+    /* purple-500 */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(168, 85, 247, 0.2);
+}
+
+.modern-button#file-attachment-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(168, 85, 247, 0.15);
+}
+
+/* File attachment button loading state */
+.modern-button#file-attachment-button.loading {
+    background: rgba(168, 85, 247, 0.15);
+    color: rgb(168, 85, 247);
+    pointer-events: none;
+}
+
+.modern-button#file-attachment-button.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        left: -100%;
+    }
+
+    100% {
+        left: 100%;
+    }
+}
+
+/* File attachment success state */
+.modern-button#file-attachment-button.success {
+    background: rgba(34, 197, 94, 0.15);
+    /* green-500/15 */
+    color: rgb(34, 197, 94);
+    /* green-500 */
+    animation: success-pulse 0.6s ease-out;
+}
+
+@keyframes success-pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+    }
+
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 8px rgba(34, 197, 94, 0.1);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    }
+}
+
+/* File attachment error state */
+.modern-button#file-attachment-button.error {
+    background: rgba(239, 68, 68, 0.15);
+    /* red-500/15 */
+    color: rgb(239, 68, 68);
+    /* red-500 */
+    animation: error-shake 0.5s ease-out;
+}
+
+@keyframes error-shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-4px);
+    }
+
+    75% {
+        transform: translateX(4px);
+    }
+}
+
+/* More actions button specific styling */
+.modern-button#more-button:hover:not(:disabled) {
+    background: rgba(107, 114, 128, 0.1);
+    /* gray-500/10 */
+    color: rgb(107, 114, 128);
+    /* gray-500 */
+}
+
+/* Button loading state */
+.modern-button.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.modern-button.loading svg {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Enhanced button transitions */
+.modern-button {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modern-button:hover {
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modern-button:active {
+    transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Improved focus ring */
+.modern-button:focus-visible {
+    outline: 2px solid var(--vscode-focusBorder);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+}
+
+/* Button state transition improvements */
+.modern-button-active {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modern-button-inactive {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .modern-input-container {
+        padding: 0.5rem;
+    }
+
+    .modern-input-wrapper {
+        border-radius: 0.5rem;
+    }
+
+    .modern-button {
+        width: 1.75rem;
+        height: 1.75rem;
+        min-width: 1.75rem;
+        min-height: 1.75rem;
+    }
+
+    .modern-button svg {
+        width: 1rem;
+        height: 1rem;
+    }
+}
+
+/* High contrast mode adjustments */
+@media (prefers-contrast: high) {
+    .modern-button-active {
+        border: 2px solid currentColor;
+    }
+
+    .modern-button:focus-visible {
+        outline-width: 3px;
+    }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+
+    .modern-button,
+    .modern-button:hover,
+    .modern-button:active,
+    .modern-button-active,
+    .modern-button-inactive {
+        transition: none;
+    }
+
+    .modern-button-active#ask-button {
+        animation: none;
+    }
+
+    @keyframes subtle-pulse {
+
+        0%,
+        100% {
+            box-shadow: none;
+        }
+    }
 }

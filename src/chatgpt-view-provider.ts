@@ -1303,30 +1303,82 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15m0 0L7.5 12m4.5 4.5V3" /></svg>Stop responding</button>
 					</div>
 
-					<div class="p-4 flex items-center pt-2">
-						<div class="flex-1 textarea-wrapper">
-							<div id="file-references" class="file-references-container"></div>
-							<div class="input-container">
+					<div class="modern-input-container" role="region" aria-label="Chat input area">
+						<div class="modern-input-wrapper">
+							<div id="file-references" class="file-references-modern" role="list" aria-label="Attached files" aria-live="polite"></div>
+							<div class="modern-textarea-area">
 								<textarea
 									type="text"
-									rows="3"
+									rows="1"
 									id="question-input"
 									placeholder="Ask a question..."
-									onInput="this.parentNode.dataset.replicatedValue = this.value"></textarea>
-								<div id="question-input-buttons">
-									<button id="more-button" title="More actions" class="rounded-lg p-0.5">
-										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" /></svg>
+									class="modern-textarea"
+									aria-label="Type your message here. Use @ to reference files, # to search prompts. Press Enter to send, Shift+Enter for new line."
+									aria-describedby="input-help-text"
+									role="textbox"
+									aria-multiline="true"
+									aria-expanded="false"
+									aria-autocomplete="list"></textarea>
+								<div id="input-help-text" class="sr-only">
+									Use @ symbol to reference files in your workspace. Use # symbol to search and insert saved prompts. Press Enter to send your message, or Shift+Enter to add a new line.
+								</div>
+							</div>
+							<div class="modern-button-area" role="toolbar" aria-label="Chat input actions">
+								<div class="modern-button-left">
+									<button id="file-attachment-button" 
+										title="Attach file" 
+										class="modern-button modern-button-inactive"
+										aria-label="Attach file to conversation"
+										aria-describedby="attach-help">
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5" aria-hidden="true">
+											<path stroke-linecap="round" stroke-linejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
+										</svg>
 									</button>
-									<button id="ask-button" title="Submit prompt" class="ask-button rounded-lg p-0.5">
-										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+									<div id="attach-help" class="sr-only">Click to open file picker and attach files to your conversation</div>
+									<button id="more-button" 
+										title="More actions" 
+										class="modern-button modern-button-inactive"
+										aria-label="More actions menu"
+										aria-describedby="more-help"
+										aria-expanded="false"
+										aria-haspopup="menu">
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" /></svg>
 									</button>
+									<div id="more-help" class="sr-only">Access additional options like new chat, settings, and export</div>
+								</div>
+								<div class="modern-button-right">
+									<button id="ask-button" 
+										title="Submit prompt" 
+										class="modern-button modern-button-inactive"
+										aria-label="Send message"
+										aria-describedby="send-help"
+										disabled>
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+									</button>
+									<div id="send-help" class="sr-only">Send your message to the AI assistant</div>
 								</div>
 							</div>
 						</div>
-						<div id="chat-button-wrapper" class="absolute bottom-14 items-center more-menu right-8 border border-gray-200 shadow-xl hidden text-xs">
-							<button class="flex gap-2 items-center justify-start p-2 w-full" id="clear-button"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" /></svg>&nbsp;New chat</button>
-							<button class="flex gap-2 items-center justify-start p-2 w-full" id="settings-button"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>&nbsp;Update settings</button>
-							<button class="flex gap-2 items-center justify-start p-2 w-full" id="export-button"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>&nbsp;Export to markdown</button>
+						<div id="chat-button-wrapper" 
+							class="absolute bottom-14 items-center more-menu right-8 border border-gray-200 shadow-xl hidden text-xs"
+							role="menu"
+							aria-label="Chat actions menu"
+							aria-hidden="true">
+							<button class="flex gap-2 items-center justify-start p-2 w-full" 
+								id="clear-button"
+								role="menuitem"
+								aria-label="Start a new chat conversation">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" /></svg>&nbsp;New chat</button>
+							<button class="flex gap-2 items-center justify-start p-2 w-full" 
+								id="settings-button"
+								role="menuitem"
+								aria-label="Open extension settings">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>&nbsp;Update settings</button>
+							<button class="flex gap-2 items-center justify-start p-2 w-full" 
+								id="export-button"
+								role="menuitem"
+								aria-label="Export conversation to markdown file">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>&nbsp;Export to markdown</button>
 						</div>
 					</div>
 				</div>
@@ -1451,11 +1503,29 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           vscode.window.showErrorMessage(
             `Failed to read file: ${selectedItem.label}`,
           );
+
+          // Send error feedback to webview
+          this.sendMessage({
+            type: "fileAttachmentError",
+            error: `Failed to read file: ${selectedItem.label}`,
+          });
         }
+      } else {
+        // User cancelled file selection - reset button state
+        this.sendMessage({
+          type: "fileAttachmentError",
+          error: null, // No error message, just reset state
+        });
       }
     } catch (error) {
       console.error("Error in handleFileSearch:", error); // Debug log
       vscode.window.showErrorMessage("Failed to search files");
+
+      // Send error feedback to webview
+      this.sendMessage({
+        type: "fileAttachmentError",
+        error: "Failed to search files. Please try again.",
+      });
     }
   }
 
