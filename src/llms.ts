@@ -76,7 +76,7 @@ export async function initGeminiModel(
   if (config.isReasoning) {
     const model = viewProvider.reasoningModel
       ? viewProvider.reasoningModel
-      : "gemini-1.5-flash-latest";
+      : "gemini-2.5-pro";
     viewProvider.apiReasoning = wrapLanguageModel({
       model: ai(model),
       middleware: extractReasoningMiddleware({ tagName: "think" }),
@@ -93,7 +93,7 @@ export async function initGeminiModel(
   } else {
     const model = viewProvider.model
       ? viewProvider.model
-      : "gemini-1.5-flash-latest";
+      : "gemini-2.5-pro";
     viewProvider.apiChat = ai(model);
     if (config.searchGrounding) {
       viewProvider.apiChat = ai(model, {

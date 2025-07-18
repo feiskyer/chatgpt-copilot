@@ -105,7 +105,7 @@ export async function chatCompletion(
     system: provider.modelConfig.systemPrompt,
     model: provider.apiCompletion,
     prompt: prompt,
-    maxTokens: provider.modelConfig.maxTokens,
+    maxTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
     temperature: provider.modelConfig.temperature,
     abortSignal: provider.abortController?.signal,
     tools: provider.toolSet?.tools || undefined,

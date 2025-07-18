@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v4.9.3
+
+* Add support for OpenAI Responses API
+
+## v4.9.2
+
+* Add prompt-based tool calling
+* Enable tool calling for Github Copilot models
+
+## v4.9.1
+
+* fix: terminate conversation gracefully on error
+
 ## v4.9.0
 
 * Refine tool call UX for MCP

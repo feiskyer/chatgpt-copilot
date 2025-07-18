@@ -12,8 +12,13 @@
 
 // @ts-nocheck
 
+
 (function () {
     const vscode = acquireVsCodeApi();
+
+    // Create stylesheet for dynamic styles
+    const styleSheet = document.createElement('style');
+    document.head.appendChild(styleSheet);
 
     marked.use({
         gfm: true,
@@ -76,14 +81,136 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
     </svg>`;
 
-    const promptManagerIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-    </svg>`;
+
+
+    // Enhanced file type detection with better icons and categorization
+    function getFileTypeInfo(fileExt) {
+        const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico', 'tiff'];
+        const codeExts = ['js', 'ts', 'jsx', 'tsx', 'py', 'java', 'cpp', 'c', 'cs', 'php', 'rb', 'go', 'rs', 'swift', 'kt', 'scala', 'html', 'css', 'scss', 'sass', 'less', 'vue', 'svelte', 'json', 'xml', 'yaml', 'yml', 'toml', 'ini', 'cfg', 'conf', 'sh', 'bash', 'zsh', 'fish', 'ps1', 'bat', 'cmd', 'sql', 'r', 'matlab', 'm', 'pl', 'lua', 'dart', 'elm', 'clj', 'cljs', 'hs', 'ml', 'fs', 'ex', 'exs', 'erl', 'hrl'];
+        const documentExts = ['pdf', 'doc', 'docx', 'txt', 'rtf', 'odt', 'pages', 'md', 'markdown', 'tex', 'csv', 'xls', 'xlsx', 'ods', 'numbers', 'ppt', 'pptx', 'odp', 'keynote'];
+
+        let fileType = 'default';
+        let fileIcon = '';
+
+        if (imageExts.includes(fileExt)) {
+            fileType = 'image';
+            fileIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                <circle cx="9" cy="9" r="2"/>
+                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+            </svg>`;
+        } else if (codeExts.includes(fileExt)) {
+            fileType = 'code';
+            fileIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16,18 22,12 16,6"/>
+                <polyline points="8,6 2,12 8,18"/>
+            </svg>`;
+        } else if (documentExts.includes(fileExt)) {
+            fileType = 'document';
+            fileIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                <polyline points="14,2 14,8 20,8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10,9 9,9 8,9"/>
+            </svg>`;
+        } else {
+            // Default file icon
+            fileIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                <polyline points="14,2 14,8 20,8"/>
+            </svg>`;
+        }
+
+        return { fileIcon, fileType };
+    }
+
+    // File attachment feedback functions
+    function showFileAttachmentSuccess() {
+        const attachButton = document.getElementById('file-attachment-button');
+        if (attachButton) {
+            attachButton.classList.add('success');
+            setTimeout(() => {
+                attachButton.classList.remove('success');
+            }, 1000);
+        }
+    }
+
+    function showFileAttachmentError(error) {
+        const attachButton = document.getElementById('file-attachment-button');
+        if (attachButton) {
+            attachButton.classList.add('error');
+            setTimeout(() => {
+                attachButton.classList.remove('error');
+            }, 1000);
+        }
+
+        // Show error message to user
+        console.error('File attachment error:', error);
+    }
+
+    function resetFileAttachmentState() {
+        const attachButton = document.getElementById('file-attachment-button');
+        if (attachButton) {
+            attachButton.classList.remove('loading', 'success', 'error');
+        }
+    }
+
+    // Message queue for ordered processing
+    window.messageQueue = window.messageQueue || new Map(); // Map by messageId
+    window.processedSequences = window.processedSequences || new Map(); // Track processed sequences per message
+
+    // Process queued messages in sequence order
+    function processMessageQueue(messageId) {
+        const queue = window.messageQueue.get(messageId) || [];
+        const processed = window.processedSequences.get(messageId) || 0;
+
+        // Sort queue by sequence number
+        queue.sort((a, b) => a.sequence - b.sequence);
+
+        // Process messages in order
+        let nextSequence = processed + 1;
+        while (queue.length > 0 && queue[0].sequence === nextSequence) {
+            const message = queue.shift();
+            processMessageImmediate(message);
+            nextSequence++;
+        }
+
+        // Update processed sequence counter
+        window.processedSequences.set(messageId, nextSequence - 1);
+
+        // Update the queue
+        window.messageQueue.set(messageId, queue);
+    }
+
+    // Process a message immediately (original logic)
+    function processMessageImmediate(message) {
+        const list = document.getElementById("qa-list");
+
+        // Original message processing logic will go here
+        processMessageByType(message, list);
+    }
 
     // Handle messages sent from the extension to the webview
     window.addEventListener("message", (event) => {
         const message = event.data;
-        const list = document.getElementById("qa-list");
+
+        // If message has sequence number, add to queue for ordered processing
+        if (message.sequence !== undefined && message.messageId) {
+            const queue = window.messageQueue.get(message.messageId) || [];
+            queue.push(message);
+            window.messageQueue.set(message.messageId, queue);
+
+            // Try to process queued messages
+            processMessageQueue(message.messageId);
+        } else {
+            // Process immediately for messages without sequence
+            processMessageImmediate(message);
+        }
+    });
+
+    // Process message by type (extracted from original logic)
+    function processMessageByType(message, list) {
 
         switch (message.type) {
             case "showInProgress":
@@ -96,11 +223,23 @@
                 if (message.inProgress) {
                     document.getElementById("in-progress").classList.remove("hidden");
                     document.getElementById("question-input").setAttribute("disabled", true);
-                    document.getElementById("question-input-buttons").classList.add("hidden");
+                    // Hide the modern button area instead of the old button structure
+                    document.querySelector(".modern-button-area")?.classList.add("hidden");
+
+                    // Update button states via button state manager
+                    if (window.buttonStateManager) {
+                        window.buttonStateManager.updateAllButtonStates();
+                    }
                 } else {
                     document.getElementById("in-progress").classList.add("hidden");
                     document.getElementById("question-input").removeAttribute("disabled");
-                    document.getElementById("question-input-buttons").classList.remove("hidden");
+                    // Show the modern button area instead of the old button structure
+                    document.querySelector(".modern-button-area")?.classList.remove("hidden");
+
+                    // Update button states via button state manager
+                    if (window.buttonStateManager) {
+                        window.buttonStateManager.updateAllButtonStates();
+                    }
                 }
                 break;
             case "addQuestion":
@@ -151,6 +290,7 @@
 
                 let updatedValue = message.value.split("```").length % 2 === 1 ? message.value : message.value + "\n\n```\n\n";
                 let formattedResponse = marked.parse(updatedValue.trim().replace(/^\s+|\s+$/g, ''));
+
                 if (existingMessage) {
                     existingMessage.innerHTML = formattedResponse;
                 } else {
@@ -269,108 +409,150 @@
                 const fileRefsContainer = document.getElementById("file-references");
 
                 if (message.isAuto) {
-                    const autoTags = fileRefsContainer.querySelectorAll('.file-reference-tag[data-auto="true"]');
-                    autoTags.forEach(tag => tag.remove());
+                    const autoTags = fileRefsContainer.querySelectorAll('.file-reference-modern[data-auto="true"]');
+                    autoTags.forEach(tag => {
+                        tag.classList.add('removing');
+                        setTimeout(() => tag.remove(), 300);
+                    });
                 }
 
-                // Add file type icon based on extension
-                const isImage = message.fileName.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i);
-                const fileIcon = isImage ?
-                    '<svg xmlns="http://www.w3.org/2000/svg" class="file-icon" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M4 5h13v7h2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h8v-2H4V5zm16 14v-3h2v3c0 1.1-.9 2-2 2h-3v-2h3zM14 17h2v3h-2zM10 17h2v3h-2zM21 11v2h-2v-2z"/></svg>' :
-                    '<svg xmlns="http://www.w3.org/2000/svg" class="file-icon" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>';
+                // Enhanced file type detection and icons
+                const fileExt = message.fileName.toLowerCase().split('.').pop();
+                const { fileIcon, fileType } = getFileTypeInfo(fileExt);
 
                 const fileTag = document.createElement('span');
-                fileTag.className = 'file-reference-tag';
+                fileTag.className = `file-reference-modern file-type-${fileType}`;
+                fileTag.setAttribute('title', message.fileName); // Full path for tooltip
+
                 if (message.isAuto) {
                     fileTag.setAttribute('data-auto', 'true');
                 }
 
-                fileTag.innerHTML = `
-                    ${fileIcon}
-                    ${message.displayName}
-                    <span class="remove-file" data-filepath="${message.fileName}">×</span>
-                `;
+                // Create file name element with truncation
+                const fileName = document.createElement('span');
+                fileName.className = 'file-reference-name';
+                fileName.textContent = message.displayName;
 
-                fileTag.querySelector('.remove-file').addEventListener('click', function () {
+                // Create remove button with enhanced styling
+                const removeBtn = document.createElement('span');
+                removeBtn.className = 'file-reference-remove';
+                removeBtn.setAttribute('data-filepath', message.fileName);
+                removeBtn.innerHTML = '×';
+                removeBtn.setAttribute('title', 'Remove file');
+
+                // Assemble the file tag
+                fileTag.innerHTML = fileIcon;
+                fileTag.appendChild(fileName);
+                fileTag.appendChild(removeBtn);
+
+                // Enhanced remove functionality with animation
+                removeBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
                     const filepath = this.getAttribute('data-filepath');
-                    this.parentElement.remove();
-                    vscode.postMessage({
-                        type: "removeFileReference",
-                        fileName: filepath
-                    });
+                    const parentTag = this.parentElement;
+
+                    // Add removing animation
+                    parentTag.classList.add('removing');
+
+                    // Remove after animation completes
+                    setTimeout(() => {
+                        parentTag.remove();
+                        vscode.postMessage({
+                            type: "removeFileReference",
+                            fileName: filepath
+                        });
+                    }, 300);
                 });
 
+                // Add to container with animation
                 fileRefsContainer.appendChild(fileTag);
 
-                if (!message.isAuto) {
-                    const cursorPos = input.selectionStart;
-                    input.value = input.value.substring(0, cursorPos - 1) + input.value.substring(cursorPos);
-                    input.setSelectionRange(cursorPos - 1, cursorPos - 1);
-                }
-                break;
+                // Add success class temporarily for visual feedback
+                setTimeout(() => {
+                    fileTag.classList.add('success');
+                    setTimeout(() => fileTag.classList.remove('success'), 600);
+                }, 100);
 
+                // Reset file attachment button state on successful file addition
+                showFileAttachmentSuccess();
+
+                // Clear @ symbol from input if it was added via @ autocomplete
+                if (input && input.value.startsWith('@')) {
+                    input.value = input.value.substring(1).trim();
+                }
+
+                break;
+            case "fileSelectionCancelled":
+                // Reset file attachment button state when file selection is cancelled
+                resetFileAttachmentState();
+                break;
             case "clearFileReferences":
-                document.getElementById('file-references').innerHTML = '';
-                break;
+                const clearFileRefsContainer = document.getElementById("file-references");
+                if (clearFileRefsContainer) {
+                    const allFileRefs = clearFileRefsContainer.querySelectorAll('.file-reference-modern');
 
-            case "addReasoning":
-                const reasoningElement = document.getElementById(`${message.id}-reasoning`);
+                    // Animate removal of all file references
+                    allFileRefs.forEach((tag, index) => {
+                        setTimeout(() => {
+                            tag.classList.add('removing');
+                            setTimeout(() => tag.remove(), 300);
+                        }, index * 50); // Stagger the animations
+                    });
 
-                if (reasoningElement) {
-                    reasoningElement.innerHTML = marked.parse(message.value);
-                } else {
-                    list.innerHTML += `
-                            <div class="reasoning-block" style="margin: 0.5rem 0;">
-                                <div class="reasoning-header" style="margin-bottom: 0.25rem;">
-                                    <svg class="reasoning-caret" viewBox="0 0 24 24" width="12" height="12">
-                                        <path fill="currentColor" d="M7 10l5 5 5-5z"/>
-                                    </svg>
-                                    <span>Reasoning</span>
-                                </div>
-                                <div class="reasoning-content" id="${message.id}-reasoning" style="line-height: 1.6;">
-                                    ${marked.parse(message.value)}
-                                </div>
-                            </div>`;
-                }
-
-                if (message.autoScroll) {
-                    list.lastChild?.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+                    // Clear container after all animations complete
+                    setTimeout(() => {
+                        clearFileRefsContainer.innerHTML = '';
+                    }, allFileRefs.length * 50 + 300);
                 }
                 break;
+            case "updateToolCallContent":
+                const toolCallElement = document.getElementById(message.id);
+                if (toolCallElement) {
+                    const contentElement = toolCallElement.querySelector('.tool-call-content');
+                    if (contentElement) {
+                        contentElement.innerHTML = message.content;
 
-            default:
+                        // Auto-scroll to bottom if content is expanded and overflowing
+                        if (!contentElement.classList.contains('collapsed')) {
+                            // Use setTimeout to ensure DOM is updated before scrolling
+                            setTimeout(() => {
+                                contentElement.scrollTop = contentElement.scrollHeight;
+                            }, 0);
+                        }
+                    }
+                }
                 break;
         }
-    });
-
-    const addFreeTextQuestion = () => {
-        const input = document.getElementById("question-input");
-        const value = input.value;
-
-        if (value.startsWith('/') || value.startsWith('#') || value.startsWith('@')) {
-            return;
-        }
-
-        if (value?.length > 0) {
-            vscode.postMessage({
-                type: "addFreeTextQuestion",
-                value: value,
-            });
-
-            input.value = "";
-        }
-    };
+    }
 
     const clearConversation = () => {
         document.getElementById("qa-list").innerHTML = "";
+        document.getElementById("qa-list").classList.add("hidden");
+        document.getElementById("introduction").classList.remove("hidden");
+        document.getElementById("conversation-list").classList.add("hidden");
 
-        document.getElementById("introduction")?.classList?.remove("hidden");
+        // Reset the input
+        const input = document.getElementById("question-input");
+        if (input) {
+            input.value = "";
+            if (autoResizeTextarea) {
+                autoResizeTextarea.reset();
+            }
+        }
+
+        // Clear file references
+        const fileRefsContainer = document.getElementById("file-references");
+        if (fileRefsContainer) {
+            fileRefsContainer.innerHTML = '';
+        }
 
         vscode.postMessage({
             type: "clearConversation"
         });
-
     };
+
+    // Make functions globally accessible for jQuery autocomplete and other contexts
+    window.clearConversation = clearConversation;
 
     const exportConversation = () => {
         const turndownService = new TurndownService({ codeBlockStyle: "fenced" });
@@ -378,11 +560,13 @@
         let markdown = turndownService.turndown(document.getElementById("qa-list"));
 
         vscode.postMessage({
-            type: "openNew",
-            value: markdown,
-            language: "markdown"
+            type: "exportConversation",
+            value: markdown
         });
     };
+
+    // Make exportConversation globally accessible
+    window.exportConversation = exportConversation;
 
     document.getElementById('question-input').addEventListener("keydown", function (event) {
         if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
@@ -447,6 +631,12 @@
         if (targetButton?.id === "ask-button") {
             e.preventDefault();
             addFreeTextQuestion();
+            return;
+        }
+
+        if (targetButton?.id === "file-attachment-button") {
+            e.preventDefault();
+            handleFileAttachment();
             return;
         }
 
@@ -539,27 +729,33 @@
 
             if (question.lastElementChild.textContent?.length > 0) {
                 vscode.postMessage({
-                    type: "addFreeTextQuestion",
-                    value: question.lastElementChild.textContent,
+                    type: "editMessage",
+                    value: question.lastElementChild.textContent
                 });
             }
+
             return;
         }
 
         if (targetButton?.classList?.contains("cancel-element-ext")) {
             e.preventDefault();
+
             const question = targetButton.closest(".question-element-ext");
             const elements = targetButton.closest(".send-cancel-elements-ext");
             const resendElement = targetButton.parentElement.parentElement.firstElementChild;
             elements.classList.add("hidden");
             resendElement.classList.remove("hidden");
             question.lastElementChild?.setAttribute("contenteditable", false);
+
             return;
         }
 
         if (targetButton?.classList?.contains("code-element-ext")) {
             e.preventDefault();
-            navigator.clipboard.writeText(targetButton.parentElement?.nextElementSibling?.lastChild?.textContent).then(() => {
+
+            const code = targetButton.closest(".pre-code-element").querySelector("code").textContent;
+
+            navigator.clipboard.writeText(code).then(() => {
                 targetButton.innerHTML = `${checkSvg} Copied`;
 
                 setTimeout(() => {
@@ -572,9 +768,12 @@
 
         if (targetButton?.classList?.contains("edit-element-ext")) {
             e.preventDefault();
+
+            const code = targetButton.closest(".pre-code-element").querySelector("code").textContent;
+
             vscode.postMessage({
                 type: "editCode",
-                value: targetButton.parentElement?.nextElementSibling?.lastChild?.textContent,
+                value: code
             });
 
             return;
@@ -582,9 +781,12 @@
 
         if (targetButton?.classList?.contains("new-code-element-ext")) {
             e.preventDefault();
+
+            const code = targetButton.closest(".pre-code-element").querySelector("code").textContent;
+
             vscode.postMessage({
-                type: "openNew",
-                value: targetButton.parentElement?.nextElementSibling?.lastChild?.textContent,
+                type: "newCode",
+                value: code
             });
 
             return;
@@ -606,9 +808,23 @@
             return;
         }
 
-        if (e.target.closest('.reasoning-header')) {
-            const block = e.target.closest('.reasoning-block');
-            block.classList.toggle('reasoning-collapsed');
+        // Tool call header click handler
+        if (targetButton?.classList?.contains("tool-call-header")) {
+            e.preventDefault();
+            const content = targetButton.nextElementSibling;
+            const caret = targetButton.querySelector('.tool-call-caret');
+
+            if (content && content.classList.contains('tool-call-content')) {
+                content.classList.toggle('tool-call-collapsed');
+                targetButton.classList.toggle('collapsed');
+
+                if (caret) {
+                    caret.style.transform = targetButton.classList.contains('collapsed')
+                        ? 'rotate(-90deg)'
+                        : 'rotate(0deg)';
+                }
+            }
+            return;
         }
     });
 
@@ -687,9 +903,18 @@
                     vscode.postMessage({ type: "togglePromptManager" });
                 } else if (ui.item.value === "/reset-prompt") {
                     vscode.postMessage({ type: "resetPrompt" });
+                } else if (ui.item.filePath) {
+                    // Handle file selection from @ autocomplete
+                    vscode.postMessage({
+                        type: "addFileReference",
+                        fileName: ui.item.filePath,
+                        displayName: ui.item.displayName || ui.item.label
+                    });
+                    // Don't clear input here - let insertFileReference handle it
+                    return false;
                 }
 
-                // Clear the input after selection
+                // Clear the input after selection (for prompts and commands)
                 $(this).val("");
                 return false;
             },
@@ -712,152 +937,170 @@
         if (prompts.length === 0) {
             const pickerHtml = `
                 <div class="prompt-picker">
-                    <div class="prompt-empty">
-                        <p>No prompts found. Would you like to add some?</p>
-                        <button onclick="openPromptManager()" class="manage-prompts-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                            </svg>
+                    <div class="p-4 text-center">
+                        <p class="text-gray-500 mb-4">No prompts found</p>
+                        <button onclick="vscode.postMessage({type: 'togglePromptManager'})" class="px-4 py-2 bg-blue-500 text-white rounded">
                             Manage Prompts
                         </button>
                     </div>
                 </div>
             `;
             list.insertAdjacentHTML('beforeend', pickerHtml);
-        } else {
-            const pickerHtml = `
-                <div class="prompt-picker">
-                    <div class="prompt-list">
-                        ${prompts.map((p, index) => `
-                            <div class="prompt-item ${index === 0 ? 'active' : ''}"
-                                 onclick="selectPrompt('${encodeURIComponent(p.content)}', '${p.name}')"
-                                 data-content="${encodeURIComponent(p.content)}"
-                                 data-name="${p.name}">
-                                <div class="prompt-name">${p.name}</div>
-                                <div class="prompt-preview">${p.content.substring(0, 100)}...</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-            list.insertAdjacentHTML('beforeend', pickerHtml);
+            return;
         }
+
+        const promptItems = prompts.map(prompt => `
+            <div class="prompt-item p-3 border-b cursor-pointer hover:bg-gray-100" 
+                 onclick="selectPrompt('${prompt.id}', '${prompt.name.replace(/'/g, "\\'")}', '${prompt.content.replace(/'/g, "\\'")}')">
+                <div class="font-medium">${prompt.name}</div>
+                <div class="text-sm text-gray-600 truncate">${prompt.content}</div>
+            </div>
+        `).join('');
+
+        const pickerHtml = `
+            <div class="prompt-picker">
+                <div class="bg-white border rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                    <div class="p-3 border-b bg-gray-50">
+                        <h3 class="font-medium">Select a Prompt</h3>
+                    </div>
+                    ${promptItems}
+                </div>
+            </div>
+        `;
+
+        list.insertAdjacentHTML('beforeend', pickerHtml);
     }
 
-    function selectPrompt(content, name) {
-        // Remove prompt picker
+    function selectPrompt(id, name, content) {
         document.querySelector('.prompt-picker')?.remove();
 
-        // Send prompt data
         vscode.postMessage({
             type: "selectPrompt",
-            prompt: {
-                name: name,
-                content: decodeURIComponent(content)
-            }
+            prompt: { id, name, content }
         });
     }
 
-    function openPromptManager() {
-        document.querySelector('.prompt-picker')?.remove();
-        vscode.postMessage({
-            type: "togglePromptManager"
-        });
-    }
-
-    // Add new function to show active prompt
     function showActivePrompt(name) {
+        // Remove existing indicator
         document.querySelector('.active-prompt-indicator')?.remove();
 
+        if (!name) return;
+
+        // Create new indicator
         const indicator = document.createElement('div');
         indicator.className = 'active-prompt-indicator';
-        if (name !== "") {
-            indicator.innerHTML = `
-                <div class="flex justify-center items-center gap-2 px-3 py-1 rounded-full text-xs">
-                    ${activePromptIcon}
-                    <span class="prompt-name-text">${name}</span>
-                </div>
-            `;
+        indicator.innerHTML = `
+            <div class="flex items-center gap-2 px-3 py-1">
+                ${activePromptIcon}
+                <span class="prompt-name-text text-sm font-medium">${name}</span>
+            </div>
+        `;
 
-            // Add hover handlers for tooltip
-            indicator.addEventListener('mouseenter', () => {
-                indicator.querySelector('.tooltip').classList.add('show');
-            });
-            indicator.addEventListener('mouseleave', () => {
-                indicator.querySelector('.tooltip').classList.remove('show');
-            });
-        } else {
-            indicator.innerHTML = "";
-        }
+        // Add to the top of the chat container
+        const chatContainer = document.querySelector('.modern-input-container') || document.body;
+        chatContainer.insertBefore(indicator, chatContainer.firstChild);
 
-        // Insert after the toggle-prompt-manager button
-        const header = document.querySelector('.flex.flex-col.h-screen');
-        if (header) {
-            header.insertBefore(indicator, header.firstChild);
-        }
+        // Auto-hide after 3 seconds
+        setTimeout(() => {
+            indicator?.remove();
+        }, 3000);
     }
 
-    // Add tooltip styles to the styleSheet
-    const styleSheet = document.createElement('style');
-    document.head.appendChild(styleSheet);
-    styleSheet.textContent += `
-        .tooltip {
-            position: absolute;
-            background: var(--vscode-editor-background);
-            border: 1px solid var(--vscode-widget-border);
-            border-radius: 6px;
-            padding: 6px 8px;
-            font-size: 12px;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.2s ease, visibility 0.2s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            pointer-events: none;
-            max-width: 300px;
-            white-space: normal;
-            line-height: 1.4;
+    // File attachment handling
+    function handleFileAttachment() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.multiple = true;
+        input.accept = '*/*';
+
+        // Set up timeout for error handling
+        const timeoutId = setTimeout(() => {
+            resetFileAttachmentState();
+            showFileAttachmentError('File selection timed out');
+        }, 30000); // 30 second timeout
+
+        input.onchange = function (event) {
+            clearTimeout(timeoutId);
+            const files = Array.from(event.target.files);
+
+            if (files.length > 0) {
+                showFileAttachmentSuccess();
+
+                vscode.postMessage({
+                    type: "attachFiles",
+                    files: files.map(file => ({
+                        name: file.name,
+                        size: file.size,
+                        type: file.type
+                    }))
+                });
+            }
+        };
+
+        input.oncancel = function () {
+            clearTimeout(timeoutId);
+            resetFileAttachmentState();
+        };
+
+        // Show loading state
+        const button = document.getElementById('file-attachment-button');
+        if (button) {
+            button.classList.add('loading');
         }
 
-        .tooltip.show {
-            opacity: 1;
-            visibility: visible;
-        }
+        // Remove success state after animation
+        setTimeout(() => {
+            if (button) {
+                button.classList.remove('success');
+            }
+        }, 600);
 
-        .tooltip.top {
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%) translateY(-8px);
-        }
-
-        .tooltip.right {
-            left: 100%;
-            top: 50%;
-            transform: translateY(-50%) translateX(8px);
-        }
-    `;
-
-    // Update the prompt manager button in the HTML template
-    function setupPromptManagerButton() {
-        const promptManager = document.getElementById('toggle-prompt-manager');
-        if (promptManager) {
-            promptManager.innerHTML = `
-                ${promptManagerIcon}
-                <div class="tooltip right">Manage system prompts (use # to search prompts)</div>
-            `;
-
-            // Add hover handlers for tooltip
-            promptManager.addEventListener('mouseenter', () => {
-                promptManager.querySelector('.tooltip').classList.add('show');
-            });
-            promptManager.addEventListener('mouseleave', () => {
-                promptManager.querySelector('.tooltip').classList.remove('show');
-            });
-        }
+        input.click();
     }
 
-    // Call setupPromptManagerButton after DOM is loaded
-    document.addEventListener('DOMContentLoaded', setupPromptManagerButton);
+    // Enhanced file attachment error handling
+    function handleFileAttachmentError(error) {
+        console.error('File attachment error:', error);
+
+        const button = document.getElementById('file-attachment-button');
+        if (button) {
+            button.classList.remove('loading', 'success');
+            button.classList.add('error');
+        }
+
+        // Remove error state after animation
+        setTimeout(() => {
+            if (button) {
+                button.classList.remove('error');
+            }
+        }, 500);
+
+        // Show user-friendly error message
+        showFileAttachmentError(error);
+    }
+
+    const addFreeTextQuestion = () => {
+        const input = document.getElementById("question-input");
+        const value = input.value;
+
+        if (value.startsWith('/') || value.startsWith('#') || value.startsWith('@')) {
+            return;
+        }
+
+        if (value?.length > 0) {
+            vscode.postMessage({
+                type: "addFreeTextQuestion",
+                value
+            });
+
+            input.value = "";
+            if (autoResizeTextarea) {
+                autoResizeTextarea.reset();
+            }
+        }
+    };
+
+
 
     // Update the styles
     styleSheet.textContent += `
@@ -898,20 +1141,739 @@
             z-index: 999;
         }
 
-        /* Add margin to the top of the content to make room for the indicator */
-        #qa-list, #introduction, #conversation-list {
-            margin-top: 20px;
+        /* Button animation styles */
+        .button-activate-animation {
+            transform: scale(1.05);
+            transition: transform 0.2s ease;
         }
 
-        .file-reference-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
+        .button-deactivate-animation {
+            transform: scale(0.95);
+            transition: transform 0.2s ease;
         }
 
-        .file-icon {
-            display: inline-block;
-            vertical-align: middle;
+        /* File attachment button states */
+        .modern-button.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .modern-button.success {
+            background: var(--modern-accent-success-alpha);
+            color: var(--modern-accent-success);
+            transform: scale(1.05);
+            transition: all 0.3s ease;
+        }
+
+        .modern-button.error {
+            background: var(--modern-accent-error-alpha);
+            color: var(--modern-accent-error);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
+        /* Auto-resize textarea styling */
+        .auto-resize {
+            transition: height 0.2s ease;
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            .auto-resize,
+            .modern-button,
+            .file-reference-modern,
+            .active-prompt-indicator {
+                transition: none !important;
+                animation: none !important;
+            }
         }
     `;
+
+
+
+
+
+
+
+
+
+// Add tooltip styles to the styleSheet
+styleSheet.textContent += `
+            .tooltip {
+        position: absolute;
+        background: var(--vscode-editor-background);
+        border: 1px solid var(--vscode-widget-border);
+        border-radius: 6px;
+        padding: 6px 8px;
+        font-size: 12px;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        pointer-events: none;
+        max-width: 300px;
+        white-space: normal;
+        line-height: 1.4;
+    }
+
+        .tooltip.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+        .tooltip.top {
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-8px);
+    }
+
+        .tooltip.right {
+        left: 100%;
+        top: 50%;
+        transform: translateY(-50%) translateX(8px);
+    }
+    `;
+
+// Enhanced file attachment handler with visual feedback and error handling
+function handleFileAttachment() {
+    const button = document.getElementById('file-attachment-button');
+    if (!button) return;
+
+    // Add loading state
+    button.classList.add('loading');
+    button.disabled = true;
+
+    // Send message to extension
+    vscode.postMessage({
+        type: "searchFile"
+    });
+
+    // Set up timeout for error handling
+    const timeoutId = setTimeout(() => {
+        showFileAttachmentError('File selection timed out');
+    }, 30000); // 30 second timeout
+
+    // Store timeout ID for cleanup
+    button.dataset.timeoutId = timeoutId;
+}
+
+// Show file attachment success feedback
+function showFileAttachmentSuccess() {
+    const button = document.getElementById('file-attachment-button');
+    if (!button) return;
+
+    // Clear loading state and timeout
+    button.classList.remove('loading', 'error');
+    button.disabled = false;
+    clearTimeout(button.dataset.timeoutId);
+
+    // Show success state
+    button.classList.add('success');
+
+    // Remove success state after animation
+    setTimeout(() => {
+        button.classList.remove('success');
+    }, 600);
+}
+
+// Show file attachment error feedback
+function showFileAttachmentError(errorMessage) {
+    const button = document.getElementById('file-attachment-button');
+    if (!button) return;
+
+    // Clear loading state and timeout
+    button.classList.remove('loading', 'success');
+    button.disabled = false;
+    clearTimeout(button.dataset.timeoutId);
+
+    // Show error state
+    button.classList.add('error');
+
+    // Show error message if provided
+    if (errorMessage) {
+        console.warn('File attachment error:', errorMessage);
+        // Could add a toast notification here in the future
+    }
+
+    // Remove error state after animation
+    setTimeout(() => {
+        button.classList.remove('error');
+    }, 500);
+}
+
+// Reset file attachment button state
+function resetFileAttachmentState() {
+    const button = document.getElementById('file-attachment-button');
+    if (!button) return;
+
+    button.classList.remove('loading', 'success', 'error');
+    button.disabled = false;
+    clearTimeout(button.dataset.timeoutId);
+}
+
+// Update the prompt manager button in the HTML template
+function setupPromptManagerButton() {
+    const promptManager = document.getElementById('toggle-prompt-manager');
+    const promptManagerIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+    </svg>`;
+    if (promptManager) {
+        promptManager.innerHTML = `
+                ${promptManagerIcon}
+                <div class="tooltip right">Manage system prompts (use # to search prompts)</div>
+        `;
+
+        // Add hover handlers for tooltip
+        promptManager.addEventListener('mouseenter', () => {
+            promptManager.querySelector('.tooltip').classList.add('show');
+        });
+        promptManager.addEventListener('mouseleave', () => {
+            promptManager.querySelector('.tooltip').classList.remove('show');
+        });
+    }
+}
+
+// Call setupPromptManagerButton after DOM is loaded
+document.addEventListener('DOMContentLoaded', setupPromptManagerButton);
+
+// Enhanced Button State Management System
+class ButtonStateManager {
+    constructor() {
+        this.buttons = new Map();
+        this.init();
+    }
+
+    init() {
+        // Initialize all modern buttons
+        const modernButtons = document.querySelectorAll('.modern-button');
+        modernButtons.forEach(button => {
+            this.registerButton(button);
+        });
+    }
+
+    registerButton(button) {
+        if (!button || this.buttons.has(button.id)) return;
+
+        const buttonState = {
+            element: button,
+            isActive: button.classList.contains('modern-button-active'),
+            isDisabled: button.disabled,
+            originalTitle: button.getAttribute('title') || ''
+        };
+
+        this.buttons.set(button.id, buttonState);
+        this.attachEventListeners(button);
+    }
+
+    attachEventListeners(button) {
+        // Enhanced hover effects
+        button.addEventListener('mouseenter', (e) => {
+            if (!button.disabled) {
+                this.handleButtonHover(button, true);
+            }
+        });
+
+        button.addEventListener('mouseleave', (e) => {
+            if (!button.disabled) {
+                this.handleButtonHover(button, false);
+            }
+        });
+
+        // Enhanced focus effects
+        button.addEventListener('focus', (e) => {
+            if (!button.disabled) {
+                this.handleButtonFocus(button, true);
+            }
+        });
+
+        button.addEventListener('blur', (e) => {
+            if (!button.disabled) {
+                this.handleButtonFocus(button, false);
+            }
+        });
+
+        // Click feedback
+        button.addEventListener('mousedown', (e) => {
+            if (!button.disabled) {
+                this.handleButtonPress(button, true);
+            }
+        });
+
+        button.addEventListener('mouseup', (e) => {
+            if (!button.disabled) {
+                this.handleButtonPress(button, false);
+            }
+        });
+    }
+
+    handleButtonHover(button, isHovering) {
+        const buttonState = this.buttons.get(button.id);
+        if (!buttonState) return;
+
+        if (isHovering) {
+            button.style.transform = 'translateY(-1px)';
+            button.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+
+            // Update tooltip for send button based on state
+            if (button.id === 'ask-button') {
+                const hasContent = document.getElementById('question-input')?.value.trim().length > 0;
+                if (!hasContent) {
+                    button.setAttribute('title', 'Enter a message to send');
+                }
+            }
+        } else {
+            button.style.transform = '';
+            button.style.boxShadow = '';
+
+            // Restore original tooltip
+            if (button.id === 'ask-button') {
+                const hasContent = document.getElementById('question-input')?.value.trim().length > 0;
+                button.setAttribute('title', hasContent ? 'Send message' : 'Enter a message to send');
+            }
+        }
+    }
+
+    handleButtonFocus(button, isFocused) {
+        if (isFocused) {
+            button.style.transform = 'translateY(-1px)';
+        } else {
+            button.style.transform = '';
+        }
+    }
+
+    handleButtonPress(button, isPressed) {
+        if (isPressed) {
+            button.style.transform = 'translateY(0)';
+            button.style.transition = 'transform 0.1s ease';
+        } else {
+            button.style.transform = 'translateY(-1px)';
+            button.style.transition = 'transform 0.2s ease';
+        }
+    }
+
+    updateButtonState(buttonId, isActive, customTitle = null) {
+        const buttonState = this.buttons.get(buttonId);
+        if (!buttonState) return;
+
+        const button = buttonState.element;
+
+        if (isActive !== buttonState.isActive) {
+            if (isActive) {
+                button.classList.remove('modern-button-inactive');
+                button.classList.add('modern-button-active');
+            } else {
+                button.classList.remove('modern-button-active');
+                button.classList.add('modern-button-inactive');
+            }
+            buttonState.isActive = isActive;
+        }
+
+        // Update title if provided
+        if (customTitle) {
+            button.setAttribute('title', customTitle);
+            buttonState.originalTitle = customTitle;
+        }
+    }
+
+    setButtonDisabled(buttonId, disabled) {
+        const buttonState = this.buttons.get(buttonId);
+        if (!buttonState) return;
+
+        const button = buttonState.element;
+        button.disabled = disabled;
+        buttonState.isDisabled = disabled;
+
+        if (disabled) {
+            button.style.transform = '';
+            button.style.boxShadow = '';
+        }
+    }
+
+    // Method to update all button states based on current context
+    updateAllButtonStates() {
+        try {
+            const input = document.getElementById('question-input');
+            const hasContent = input?.value.trim().length > 0;
+            const isDisabled = input?.disabled;
+
+            // Update send button
+            this.updateButtonState('ask-button', hasContent && !isDisabled,
+                hasContent ? 'Send message' : 'Enter a message to send');
+            this.setButtonDisabled('ask-button', isDisabled);
+
+            // Update other buttons based on disabled state
+            this.setButtonDisabled('file-attachment-button', isDisabled);
+            this.setButtonDisabled('more-button', isDisabled);
+        } catch (error) {
+            console.warn('Error updating button states:', error);
+        }
+    }
+
+    // Method to handle animation preferences
+    respectAnimationPreferences() {
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        this.buttons.forEach((buttonState, buttonId) => {
+            const button = buttonState.element;
+            if (prefersReducedMotion) {
+                button.style.transition = 'none';
+            } else {
+                button.style.transition = '';
+            }
+        });
+    }
+
+    // Initialize animation preference handling
+    initAnimationPreferences() {
+        this.respectAnimationPreferences();
+
+        // Listen for changes in animation preferences
+        const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        mediaQuery.addEventListener('change', () => {
+            this.respectAnimationPreferences();
+        });
+    }
+}
+
+// Initialize button state manager
+let buttonStateManager;
+document.addEventListener('DOMContentLoaded', () => {
+    buttonStateManager = new ButtonStateManager();
+    // Make it globally accessible
+    window.buttonStateManager = buttonStateManager;
+    // Initialize animation preferences
+    buttonStateManager.initAnimationPreferences();
+});
+
+// AutoResizeTextarea class for dynamic height adjustment
+class AutoResizeTextarea {
+    constructor(textarea, options = {}) {
+        this.textarea = textarea;
+        this.minHeight = options.minHeight || 48;
+        this.maxHeight = options.maxHeight || 164;
+        this.transitionDuration = options.transitionDuration || 200;
+        this.debounceTimeout = null;
+
+        this.init();
+    }
+
+    init() {
+        // Set initial height and styles
+        this.textarea.style.height = `${this.minHeight}px`;
+        this.textarea.style.transition = `height ${this.transitionDuration}ms ease`;
+        this.textarea.style.overflow = 'hidden';
+
+        // Bind event handlers
+        this.textarea.addEventListener('input', this.handleInput.bind(this));
+        this.textarea.addEventListener('keydown', this.handleKeydown.bind(this));
+        this.textarea.addEventListener('paste', this.handlePaste.bind(this));
+
+        // Initial adjustment
+        this.adjustHeight();
+    }
+
+    handleInput() {
+        this.debouncedAdjustHeight();
+    }
+
+    handleKeydown(event) {
+        // Handle Enter key for immediate adjustment
+        if (event.key === 'Enter') {
+            // Small delay to allow the newline to be added
+            setTimeout(() => this.adjustHeight(), 0);
+        }
+    }
+
+    handlePaste() {
+        // Handle paste events with a small delay
+        setTimeout(() => this.adjustHeight(), 0);
+    }
+
+    debouncedAdjustHeight() {
+        // Debounce resize operations to prevent excessive calculations
+        if (this.debounceTimeout) {
+            clearTimeout(this.debounceTimeout);
+        }
+
+        this.debounceTimeout = setTimeout(() => {
+            this.adjustHeight();
+        }, 10);
+    }
+
+    adjustHeight(reset = false) {
+        try {
+            if (reset) {
+                this.textarea.style.height = `${this.minHeight}px`;
+                return;
+            }
+
+            // Store current scroll position
+            const scrollTop = this.textarea.scrollTop;
+
+            // Temporarily set height to auto to get the natural height
+            this.textarea.style.height = 'auto';
+
+            // Calculate the new height based on scroll height
+            const newHeight = Math.max(
+                this.minHeight,
+                Math.min(this.textarea.scrollHeight, this.maxHeight)
+            );
+
+            // Apply the new height
+            this.textarea.style.height = `${newHeight}px`;
+
+            // Handle overflow when content exceeds max height
+            if (this.textarea.scrollHeight > this.maxHeight) {
+                this.textarea.style.overflow = 'auto';
+                // Restore scroll position for long content
+                this.textarea.scrollTop = scrollTop;
+            } else {
+                this.textarea.style.overflow = 'hidden';
+            }
+
+            // Update button states based on content
+            this.updateButtonStates();
+
+        } catch (error) {
+            console.warn('Error in adjustHeight:', error);
+            // Fallback to minimum height on error
+            this.textarea.style.height = `${this.minHeight}px`;
+            this.textarea.style.overflow = 'hidden';
+        }
+    }
+
+    updateButtonStates() {
+        // Use the global button state manager if available
+        if (window.buttonStateManager) {
+            window.buttonStateManager.updateAllButtonStates();
+        } else {
+            // Fallback to direct button state management
+            const hasContent = this.textarea.value.trim().length > 0;
+            const sendButton = document.getElementById('ask-button');
+
+            if (sendButton) {
+                if (hasContent) {
+                    sendButton.classList.remove('modern-button-inactive');
+                    sendButton.classList.add('modern-button-active');
+                    sendButton.setAttribute('title', 'Send message');
+                } else {
+                    sendButton.classList.remove('modern-button-active');
+                    sendButton.classList.add('modern-button-inactive');
+                    sendButton.setAttribute('title', 'Enter a message to send');
+                }
+            }
+        }
+    }
+
+    reset() {
+        this.adjustHeight(true);
+        this.updateButtonStates();
+    }
+
+    destroy() {
+        // Clean up event listeners
+        this.textarea.removeEventListener('input', this.handleInput.bind(this));
+        this.textarea.removeEventListener('keydown', this.handleKeydown.bind(this));
+        this.textarea.removeEventListener('paste', this.handlePaste.bind(this));
+
+        if (this.debounceTimeout) {
+            clearTimeout(this.debounceTimeout);
+        }
+    }
+}
+
+// Initialize auto-resize functionality
+let autoResizeTextarea = null;
+
+function initializeAutoResize() {
+    const textarea = document.getElementById('question-input');
+    if (textarea && !autoResizeTextarea) {
+        // Add auto-resize class for styling
+        textarea.classList.add('auto-resize');
+
+        autoResizeTextarea = new AutoResizeTextarea(textarea, {
+            minHeight: 48,
+            maxHeight: 164,
+            transitionDuration: 200
+        });
+    }
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeAutoResize);
+} else {
+    initializeAutoResize();
+}
+
+// Update the styles
+styleSheet.textContent += `
+            .active-prompt-indicator {
+                position: absolute;
+                top: 8px;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 1000;
+        background: var(--vscode-editor-background);
+        border: 1px solid var(--vscode-widget-border);
+        border-radius: 9999px;
+        padding: 2px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: auto;
+        min-width: 100px;
+    }
+
+        .active-prompt-indicator:hover {
+    transform: translateX(-50%) translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+        .prompt-name-text {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+}
+
+/* Ensure the prompt manager button doesn't interfere */
+#toggle-prompt-manager {
+    z-index: 999;
+}
+
+/* Add margin to the top of the content to make room for the indicator */
+#qa-list, #introduction, #conversation-list {
+    margin-top: 20px;
+}
+
+        .file-reference-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+        .file-icon {
+    display: inline-block;
+    vertical-align: middle;
+}
+`;
+
+// Theme detection and management for modern input styling
+function detectAndApplyTheme() {
+    const body = document.body;
+    const documentElement = document.documentElement;
+
+    // Get VS Code theme information from CSS variables or body classes
+    const computedStyle = getComputedStyle(documentElement);
+    
+    // Try multiple ways to get theme information for better accuracy
+    let backgroundColor = computedStyle.getPropertyValue('--vscode-editor-background').trim();
+    if (!backgroundColor) {
+        backgroundColor = computedStyle.getPropertyValue('--vscode-sideBar-background').trim();
+    }
+    if (!backgroundColor) {
+        backgroundColor = getComputedStyle(body).backgroundColor;
+    }
+
+    // Remove existing theme attributes
+    body.removeAttribute('data-vscode-theme-kind');
+    body.removeAttribute('data-vscode-theme-name');
+
+    // Quick check for existing VS Code theme classes first (fastest method)
+    const bodyClasses = body.className;
+    if (bodyClasses.includes('vscode-dark')) {
+        body.setAttribute('data-vscode-theme-kind', 'vscode-dark');
+        body.setAttribute('data-vscode-theme-name', 'dark');
+        return;
+    } else if (bodyClasses.includes('vscode-light')) {
+        body.setAttribute('data-vscode-theme-kind', 'vscode-light');
+        body.setAttribute('data-vscode-theme-name', 'light');
+        return;
+    } else if (bodyClasses.includes('vscode-high-contrast')) {
+        body.setAttribute('data-vscode-theme-kind', 'vscode-high-contrast');
+        body.setAttribute('data-vscode-theme-name', 'high-contrast');
+        return;
+    }
+
+    // Check for high contrast themes via CSS variables
+    const contrastBorder = computedStyle.getPropertyValue('--vscode-contrastBorder').trim();
+    if (contrastBorder && contrastBorder !== 'transparent' && contrastBorder !== '' && contrastBorder !== 'none') {
+        body.setAttribute('data-vscode-theme-kind', 'vscode-high-contrast');
+        body.setAttribute('data-vscode-theme-name', 'high-contrast');
+        return;
+    }
+
+    // Fallback: Detect theme based on background color brightness
+    if (backgroundColor) {
+        const rgb = backgroundColor.match(/\d+/g);
+        if (rgb && rgb.length >= 3) {
+            const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
+
+            if (brightness < 128) {
+                body.setAttribute('data-vscode-theme-kind', 'vscode-dark');
+                body.setAttribute('data-vscode-theme-name', 'dark');
+            } else {
+                body.setAttribute('data-vscode-theme-kind', 'vscode-light');
+                body.setAttribute('data-vscode-theme-name', 'light');
+            }
+        }
+    }
+}
+
+// Apply theme detection on load
+detectAndApplyTheme();
+
+// Re-apply theme detection when CSS variables change (theme switch)
+const observer = new MutationObserver((mutations) => {
+    let shouldUpdate = false;
+    mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' &&
+            (mutation.attributeName === 'class' || mutation.attributeName === 'style')) {
+            shouldUpdate = true;
+        }
+    });
+    
+    if (shouldUpdate) {
+        // Use the responsive scheduling function
+        scheduleThemeCheck();
+    }
+});
+
+observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class', 'style']
+});
+
+// Also listen for VS Code theme change events if available
+window.addEventListener('message', (event) => {
+    const message = event.data;
+    if (message.type === 'themeChanged' || message.command === 'themeChanged') {
+        // Apply theme immediately, then again after a small delay for any late-loading CSS
+        detectAndApplyTheme();
+        setTimeout(detectAndApplyTheme, 10);
+    }
+});
+
+// More responsive theme change detection using requestAnimationFrame
+let themeCheckScheduled = false;
+function scheduleThemeCheck() {
+    if (!themeCheckScheduled) {
+        themeCheckScheduled = true;
+        requestAnimationFrame(() => {
+            detectAndApplyTheme();
+            themeCheckScheduled = false;
+        });
+    }
+}
+
 })();
