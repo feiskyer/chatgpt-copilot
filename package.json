@@ -697,7 +697,7 @@
     "@types/minimatch": "^6.0.0",
     "ai": "^4.3.19",
     "ajv": "^8.17.1",
-    "axios": "^1.10.0",
+    "axios": "^1.11.0",
     "cheerio": "^1.1.0",
     "delay": "^6.0.0",
     "eventsource-parser": "^3.0.3",
