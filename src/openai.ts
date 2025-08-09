@@ -23,6 +23,7 @@ import {
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
 import { getHeaders, ModelConfig } from "./model-config";
+import { getToolsWithWebSearch } from "./tool-utils";
 import { isOpenAIOModel, isReasoningModel } from "./types";
 
 const azureAPIVersion = "2025-04-01-preview";
@@ -143,8 +144,9 @@ export async function chatGpt(
     provider.chatHistory.push(chatMessage);
     const modelName = provider.model ? provider.model : "gpt-4o";
 
-    // Log tools if available for debugging
-    const tools = provider.toolSet?.tools;
+    // Get tools including web search tools if applicable
+    const tools = getToolsWithWebSearch(provider);
+
     if (tools && Object.keys(tools).length > 0) {
       logger.appendLine(
         `DEBUG: Tools available for model: ${Object.keys(tools).join(", ")}`,

@@ -15,6 +15,7 @@ import * as vscode from "vscode";
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
 import { getHeaders } from "./model-config";
+import { getToolsWithWebSearch } from "./tool-utils";
 import {
   executePromptToolCall,
   generateToolDescriptions,
@@ -323,7 +324,7 @@ async function executeStandardChat(
     model: provider.apiChat,
     messages: provider.chatHistory,
     abortSignal: provider.abortController?.signal,
-    tools: provider.toolSet?.tools || undefined,
+    tools: getToolsWithWebSearch(provider) || undefined,
     maxSteps: provider.maxSteps,
     headers: getHeaders(),
     ...(isOpenAIOModel(modelName) && {

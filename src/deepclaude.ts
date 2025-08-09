@@ -15,6 +15,7 @@ import { ModelMessage, stepCountIs, streamText } from "ai";
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
 import { getHeaders } from "./model-config";
+import { getToolsWithWebSearch } from "./tool-utils";
 import { isOpenAIOModel } from "./types";
 
 // reasoningChat performs reasoning + chat (e.g. DeepSeek + Claude).
@@ -65,7 +66,7 @@ export async function reasoningChat(
         messages: provider.chatHistory,
 
         abortSignal: provider.abortController?.signal,
-        tools: provider.toolSet?.tools || undefined,
+        tools: getToolsWithWebSearch(provider) || undefined,
         headers: getHeaders(),
         ...(isOpenAIOModel(provider.reasoningModel) && {
           providerOptions: {
@@ -182,7 +183,7 @@ export async function reasoningChat(
       model: provider.apiChat as any,
       messages: provider.chatHistory,
       abortSignal: provider.abortController?.signal,
-      tools: provider.toolSet?.tools || undefined,
+      tools: getToolsWithWebSearch(provider) || undefined,
       stopWhen: stepCountIs(provider.maxSteps),
       headers: getHeaders(),
       ...(isOpenAIOModel(provider.model ? provider.model : "") && {

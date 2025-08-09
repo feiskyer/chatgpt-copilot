@@ -15,6 +15,7 @@ import { ModelMessage, streamText } from "ai";
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
 import { ModelConfig, getHeaders } from "./model-config";
+import { getToolsWithWebSearch } from "./tool-utils";
 
 const azureAPIVersion = "2025-04-01-preview";
 
@@ -109,7 +110,7 @@ export async function chatCompletion(
         : undefined,
     temperature: provider.modelConfig.temperature,
     abortSignal: provider.abortController?.signal,
-    tools: provider.toolSet?.tools || undefined,
+    tools: getToolsWithWebSearch(provider) || undefined,
     headers: getHeaders(),
   });
   const chunks = [];
