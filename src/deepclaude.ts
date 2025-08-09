@@ -197,13 +197,16 @@ export async function reasoningChat(
         temperature: provider.modelConfig.temperature,
         // topP: provider.modelConfig.topP,
       }),
-      // ...(provider.provider === "Google" && provider.modelConfig.searchGrounding && {
-      //   providerOptions: {
-      //     google: {
-      //       useSearchGrounding: true,
-      //     },
-      //   },
-      // }),
+      ...(provider.provider === "Google" && provider.reasoningEffort && provider.reasoningEffort !== "" && {
+        providerOptions: {
+          google: {
+            thinkingConfig: {
+              thinkingBudget: provider.reasoningEffort === "low" ? 1500 : provider.reasoningEffort === "medium" ? 8000 : 20000,
+              includeThoughts: true,
+            },
+          },
+        },
+      }),
     });
     for await (const part of result.fullStream) {
       // logger.appendLine(`INFO: deepclaude.model: ${provider.model} deepclaude.question: ${question} response: ${JSON.stringify(part, null, 2)}`);

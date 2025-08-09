@@ -160,15 +160,17 @@ export async function chatGpt(
       ...(!isOpenAIOModel(modelName) && {
         maxOutputTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
         temperature: provider.modelConfig.temperature,
-        // topP: provider.modelConfig.topP,
       }),
-      // ...(provider.provider === "Google" && provider.modelConfig.searchGrounding && {
-      //   providerOptions: {
-      //     google: {
-      //       useSearchGrounding: true,
-      //     },
-      //   },
-      // }),
+      ...(provider.provider === "Google" && provider.reasoningEffort && provider.reasoningEffort !== "" && {
+        providerOptions: {
+          google: {
+            thinkingConfig: {
+              thinkingBudget: provider.reasoningEffort === "low" ? 1500 : provider.reasoningEffort === "medium" ? 8000 : 20000,
+              includeThoughts: true,
+            },
+          },
+        },
+      }),
     };
     // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question.trim()} inputs: ${JSON.stringify(inputs, null, 2)}`);
     const result = streamText(inputs);

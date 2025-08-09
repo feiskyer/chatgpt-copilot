@@ -184,13 +184,16 @@ async function executePromptBasedToolLoop(
         maxOutputTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
         temperature: provider.modelConfig.temperature,
       }),
-      // ...(provider.provider === "Google" && provider.modelConfig.searchGrounding && {
-      //   providerOptions: {
-      //     google: {
-      //       useSearchGrounding: true,
-      //     },
-      //   },
-      // }),
+      ...(provider.provider === "Google" && provider.reasoningEffort && provider.reasoningEffort !== "" && {
+        providerOptions: {
+          google: {
+            thinkingConfig: {
+              thinkingBudget: provider.reasoningEffort === "low" ? 1500 : provider.reasoningEffort === "medium" ? 8000 : 20000,
+              includeThoughts: true,
+            },
+          },
+        },
+      }),
     };
 
     const result = streamText(inputs);
@@ -315,13 +318,16 @@ async function executeStandardChat(
       maxOutputTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
       temperature: provider.modelConfig.temperature,
     }),
-    // ...(provider.provider === "Google" && provider.modelConfig.searchGrounding && {
-    //   providerOptions: {
-    //     google: {
-    //       useSearchGrounding: true,
-    //     },
-    //   },
-    // }),
+    ...(provider.provider === "Google" && provider.reasoningEffort && provider.reasoningEffort !== "" && {
+      providerOptions: {
+        google: {
+          thinkingConfig: {
+            thinkingBudget: provider.reasoningEffort === "low" ? 1500 : provider.reasoningEffort === "medium" ? 8000 : 20000,
+            includeThoughts: true,
+          },
+        },
+      },
+    }),
   };
 
   const result = streamText(inputs);
