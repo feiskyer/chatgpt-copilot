@@ -15,7 +15,16 @@
 
 // @ts-ignore
 import { OpenAIChatLanguageModel, OpenAICompletionLanguageModel } from "@ai-sdk/openai/internal";
-import { LanguageModel, ModelMessage } from 'ai';
+import { LanguageModel as LanguageModelV2, ModelMessage } from 'ai';
+
+// Temporary compatibility type to handle LanguageModelV1 and LanguageModelV2
+type CompatibleLanguageModel = LanguageModelV2 | {
+  specificationVersion: 'v1';
+  provider: string;
+  modelId: string;
+  doGenerate: any;
+  doStream: any;
+};
 import delay from "delay";
 import path from "path";
 import * as vscode from "vscode";
@@ -59,9 +68,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public reasoningProvider: string = "Auto";
   public reasoningModelConfig!: ModelConfig;
   public systemPromptOverride: string = "";
-  public apiCompletion?: OpenAICompletionLanguageModel | LanguageModel;
-  public apiChat?: OpenAIChatLanguageModel | LanguageModel;
-  public apiReasoning?: OpenAIChatLanguageModel | LanguageModel;
+  public apiCompletion?: OpenAICompletionLanguageModel | CompatibleLanguageModel;
+  public apiChat?: OpenAIChatLanguageModel | CompatibleLanguageModel;
+  public apiReasoning?: OpenAIChatLanguageModel | CompatibleLanguageModel;
   public conversationId?: string;
   public questionCounter: number = 0;
   public inProgress: boolean = false;

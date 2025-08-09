@@ -54,7 +54,7 @@ export async function initClaudeModel(
   } else {
     viewProvider.apiChat = ai.languageModel(
       viewProvider.model ? viewProvider.model : "claude-3-5-sonnet-20240620",
-    );
+    ) as any;
   }
 }
 
@@ -117,18 +117,18 @@ export async function initOllamaModel(
       ? viewProvider.reasoningModel
       : "deepseek-r1";
     viewProvider.apiReasoning = wrapLanguageModel({
-      model: ai.languageModel(model),
+      model: ai.languageModel(model) as any,
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     });
   } else {
     const model = viewProvider.model ? viewProvider.model : "deepseek-r1";
     if (isReasoningModel(model)) {
       viewProvider.apiChat = wrapLanguageModel({
-        model: ai.languageModel(model),
+        model: ai.languageModel(model) as any,
         middleware: extractReasoningMiddleware({ tagName: "think" }),
       });
     } else {
-      viewProvider.apiChat = ai.languageModel(model);
+      viewProvider.apiChat = ai.languageModel(model) as any;
     }
   }
 }
@@ -159,7 +159,7 @@ export async function initMistralModel(
   } else {
     viewProvider.apiChat = ai.languageModel(
       viewProvider.model ? viewProvider.model : "deepseek-r1",
-    );
+    ) as any;
   }
 }
 
@@ -191,7 +191,7 @@ export async function initXAIModel(
   } else {
     viewProvider.apiChat = ai.languageModel(
       viewProvider.model ? viewProvider.model : "grok-beta",
-    );
+    ) as any;
   }
 }
 
@@ -215,7 +215,7 @@ export async function initTogetherModel(
       : "deepseek-ai/DeepSeek-R1";
 
     viewProvider.apiReasoning = wrapLanguageModel({
-      model: ai.languageModel(model),
+      model: ai.languageModel(model) as any,
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     });
   } else {
@@ -225,11 +225,11 @@ export async function initTogetherModel(
 
     if (isReasoningModel(model)) {
       viewProvider.apiChat = wrapLanguageModel({
-        model: ai.languageModel(model),
+        model: ai.languageModel(model) as any,
         middleware: extractReasoningMiddleware({ tagName: "think" }),
       });
     } else {
-      viewProvider.apiChat = ai.languageModel(model);
+      viewProvider.apiChat = ai.languageModel(model) as any;
     }
   }
 }
@@ -254,7 +254,7 @@ export async function initDeepSeekModel(
       : "deepseek-chat";
 
     viewProvider.apiReasoning = wrapLanguageModel({
-      model: ai.languageModel(model),
+      model: ai.languageModel(model) as any,
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     });
   } else {
@@ -262,11 +262,11 @@ export async function initDeepSeekModel(
 
     if (isReasoningModel(model)) {
       viewProvider.apiChat = wrapLanguageModel({
-        model: ai.languageModel(model),
+        model: ai.languageModel(model) as any,
         middleware: extractReasoningMiddleware({ tagName: "think" }),
       });
     } else {
-      viewProvider.apiChat = ai.languageModel(model);
+      viewProvider.apiChat = ai.languageModel(model) as any;
     }
   }
 }
@@ -291,18 +291,18 @@ export async function initGroqModel(
       : "gemma2-9b-it";
 
     viewProvider.apiReasoning = wrapLanguageModel({
-      model: ai.languageModel(model),
+      model: ai.languageModel(model) as any,
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     });
   } else {
     const model = viewProvider.model ? viewProvider.model : "gemma2-9b-it";
     if (isReasoningModel(model)) {
       viewProvider.apiChat = wrapLanguageModel({
-        model: ai.languageModel(model),
+        model: ai.languageModel(model) as any,
         middleware: extractReasoningMiddleware({ tagName: "think" }),
       });
     } else {
-      viewProvider.apiChat = ai.languageModel(model);
+      viewProvider.apiChat = ai.languageModel(model) as any;
     }
   }
 }
@@ -323,7 +323,7 @@ export async function initPerplexityModel(
 
   viewProvider.apiChat = ai.languageModel(
     viewProvider.model ? viewProvider.model : "sonar-pro",
-  );
+  ) as any;
 }
 
 export async function initOpenRouterModel(
@@ -340,7 +340,7 @@ export async function initOpenRouterModel(
       : "anthropic/claude-3.5-sonnet";
 
     viewProvider.apiReasoning = wrapLanguageModel({
-      model: ai.languageModel(model),
+      model: ai.languageModel(model) as any,
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     });
   } else {
@@ -350,11 +350,11 @@ export async function initOpenRouterModel(
 
     if (isReasoningModel(model)) {
       viewProvider.apiChat = wrapLanguageModel({
-        model: ai.languageModel(model),
+        model: ai.languageModel(model) as any,
         middleware: extractReasoningMiddleware({ tagName: "think" }),
       });
     } else {
-      viewProvider.apiChat = ai.languageModel(model);
+      viewProvider.apiChat = ai.languageModel(model) as any;
     }
   }
 }
@@ -363,13 +363,13 @@ export async function initAzureAIModel(
   viewProvider: ChatGptViewProvider,
   config: ModelConfig,
 ) {
-  const azureAPIVersion = "2025-02-01-preview";
+  const azureAPIVersion = "2025-04-01-preview";
   let apiBaseUrl = config.apiBaseUrl;
 
   const ai = createAzure({
     apiKey: config.apiKey,
     endpoint: apiBaseUrl,
-    apiVersion: azureAPIVersion,
+    // apiVersion: azureAPIVersion,
   });
 
   if (config.isReasoning) {
@@ -378,18 +378,18 @@ export async function initAzureAIModel(
       : "DeepSeek-R1";
 
     viewProvider.apiReasoning = wrapLanguageModel({
-      model: ai.languageModel(model),
+      model: ai.languageModel(model) as any,
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     });
   } else {
     const model = viewProvider.model ? viewProvider.model : "DeepSeek-R1";
     if (isReasoningModel(model)) {
       viewProvider.apiChat = wrapLanguageModel({
-        model: ai.languageModel(model),
+        model: ai.languageModel(model) as any,
         middleware: extractReasoningMiddleware({ tagName: "think" }),
       });
     } else {
-      viewProvider.apiChat = ai.languageModel(model);
+      viewProvider.apiChat = ai.languageModel(model) as any;
     }
   }
 }
@@ -415,18 +415,18 @@ export async function initReplicateModel(
       : "deepseek-ai/deepseek-r1";
 
     viewProvider.apiReasoning = wrapLanguageModel({
-      model: ai.languageModel(model),
+      model: ai.languageModel(model) as any,
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     });
   } else {
     const model = viewProvider.model ? viewProvider.model : "deepseek-ai/deepseek-r1";
     if (isReasoningModel(model)) {
       viewProvider.apiChat = wrapLanguageModel({
-        model: ai.languageModel(model),
+        model: ai.languageModel(model) as any,
         middleware: extractReasoningMiddleware({ tagName: "think" }),
       });
     } else {
-      viewProvider.apiChat = ai.languageModel(model);
+      viewProvider.apiChat = ai.languageModel(model) as any;
     }
   }
 }

@@ -24,7 +24,6 @@ import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
 import { getHeaders, ModelConfig } from "./model-config";
 import { isOpenAIOModel, isReasoningModel } from "./types";
-import { fetchOpenAI } from "./utils";
 
 const azureAPIVersion = "2025-04-01-preview";
 
@@ -42,8 +41,8 @@ export async function initGptModel(
     const azure = createAzure({
       resourceName: instanceName,
       apiKey: config.apiKey,
-      apiVersion: azureAPIVersion,
-      fetch: fetchOpenAI, // workaround for https://github.com/vercel/ai/issues/4662
+      // apiVersion: azureAPIVersion,
+      // fetch: fetchOpenAI, // workaround for https://github.com/vercel/ai/issues/4662
     });
     let azureModel = azure.languageModel(deployName);
     if (config.enableResponsesAPI) {
@@ -52,17 +51,17 @@ export async function initGptModel(
 
     if (config.isReasoning) {
       viewProvider.apiReasoning = wrapLanguageModel({
-        model: azureModel,
+        model: azureModel as any,
         middleware: extractReasoningMiddleware({ tagName: "think" }),
       });
     } else {
       if (isReasoningModel(deployName)) {
         viewProvider.apiChat = wrapLanguageModel({
-          model: azureModel,
+          model: azureModel as any,
           middleware: extractReasoningMiddleware({ tagName: "think" }),
         });
       } else {
-        viewProvider.apiChat = azureModel;
+        viewProvider.apiChat = azureModel as any;
       }
     }
   } else {
@@ -71,7 +70,7 @@ export async function initGptModel(
       baseURL: config.apiBaseUrl,
       apiKey: config.apiKey,
       organization: config.organization,
-      fetch: fetchOpenAI, // workaround for https://github.com/vercel/ai/issues/4662
+      // fetch: fetchOpenAI, // workaround for https://github.com/vercel/ai/issues/4662
     });
 
     if (config.isReasoning) {
@@ -79,18 +78,18 @@ export async function initGptModel(
         ? viewProvider.reasoningModel
         : "o3-mini";
       viewProvider.apiReasoning = wrapLanguageModel({
-        model: config.enableResponsesAPI ? openai.responses(model) : openai.languageModel(model),
+        model: config.enableResponsesAPI ? openai.responses(model) as any : openai.languageModel(model) as any,
         middleware: extractReasoningMiddleware({ tagName: "think" }),
       });
     } else {
       const model = viewProvider.model ? viewProvider.model : "gpt-4o";
       if (isReasoningModel(model)) {
         viewProvider.apiChat = wrapLanguageModel({
-          model: config.enableResponsesAPI ? openai.responses(model) : openai.languageModel(model),
+          model: config.enableResponsesAPI ? openai.responses(model) as any : openai.languageModel(model) as any,
           middleware: extractReasoningMiddleware({ tagName: "think" }),
         });
       } else {
-        viewProvider.apiChat = openai.languageModel(model);
+        viewProvider.apiChat = openai.languageModel(model) as any;
       }
     }
   }

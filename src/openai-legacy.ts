@@ -1,5 +1,5 @@
-/* eslint-disable eqeqeq */
-/* eslint-disable @typescript-eslint/naming-convention */
+
+
 /**
  * @author Pengfei Ni
  *
@@ -18,7 +18,7 @@ import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
 import { ModelConfig, getHeaders } from "./model-config";
 
-const azureAPIVersion = "2025-02-01-preview";
+const azureAPIVersion = "2025-04-01-preview";
 
 // initGptLegacyModel initializes the GPT legacy model.
 export function initGptLegacyModel(
@@ -34,7 +34,7 @@ export function initGptLegacyModel(
     const azure = createAzure({
       resourceName: instanceName,
       apiKey: config.apiKey,
-      apiVersion: azureAPIVersion,
+      // apiVersion: azureAPIVersion,
     });
     if (config.isReasoning) {
       viewProvider.apiReasoning = azure.completion(deployName);
@@ -103,7 +103,7 @@ export async function chatCompletion(
 
   const result = streamText({
     system: provider.modelConfig.systemPrompt,
-    model: provider.apiCompletion,
+    model: provider.apiCompletion as any,
     prompt: prompt,
     maxOutputTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
     temperature: provider.modelConfig.temperature,

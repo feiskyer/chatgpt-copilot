@@ -33,11 +33,12 @@ export function generateToolDescriptions(toolSet: ToolSet): string {
 
   const toolDescriptions = Object.entries(toolSet.tools).map(([name, tool]) => {
     const description = tool.description || name;
-    const parameters = tool.parameters || {};
+    // AI SDK v5: use inputSchema instead of parameters
+    const inputSchema = (tool as any).inputSchema || (tool as any).parameters || {};
 
     // Extract parameter information
-    const paramInfo = Object.entries(parameters.properties || {}).map(([paramName, paramDef]: [string, any]) => {
-      const required = parameters.required?.includes(paramName) ? " (required)" : " (optional)";
+    const paramInfo = Object.entries(inputSchema.properties || {}).map(([paramName, paramDef]: [string, any]) => {
+      const required = inputSchema.required?.includes(paramName) ? " (required)" : " (optional)";
       const type = paramDef.type || "any";
       const desc = paramDef.description || "";
       return `  - ${paramName} (${type})${required}: ${desc}`;

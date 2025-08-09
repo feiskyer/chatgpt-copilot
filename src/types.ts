@@ -26,7 +26,8 @@ export function isOpenAIOModel(model: string) {
   return (
     m.includes("o1") ||
     m.includes("o3") ||
-    m.includes("o4")
+    m.includes("o4") ||
+    m.includes("gpt-5")
   );
 }
 
