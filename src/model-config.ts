@@ -1,4 +1,3 @@
-/* eslint-disable eqeqeq */
 /* eslint-disable @typescript-eslint/naming-convention */
 /**
  * @author Pengfei Ni

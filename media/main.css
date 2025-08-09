@@ -17,83 +17,45 @@
 
     /* Theme-aware custom properties for modern input */
     --modern-input-bg: var(--vscode-input-background);
-    --modern-input-bg-hover: var(--vscode-list-hoverBackground);
-    --modern-input-bg-focus: var(--vscode-list-focusBackground);
-    --modern-button-inactive-bg: rgba(0, 0, 0, 0.02);
-    --modern-button-inactive-color: var(--vscode-foreground);
-    --modern-button-inactive-hover-bg: rgba(0, 0, 0, 0.04);
-    --modern-button-inactive-hover-color: var(--vscode-foreground);
-    --modern-button-active-bg: rgba(0, 123, 255, 0.08);
-    --modern-button-active-color: rgb(0, 123, 255);
-    --modern-button-active-hover-bg: rgba(0, 123, 255, 0.12);
-    --modern-shadow-light: transparent;
-    --modern-shadow-medium: transparent;
-    --modern-border-light: var(--vscode-contrastBorder);
-    --modern-border-medium: var(--vscode-contrastBorder);
-    --modern-accent-primary: var(--vscode-button-background);
-    --modern-accent-primary-alpha: var(--vscode-button-background);
-    --modern-accent-success: var(--vscode-button-background);
-    --modern-accent-success-alpha: var(--vscode-button-background);
-    --modern-accent-warning: var(--vscode-button-background);
-    --modern-accent-warning-alpha: var(--vscode-button-background);
-    --modern-accent-error: var(--vscode-errorForeground);
-    --modern-accent-error-alpha: var(--vscode-errorForeground);
+    --modern-input-bg-hover: var(--vscode-input-background);
+    --modern-input-bg-focus: var(--vscode-input-background);
 }
 
-/* Dark theme overrides */
-body[data-vscode-theme-kind="vscode-dark"],
-body[data-vscode-theme-name*="dark"],
-body[data-vscode-theme-name*="Dark"] {
-    --modern-input-bg: var(--vscode-input-background);
-    --modern-input-bg-hover: var(--vscode-list-hoverBackground);
-    --modern-input-bg-focus: var(--vscode-list-focusBackground);
-    --modern-button-inactive-bg: rgba(255, 255, 255, 0.06);
-    --modern-button-inactive-color: var(--vscode-foreground);
-    --modern-button-inactive-hover-bg: rgba(255, 255, 255, 0.1);
-    --modern-button-inactive-hover-color: var(--vscode-foreground);
-    --modern-button-active-bg: rgba(100, 181, 246, 0.15);
-    --modern-button-active-color: rgb(100, 181, 246);
-    --modern-button-active-hover-bg: rgba(100, 181, 246, 0.22);
-    --modern-shadow-light: transparent;
-    --modern-shadow-medium: transparent;
-    --modern-border-light: var(--vscode-contrastBorder);
-    --modern-border-medium: var(--vscode-contrastBorder);
-    --modern-accent-primary: var(--vscode-button-background);
-    --modern-accent-primary-alpha: var(--vscode-button-background);
-    --modern-accent-success: var(--vscode-button-background);
-    --modern-accent-success-alpha: var(--vscode-button-background);
-    --modern-accent-warning: var(--vscode-button-background);
-    --modern-accent-warning-alpha: var(--vscode-button-background);
-    --modern-accent-error: var(--vscode-errorForeground);
-    --modern-accent-error-alpha: var(--vscode-errorForeground);
+/* Dark theme overrides - removed, using VS Code theme variables directly */
+
+/* High contrast theme overrides - removed, using VS Code theme variables directly */
+
+/* Top right buttons (MCP and Prompt Manager) */
+#toggle-mcp-servers,
+#toggle-prompt-manager {
+    background: transparent;
+    color: var(--vscode-foreground);
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
 }
 
-/* High contrast theme overrides */
-body[data-vscode-theme-kind="vscode-high-contrast"],
-body[data-vscode-theme-name*="high-contrast"],
-body[data-vscode-theme-name*="High Contrast"] {
-    --modern-input-bg: transparent;
-    --modern-input-bg-hover: var(--vscode-list-hoverBackground);
-    --modern-input-bg-focus: var(--vscode-list-focusBackground);
-    --modern-button-inactive-bg: transparent;
-    --modern-button-inactive-color: var(--vscode-foreground);
-    --modern-button-inactive-hover-bg: var(--vscode-list-hoverBackground);
-    --modern-button-inactive-hover-color: var(--vscode-foreground);
-    --modern-button-active-bg: var(--vscode-button-background);
-    --modern-button-active-color: var(--vscode-button-foreground);
-    --modern-button-active-hover-bg: var(--vscode-button-hoverBackground);
-    --modern-shadow-light: transparent;
-    --modern-shadow-medium: transparent;
-    --modern-border-light: var(--vscode-contrastBorder);
-    --modern-border-medium: var(--vscode-contrastBorder);
-    --modern-accent-primary: var(--vscode-button-background);
-    --modern-accent-primary-alpha: var(--vscode-button-background);
-    --modern-accent-success: var(--vscode-button-background);
-    --modern-accent-success-alpha: var(--vscode-button-background);
-    --modern-accent-warning: var(--vscode-button-background);
-    --modern-accent-warning-alpha: var(--vscode-button-background);
-    --modern-accent-error: var(--vscode-errorForeground);
-    --modern-accent-error-alpha: var(--vscode-errorForeground);
+#toggle-mcp-servers:hover,
+#toggle-prompt-manager:hover {
+    background: var(--vscode-toolbar-hoverBackground, var(--vscode-list-hoverBackground));
+    border-color: var(--vscode-widget-border);
+}
+
+#toggle-mcp-servers img,
+#toggle-prompt-manager img {
+    filter: none;
+    opacity: 0.8;
+}
+
+#toggle-mcp-servers:hover img,
+#toggle-prompt-manager:hover img {
+    opacity: 1;
+}
+
+/* Ensure MCP icon is visible in dark themes */
+body[data-vscode-theme-kind="vscode-dark"] #toggle-mcp-servers img,
+body[data-vscode-theme-name*="dark"] #toggle-mcp-servers img,
+body[data-vscode-theme-name*="Dark"] #toggle-mcp-servers img {
+    filter: invert(1);
 }
 
 /* Special high contrast button visibility */
@@ -248,16 +210,16 @@ button {
     text-align: center;
     outline: 1px solid transparent;
     outline-offset: 2px !important;
-    color: var(--vscode-button-secondaryForeground) !important;
-    background: var(--vscode-button-secondaryBackground) !important;
+    color: var(--vscode-foreground);
+    background: transparent;
 }
 
 button:hover {
-    background: var(--vscode-button-secondaryHoverBackground) !important;
+    background: var(--vscode-list-hoverBackground);
 }
 
 button:hover svg {
-    stroke: var(--vscode-button-secondaryForeground) !important;
+    stroke: var(--vscode-foreground);
 }
 
 button:focus {
@@ -604,6 +566,14 @@ textarea::placeholder {
 .new-code-element-ext {
     font-size: 11px;
     padding: 2px 6px !important;
+    background: transparent !important;
+    color: var(--vscode-foreground) !important;
+}
+
+.code-element-ext:hover,
+.edit-element-ext:hover,
+.new-code-element-ext:hover {
+    background: var(--vscode-list-hoverBackground) !important;
 }
 
 .code-element-ext svg,
@@ -1044,13 +1014,11 @@ tool-result {
 /* Modern Input Container Styles */
 .modern-input-container {
     width: 100%;
-    max-width: 36rem;
-    /* 576px */
-    margin: 0 auto;
-    padding: 1rem;
-    /* background: var(--vscode-editor-background); */
-    border: 1px solid var(--vscode-widget-border);
-    border-radius: 0.5rem;
+    max-width: 100%;
+    margin: 0;
+    padding: 0.75rem;
+    background: transparent;
+    border: none;
     position: relative;
     z-index: 10;
 }
@@ -1059,22 +1027,25 @@ tool-result {
     position: relative;
     display: flex;
     flex-direction: column;
-    border-radius: 0.75rem;
-    /* 12px */
+    border-radius: 1.25rem;
+    /* 20px */
     overflow: hidden;
-    background: var(--modern-input-bg);
-    border: 1px solid var(--vscode-input-border);
+    background: var(--vscode-input-background);
+    border: 1px solid var(--vscode-widget-border);
     transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .modern-input-wrapper:hover {
-    background: var(--modern-input-bg-hover);
+    background: var(--vscode-input-background);
+    border-color: var(--vscode-focusBorder);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .modern-input-wrapper:focus-within {
     border-color: var(--vscode-focusBorder);
-    box-shadow: 0 0 0 1px var(--vscode-focusBorder);
-    background: var(--modern-input-bg-focus);
+    box-shadow: 0 0 0 1px var(--vscode-focusBorder), 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: var(--vscode-input-background);
 }
 
 /* File References Modern Styling */
@@ -1414,6 +1385,33 @@ body[data-vscode-theme-name*="High Contrast"] .modern-button:focus {
     outline: 2px solid var(--vscode-focusBorder);
     outline-offset: 1px;
     background: var(--vscode-list-focusBackground);
+}
+
+/* Chat button wrapper (popup menu) styles */
+#chat-button-wrapper {
+    background: var(--vscode-dropdown-background) !important;
+    border: 1px solid var(--vscode-dropdown-border) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 8px var(--vscode-widget-shadow) !important;
+}
+
+#chat-button-wrapper button {
+    background: transparent !important;
+    color: var(--vscode-dropdown-foreground) !important;
+    border: none !important;
+    border-radius: 0 !important;
+}
+
+#chat-button-wrapper button:hover {
+    background: var(--vscode-list-hoverBackground) !important;
+    color: var(--vscode-list-hoverForeground) !important;
+}
+
+#chat-button-wrapper button:focus {
+    background: var(--vscode-list-focusBackground) !important;
+    color: var(--vscode-list-focusForeground) !important;
+    outline: 1px solid var(--vscode-focusBorder) !important;
+    outline-offset: -1px !important;
 }
 
 /* jQuery UI Menu overrides to match VS Code theme */
@@ -1853,8 +1851,8 @@ body[data-vscode-theme-name*="High Contrast"] .modern-button:focus {
     align-items: center;
     justify-content: space-between;
     padding: 0 0.75rem;
-    border-top: 1px solid var(--vscode-input-border);
-    background: var(--vscode-input-background);
+    border-top: none;
+    background: transparent;
 }
 
 .modern-button-left,
@@ -1866,46 +1864,47 @@ body[data-vscode-theme-name*="High Contrast"] .modern-button:focus {
 
 /* Modern Button Styling */
 .modern-button {
-    border-radius: 0.5rem;
-    padding: 0.5rem;
+    border-radius: 50%;
+    padding: 0;
     transition: all 0.2s ease;
     border: none;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    min-width: 2rem;
-    min-height: 2rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    min-width: 2.25rem;
+    min-height: 2.25rem;
     position: relative;
 }
 
 .modern-button-inactive {
-    background: var(--modern-button-inactive-bg);
-    color: var(--modern-button-inactive-color);
+    background: var(--vscode-toolbar-hoverBackground, var(--vscode-list-hoverBackground));
+    color: var(--vscode-foreground);
+    opacity: 0.8;
 }
 
 .modern-button-active {
-    background: var(--modern-button-active-bg);
-    color: var(--modern-button-active-color);
+    background: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
 }
 
 /* Enhanced hover states for all interactive buttons */
 .modern-button:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px var(--modern-shadow-light);
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .modern-button-inactive:hover:not(:disabled) {
-    background: var(--modern-button-inactive-hover-bg);
-    color: var(--modern-button-inactive-hover-color);
+    background: var(--vscode-list-activeSelectionBackground);
+    color: var(--vscode-list-activeSelectionForeground);
+    opacity: 1;
 }
 
 .modern-button-active:hover:not(:disabled) {
-    background: var(--modern-button-active-hover-bg);
-    color: var(--modern-button-active-color);
-    /* sky-600 */
+    background: var(--vscode-button-hoverBackground);
+    color: var(--vscode-button-foreground);
 }
 
 /* Enhanced focus states */
@@ -1959,16 +1958,13 @@ body[data-vscode-theme-name*="High Contrast"] .modern-button:focus {
 
 /* Special styling for send button when active */
 .modern-button-active#ask-button {
-    background: rgba(34, 197, 94, 0.15);
-    /* green-500/15 */
-    color: rgb(34, 197, 94);
-    /* green-500 */
+    background: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
 }
 
 .modern-button-active#ask-button:hover:not(:disabled) {
-    background: var(--modern-accent-success-alpha);
-    color: var(--modern-accent-success);
-    /* green-600 */
+    background: var(--vscode-button-hoverBackground);
+    color: var(--vscode-button-foreground);
 }
 
 /* Pulse animation for active send button */
@@ -1995,12 +1991,11 @@ body[data-vscode-theme-name*="High Contrast"] .modern-button:focus {
 }
 
 .modern-button#file-attachment-button:hover:not(:disabled) {
-    background: rgba(168, 85, 247, 0.1);
-    /* purple-500/10 */
-    color: rgb(168, 85, 247);
-    /* purple-500 */
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(168, 85, 247, 0.2);
+    background: var(--vscode-list-activeSelectionBackground);
+    color: var(--vscode-list-activeSelectionForeground);
+    opacity: 1;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .modern-button#file-attachment-button:active {
@@ -2038,10 +2033,8 @@ body[data-vscode-theme-name*="High Contrast"] .modern-button:focus {
 
 /* File attachment success state */
 .modern-button#file-attachment-button.success {
-    background: rgba(34, 197, 94, 0.15);
-    /* green-500/15 */
-    color: rgb(34, 197, 94);
-    /* green-500 */
+    background: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
     animation: success-pulse 0.6s ease-out;
 }
 
@@ -2064,10 +2057,8 @@ body[data-vscode-theme-name*="High Contrast"] .modern-button:focus {
 
 /* File attachment error state */
 .modern-button#file-attachment-button.error {
-    background: rgba(239, 68, 68, 0.15);
-    /* red-500/15 */
-    color: rgb(239, 68, 68);
-    /* red-500 */
+    background: var(--vscode-inputValidation-errorBackground);
+    color: var(--vscode-errorForeground);
     animation: error-shake 0.5s ease-out;
 }
 
@@ -2089,10 +2080,9 @@ body[data-vscode-theme-name*="High Contrast"] .modern-button:focus {
 
 /* More actions button specific styling */
 .modern-button#more-button:hover:not(:disabled) {
-    background: rgba(107, 114, 128, 0.1);
-    /* gray-500/10 */
-    color: rgb(107, 114, 128);
-    /* gray-500 */
+    background: var(--vscode-list-activeSelectionBackground);
+    color: var(--vscode-list-activeSelectionForeground);
+    opacity: 1;
 }
 
 /* Button loading state */
@@ -2200,4 +2190,107 @@ body[data-vscode-theme-name*="High Contrast"] .modern-button:focus {
             box-shadow: none;
         }
     }
+}
+
+/* Markdown content styling */
+.answer-element-ext strong,
+.question-element-ext strong {
+    font-weight: 700;
+    color: var(--vscode-foreground);
+}
+
+.answer-element-ext em,
+.question-element-ext em {
+    font-style: italic;
+}
+
+.answer-element-ext p,
+.question-element-ext p {
+    margin: 0.5em 0;
+    line-height: 1.6;
+}
+
+/* Ensure proper rendering of inline code */
+.answer-element-ext :not(pre) > code,
+.question-element-ext :not(pre) > code {
+    background: var(--vscode-textCodeBlock-background);
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+/* Lists styling */
+.answer-element-ext ul,
+.answer-element-ext ol {
+    margin: 0.5em 0;
+    padding-left: 1.5em;
+}
+
+.answer-element-ext li {
+    margin: 0.25em 0;
+    line-height: 1.6;
+}
+
+/* Headings */
+.answer-element-ext h1,
+.answer-element-ext h2,
+.answer-element-ext h3,
+.answer-element-ext h4,
+.answer-element-ext h5,
+.answer-element-ext h6 {
+    font-weight: 600;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+.answer-element-ext h1 { font-size: 1.5em; }
+.answer-element-ext h2 { font-size: 1.3em; }
+.answer-element-ext h3 { font-size: 1.15em; }
+.answer-element-ext h4 { font-size: 1.05em; }
+.answer-element-ext h5 { font-size: 1em; }
+.answer-element-ext h6 { font-size: 0.95em; }
+
+/* Blockquotes */
+.answer-element-ext blockquote {
+    border-left: 3px solid var(--vscode-textBlockQuote-border);
+    margin: 0.5em 0;
+    padding-left: 1em;
+    color: var(--vscode-textBlockQuote-foreground);
+    font-style: italic;
+}
+
+/* Horizontal rules */
+.answer-element-ext hr {
+    border: none;
+    border-top: 1px solid var(--vscode-widget-border);
+    margin: 1em 0;
+}
+
+/* Links */
+.answer-element-ext a {
+    color: var(--vscode-textLink-foreground);
+    text-decoration: none;
+}
+
+.answer-element-ext a:hover {
+    color: var(--vscode-textLink-activeForeground);
+    text-decoration: underline;
+}
+
+/* Tables */
+.answer-element-ext table {
+    border-collapse: collapse;
+    margin: 0.5em 0;
+    width: 100%;
+}
+
+.answer-element-ext th,
+.answer-element-ext td {
+    border: 1px solid var(--vscode-widget-border);
+    padding: 0.5em;
+}
+
+.answer-element-ext th {
+    background: var(--vscode-editor-background);
+    font-weight: 600;
 }

@@ -19,7 +19,8 @@ import { PromptBasedToolCall } from "./types";
 export class ToolCallParser {
   private static readonly PATTERNS = {
     // Primary format: <tool_call><tool_name>name</tool_name><arguments>json</arguments></tool_call>
-    XML_STYLE: /<tool_call>\s*<tool_name>(.*?)<\/tool_name>\s*<arguments>(.*?)<\/arguments>\s*<\/tool_call>/gs,
+    XML_STYLE:
+      /<tool_call>\s*<tool_name>(.*?)<\/tool_name>\s*<arguments>(.*?)<\/arguments>\s*<\/tool_call>/gs,
 
     // Alternative format: ```tool_call\nname\njson\n```
     MARKDOWN_STYLE: /```tool_call\s*\n([^\n]+)\n(.*?)\n```/gs,
@@ -28,21 +29,33 @@ export class ToolCallParser {
     FUNCTION_STYLE: /(\w+)\s*\(\s*(\{.*?\})\s*\)/gs,
 
     // JSON style: {"tool": "name", "arguments": {...}}
-    JSON_STYLE: /\{\s*"tool"\s*:\s*"([^"]+)"\s*,\s*"arguments"\s*:\s*(\{.*?\})\s*\}/gs,
+    JSON_STYLE:
+      /\{\s*"tool"\s*:\s*"([^"]+)"\s*,\s*"arguments"\s*:\s*(\{.*?\})\s*\}/gs,
   };
 
   /**
    * Parse tool calls from text using multiple patterns
    */
-  static parseToolCalls(text: string, maxCalls: number = 10): PromptBasedToolCall[] {
+  static parseToolCalls(
+    text: string,
+    maxCalls: number = 10,
+  ): PromptBasedToolCall[] {
     const toolCalls: PromptBasedToolCall[] = [];
     let callCounter = 0;
 
     // Try each pattern in order of preference
     for (const [patternName, pattern] of Object.entries(this.PATTERNS)) {
-      if (callCounter >= maxCalls) break;
+      if (callCounter >= maxCalls) {
+        break;
+      }
 
-      const calls = this.parseWithPattern(text, pattern, patternName, callCounter, maxCalls);
+      const calls = this.parseWithPattern(
+        text,
+        pattern,
+        patternName,
+        callCounter,
+        maxCalls,
+      );
       toolCalls.push(...calls);
       callCounter += calls.length;
     }
@@ -59,7 +72,7 @@ export class ToolCallParser {
     pattern: RegExp,
     patternName: string,
     startCounter: number,
-    maxCalls: number
+    maxCalls: number,
   ): PromptBasedToolCall[] {
     const toolCalls: PromptBasedToolCall[] = [];
     let match;
@@ -76,12 +89,16 @@ export class ToolCallParser {
           callCounter++;
         }
       } catch (error) {
-        logger.appendLine(`WARN: Failed to parse tool call with ${patternName}: ${error}`);
+        logger.appendLine(
+          `WARN: Failed to parse tool call with ${patternName}: ${error}`,
+        );
       }
     }
 
     if (toolCalls.length > 0) {
-      logger.appendLine(`INFO: Parsed ${toolCalls.length} tool calls using ${patternName} pattern`);
+      logger.appendLine(
+        `INFO: Parsed ${toolCalls.length} tool calls using ${patternName} pattern`,
+      );
     }
 
     return toolCalls;
@@ -93,7 +110,7 @@ export class ToolCallParser {
   private static createToolCall(
     match: RegExpExecArray,
     patternName: string,
-    counter: number
+    counter: number,
   ): PromptBasedToolCall | null {
     const [fullMatch, toolName, argumentsText] = match;
 
@@ -108,7 +125,9 @@ export class ToolCallParser {
       try {
         parsedArguments = JSON.parse(argumentsText.trim());
       } catch (parseError) {
-        logger.appendLine(`WARN: Failed to parse JSON arguments for ${toolNameTrimmed}: ${parseError}`);
+        logger.appendLine(
+          `WARN: Failed to parse JSON arguments for ${toolNameTrimmed}: ${parseError}`,
+        );
 
         // Try fallback parsing
         parsedArguments = this.extractFallbackArguments(argumentsText.trim());
@@ -157,9 +176,11 @@ export class ToolCallParser {
   /**
    * Remove duplicate tool calls
    */
-  private static removeDuplicates(toolCalls: PromptBasedToolCall[]): PromptBasedToolCall[] {
+  private static removeDuplicates(
+    toolCalls: PromptBasedToolCall[],
+  ): PromptBasedToolCall[] {
     const seen = new Set<string>();
-    return toolCalls.filter(call => {
+    return toolCalls.filter((call) => {
       const signature = `${call.toolName}:${JSON.stringify(call.arguments)}`;
       if (seen.has(signature)) {
         return false;
@@ -190,24 +211,27 @@ export class ToolCallParser {
 
     for (const pattern of Object.values(this.PATTERNS)) {
       pattern.lastIndex = 0;
-      cleanText = cleanText.replace(pattern, '');
+      cleanText = cleanText.replace(pattern, "");
     }
 
     // Clean up extra whitespace
-    return cleanText.replace(/\n\s*\n\s*\n/g, '\n\n').trim();
+    return cleanText.replace(/\n\s*\n\s*\n/g, "\n\n").trim();
   }
 
   /**
    * Validate tool call format
    */
-  static validateToolCall(toolCall: PromptBasedToolCall): { valid: boolean; errors: string[]; } {
+  static validateToolCall(toolCall: PromptBasedToolCall): {
+    valid: boolean;
+    errors: string[];
+  } {
     const errors: string[] = [];
 
     if (!toolCall.toolName) {
       errors.push("Tool name is required");
     }
 
-    if (typeof toolCall.arguments !== 'object' || toolCall.arguments === null) {
+    if (typeof toolCall.arguments !== "object" || toolCall.arguments === null) {
       errors.push("Arguments must be an object");
     }
 
@@ -231,7 +255,10 @@ export class ToolCallParser {
   /**
    * Generate tool call text in the standard format
    */
-  static generateToolCallText(toolName: string, arguments_: Record<string, any>): string {
+  static generateToolCallText(
+    toolName: string,
+    arguments_: Record<string, any>,
+  ): string {
     return `<tool_call>
 <tool_name>${toolName}</tool_name>
 <arguments>

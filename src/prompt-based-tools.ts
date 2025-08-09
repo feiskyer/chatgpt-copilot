@@ -12,7 +12,11 @@
 
 import { logger } from "./logger";
 import { ToolSet } from "./mcp";
-import { PromptBasedToolCall, PromptBasedToolConfig, PromptBasedToolResult } from "./types";
+import {
+  PromptBasedToolCall,
+  PromptBasedToolConfig,
+  PromptBasedToolResult,
+} from "./types";
 
 /**
  * Default configuration for prompt-based tool calls
@@ -31,23 +35,30 @@ export function generateToolDescriptions(toolSet: ToolSet): string {
     return "";
   }
 
-  const toolDescriptions = Object.entries(toolSet.tools).map(([name, tool]) => {
-    const description = tool.description || name;
-    // AI SDK v5: use inputSchema instead of parameters
-    const inputSchema = (tool as any).inputSchema || (tool as any).parameters || {};
+  const toolDescriptions = Object.entries(toolSet.tools)
+    .map(([name, tool]) => {
+      const description = tool.description || name;
+      // AI SDK v5: use inputSchema instead of parameters
+      const inputSchema =
+        (tool as any).inputSchema || (tool as any).parameters || {};
 
-    // Extract parameter information
-    const paramInfo = Object.entries(inputSchema.properties || {}).map(([paramName, paramDef]: [string, any]) => {
-      const required = inputSchema.required?.includes(paramName) ? " (required)" : " (optional)";
-      const type = paramDef.type || "any";
-      const desc = paramDef.description || "";
-      return `  - ${paramName} (${type})${required}: ${desc}`;
-    }).join("\n");
+      // Extract parameter information
+      const paramInfo = Object.entries(inputSchema.properties || {})
+        .map(([paramName, paramDef]: [string, any]) => {
+          const required = inputSchema.required?.includes(paramName)
+            ? " (required)"
+            : " (optional)";
+          const type = paramDef.type || "any";
+          const desc = paramDef.description || "";
+          return `  - ${paramName} (${type})${required}: ${desc}`;
+        })
+        .join("\n");
 
-    return `**${name}**: ${description}
+      return `**${name}**: ${description}
 Parameters:
 ${paramInfo || "  No parameters"}`;
-  }).join("\n\n");
+    })
+    .join("\n\n");
 
   return `# Available Tools
 
@@ -82,12 +93,16 @@ export function parseToolCalls(text: string): PromptBasedToolCall[] {
   const toolCalls: PromptBasedToolCall[] = [];
 
   // Regex to match tool call blocks
-  const toolCallRegex = /<tool_call>\s*<tool_name>(.*?)<\/tool_name>\s*<arguments>(.*?)<\/arguments>\s*<\/tool_call>/gs;
+  const toolCallRegex =
+    /<tool_call>\s*<tool_name>(.*?)<\/tool_name>\s*<arguments>(.*?)<\/arguments>\s*<\/tool_call>/gs;
 
   let match;
   let callCounter = 0;
 
-  while ((match = toolCallRegex.exec(text)) !== null && callCounter < DEFAULT_PROMPT_TOOL_CONFIG.maxToolCalls) {
+  while (
+    (match = toolCallRegex.exec(text)) !== null &&
+    callCounter < DEFAULT_PROMPT_TOOL_CONFIG.maxToolCalls
+  ) {
     const [fullMatch, toolName, argumentsText] = match;
 
     try {
@@ -99,7 +114,9 @@ export function parseToolCalls(text: string): PromptBasedToolCall[] {
         try {
           parsedArguments = JSON.parse(argumentsJson);
         } catch (parseError) {
-          logger.appendLine(`WARN: Failed to parse tool arguments for ${toolNameTrimmed}: ${parseError}`);
+          logger.appendLine(
+            `WARN: Failed to parse tool arguments for ${toolNameTrimmed}: ${parseError}`,
+          );
           // Try to extract simple key-value pairs as fallback
           parsedArguments = extractSimpleArguments(argumentsJson);
         }
@@ -114,7 +131,6 @@ export function parseToolCalls(text: string): PromptBasedToolCall[] {
 
       toolCalls.push(toolCall);
       callCounter++;
-
     } catch (error) {
       logger.appendLine(`ERROR: Failed to parse tool call: ${error}`);
     }
@@ -146,7 +162,7 @@ function extractSimpleArguments(text: string): Record<string, any> {
  */
 export async function executePromptToolCall(
   toolCall: PromptBasedToolCall,
-  toolSet: ToolSet
+  toolSet: ToolSet,
 ): Promise<PromptBasedToolResult> {
   try {
     const tool = toolSet.tools[toolCall.toolName];
@@ -160,7 +176,9 @@ export async function executePromptToolCall(
       };
     }
 
-    logger.appendLine(`INFO: Executing prompt-based tool call: ${toolCall.toolName}`);
+    logger.appendLine(
+      `INFO: Executing prompt-based tool call: ${toolCall.toolName}`,
+    );
 
     // Execute the tool
     if (!tool.execute) {
@@ -174,7 +192,7 @@ export async function executePromptToolCall(
 
     const result = await tool.execute(toolCall.arguments, {
       toolCallId: toolCall.id,
-      messages: []
+      messages: [],
     });
 
     return {
@@ -182,9 +200,10 @@ export async function executePromptToolCall(
       toolName: toolCall.toolName,
       result: result,
     };
-
   } catch (error) {
-    logger.appendLine(`ERROR: Tool execution failed for ${toolCall.toolName}: ${error}`);
+    logger.appendLine(
+      `ERROR: Tool execution failed for ${toolCall.toolName}: ${error}`,
+    );
 
     return {
       id: toolCall.id,
@@ -202,9 +221,12 @@ export async function processPromptBasedToolCalls(
   text: string,
   toolSet: ToolSet,
   onToolCall?: (toolCall: PromptBasedToolCall) => void,
-  onToolResult?: (result: PromptBasedToolResult) => void
-): Promise<{ updatedText: string; toolCalls: PromptBasedToolCall[]; results: PromptBasedToolResult[]; }> {
-
+  onToolResult?: (result: PromptBasedToolResult) => void,
+): Promise<{
+  updatedText: string;
+  toolCalls: PromptBasedToolCall[];
+  results: PromptBasedToolResult[];
+}> {
   const toolCalls = parseToolCalls(text);
   const results: PromptBasedToolResult[] = [];
   let updatedText = text;

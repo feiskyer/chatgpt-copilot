@@ -1,5 +1,3 @@
-
-
 /**
  * @author Pengfei Ni
  *
@@ -105,7 +103,10 @@ export async function chatCompletion(
     system: provider.modelConfig.systemPrompt,
     model: provider.apiCompletion as any,
     prompt: prompt,
-    maxOutputTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
+    maxOutputTokens:
+      provider.modelConfig.maxTokens > 0
+        ? provider.modelConfig.maxTokens
+        : undefined,
     temperature: provider.modelConfig.temperature,
     abortSignal: provider.abortController?.signal,
     tools: provider.toolSet?.tools || undefined,

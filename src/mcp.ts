@@ -1,15 +1,15 @@
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
-import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import {
+  experimental_createMCPClient as createMCPClient,
+  experimental_MCPClient as MCPClient,
+  MCPTransport,
+  type Tool,
+} from "ai";
+import { Experimental_StdioMCPTransport as StdioMCPTransport } from "ai/mcp-stdio";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
-import { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
-import type { Tool } from "ai";
-import { jsonSchema, tool } from "ai";
-import { EventSource } from 'eventsource';
-import { JSONSchema7 } from "json-schema";
+import { EventSource } from "eventsource";
 import { logger } from "./logger";
 
-// define EventSource globally
+// define EventSource globally for SSE transport
 globalThis.EventSource = EventSource;
 
 export type MCPServerConfig = {
@@ -20,8 +20,8 @@ export type MCPServerConfig = {
       url: string;
       env?: Record<string, string>;
       isEnabled: boolean;
-      type: string;  // "sse", "stdio", or "streamable-http"
-      headers?: Record<string, string>;  // Added headers for HTTP/SSE requests
+      type: string; // "sse", "stdio", or "streamable-http"
+      headers?: Record<string, string>; // Added headers for HTTP/SSE requests
     };
   };
 
@@ -45,23 +45,62 @@ export type ToolSet = {
     [key: string]: Tool;
   };
   clients: {
-    [key: string]: Client;
-  };
-  transports: {
-    [key: string]: Transport;
+    [key: string]: MCPClient;
   };
 };
 
 /**
+ * Creates an MCP client with the appropriate transport based on server type
+ */
+async function createMCPClientForServer(
+  serverName: string,
+  serverConfig: MCPServerConfig["mcpServers"][string],
+): Promise<MCPClient> {
+  let transport:
+    | MCPTransport
+    | { type: "sse"; url: string; headers?: Record<string, string> };
+
+  if (serverConfig.type === "sse") {
+    // Use AI SDK's built-in SSE transport
+    transport = {
+      type: "sse",
+      url: serverConfig.url,
+      headers: serverConfig.headers,
+    };
+  } else if (serverConfig.type === "streamable-http") {
+    // Use StreamableHTTPClientTransport from MCP SDK as custom transport
+    transport = new StreamableHTTPClientTransport(new URL(serverConfig.url), {
+      requestInit: {
+        headers: serverConfig.headers,
+      },
+    }) as MCPTransport;
+  } else {
+    // Use built-in stdio transport from AI SDK
+    transport = new StdioMCPTransport({
+      command: serverConfig.command,
+      args: serverConfig.args,
+      env: {
+        ...serverConfig.env,
+        ...(process.env.PATH ? { PATH: process.env.PATH } : {}),
+      },
+      stderr: "pipe",
+    });
+  }
+
+  const client = await createMCPClient({ transport });
+  return client;
+}
+
+/**
  * Creates a set of tools from MCP servers that can be used with the AI SDK
+ * Uses the official AI SDK MCP client support
  * @param config Configuration for the tool set
  * @returns A promise that resolves to the tool set
  */
 export async function createToolSet(config: MCPServerConfig): Promise<ToolSet> {
-  let toolset: ToolSet = {
+  const toolset: ToolSet = {
     tools: {},
     clients: {},
-    transports: {},
   };
 
   // Initialize all server connections and fetch their tools
@@ -70,86 +109,48 @@ export async function createToolSet(config: MCPServerConfig): Promise<ToolSet> {
       continue;
     }
 
-    let transport: Transport;
     try {
-      if (serverConfig.type === "sse") {
-        transport = new SSEClientTransport(new URL(serverConfig.url), {
-          requestInit: {
-            headers: serverConfig.headers,
-          },
-          eventSourceInit: {
-            fetch: (url, init) => {
-              const headers = new Headers(init?.headers || {});
-              return fetch(url, {
-                ...init,
-                headers
-              });
-            }
-          }
-        });
-      } else if (serverConfig.type === "streamable-http") {
-        transport = new StreamableHTTPClientTransport(new URL(serverConfig.url), {
-          requestInit: {
-            headers: serverConfig.headers,
-          },
-        });
-      } else {
-        transport = new StdioClientTransport({
-          command: serverConfig.command,
-          args: serverConfig.args,
-          env: {
-            ...serverConfig.env,
-            ...(process.env.PATH ? { PATH: process.env.PATH } : {}),
-          },
-          stderr: "pipe",
-        });
-      }
-
-      transport.onerror = async (error) => {
-        logger.appendLine(`ERROR: MCP server ${serverName} error: ${error}`);
-        await transport.close();
-      };
-      toolset.transports[serverName] = transport;
-      await transport.start();
-      transport.start = async () => { }; // No-op now, .connect() won't fail
-
-      const client = new Client(
-        {
-          name: "ChatGPT Copilot (VSCode Extension)",
-          version: "1.0.0",
-        },
-        {
-          capabilities: {},
-        },
-      );
+      const client = await createMCPClientForServer(serverName, serverConfig);
       toolset.clients[serverName] = client;
-      await client.connect(transport);
 
-      // Get list of tools and add them to the toolset
-      const toolList = await client.listTools();
-      for (const t of toolList.tools) {
-        let toolName = t.name;
-        const parameters = jsonSchema(t.inputSchema as JSONSchema7);
-        if (parameters.jsonSchema.additionalProperties == null) {
-          parameters.jsonSchema.additionalProperties = false;
+      // Get tools from the MCP client
+      // Use schema discovery approach for dynamic tools
+      const mcpTools = await client.tools();
+
+      // Add tools to the toolset - the tools already have proper execute functions
+      for (const [toolName, tool] of Object.entries(mcpTools)) {
+        // The tool from client.tools() already has the correct structure
+        // We just need to wrap it to add logging if needed
+        if (config.onCallTool && tool.execute) {
+          const originalExecute = tool.execute;
+          tool.execute = async (args: any, options: any) => {
+            try {
+              const result = await originalExecute(args, options);
+
+              // Log the tool call with the result
+              if (config.onCallTool) {
+                const strResult =
+                  typeof result === "string" ? result : JSON.stringify(result);
+                config.onCallTool(serverName, toolName, args, strResult);
+              }
+
+              // Return the original result unchanged
+              return result;
+            } catch (error) {
+              logger.appendLine(
+                `ERROR: Tool execution failed for ${toolName}: ${error}`,
+              );
+              throw error;
+            }
+          };
         }
 
-        toolset.tools[toolName] = tool({
-          description: t.description || toolName,
-          inputSchema: parameters,
-          execute: async (args) => {
-            const result = await client.callTool({
-              name: t.name,
-              arguments: args as Record<string, any>,
-            });
-            const strResult = JSON.stringify(result);
-            if (config.onCallTool) {
-              config.onCallTool(serverName, toolName, args, strResult);
-            }
-            return strResult;
-          },
-        });
+        toolset.tools[toolName] = tool;
       }
+
+      logger.appendLine(
+        `INFO: MCP server ${serverName} connected with ${Object.keys(mcpTools).length} tools`,
+      );
     } catch (error) {
       logger.appendLine(`ERROR: MCP server ${serverName} failed: ${error}`);
       continue;
@@ -165,6 +166,10 @@ export async function createToolSet(config: MCPServerConfig): Promise<ToolSet> {
  */
 export async function closeToolSet(toolSet: ToolSet): Promise<void> {
   for (const client of Object.values(toolSet.clients)) {
-    await client.close();
+    try {
+      await client.close();
+    } catch (error) {
+      logger.appendLine(`ERROR: Failed to close MCP client: ${error}`);
+    }
   }
 }

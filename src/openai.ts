@@ -18,7 +18,7 @@ import {
   ModelMessage,
   stepCountIs,
   streamText,
-  wrapLanguageModel
+  wrapLanguageModel,
 } from "ai";
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
@@ -78,14 +78,18 @@ export async function initGptModel(
         ? viewProvider.reasoningModel
         : "o3-mini";
       viewProvider.apiReasoning = wrapLanguageModel({
-        model: config.enableResponsesAPI ? openai.responses(model) as any : openai.languageModel(model) as any,
+        model: config.enableResponsesAPI
+          ? (openai.responses(model) as any)
+          : (openai.languageModel(model) as any),
         middleware: extractReasoningMiddleware({ tagName: "think" }),
       });
     } else {
       const model = viewProvider.model ? viewProvider.model : "gpt-4o";
       if (isReasoningModel(model)) {
         viewProvider.apiChat = wrapLanguageModel({
-          model: config.enableResponsesAPI ? openai.responses(model) as any : openai.languageModel(model) as any,
+          model: config.enableResponsesAPI
+            ? (openai.responses(model) as any)
+            : (openai.languageModel(model) as any),
           middleware: extractReasoningMiddleware({ tagName: "think" }),
         });
       } else {
@@ -138,12 +142,21 @@ export async function chatGpt(
     let toolCallCounter = 0;
     provider.chatHistory.push(chatMessage);
     const modelName = provider.model ? provider.model : "gpt-4o";
+
+    // Log tools if available for debugging
+    const tools = provider.toolSet?.tools;
+    if (tools && Object.keys(tools).length > 0) {
+      logger.appendLine(
+        `DEBUG: Tools available for model: ${Object.keys(tools).join(", ")}`,
+      );
+    }
+
     var inputs: any = {
       system: provider.modelConfig.systemPrompt,
       model: provider.apiChat,
       messages: provider.chatHistory,
       abortSignal: provider.abortController?.signal,
-      tools: provider.toolSet?.tools || undefined,
+      tools: tools || undefined,
       stopWhen: stepCountIs(provider.maxSteps),
       headers: getHeaders(),
       ...(isOpenAIOModel(modelName) && {
@@ -158,26 +171,36 @@ export async function chatGpt(
         },
       }),
       ...(!isOpenAIOModel(modelName) && {
-        maxOutputTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
+        maxOutputTokens:
+          provider.modelConfig.maxTokens > 0
+            ? provider.modelConfig.maxTokens
+            : undefined,
         temperature: provider.modelConfig.temperature,
       }),
-      ...(provider.provider === "Google" && provider.reasoningEffort && provider.reasoningEffort !== "" && {
-        providerOptions: {
-          google: {
-            thinkingConfig: {
-              thinkingBudget: provider.reasoningEffort === "low" ? 1500 : provider.reasoningEffort === "medium" ? 8000 : 20000,
-              includeThoughts: true,
+      ...(provider.provider === "Google" &&
+        provider.reasoningEffort &&
+        provider.reasoningEffort !== "" && {
+          providerOptions: {
+            google: {
+              thinkingConfig: {
+                thinkingBudget:
+                  provider.reasoningEffort === "low"
+                    ? 1500
+                    : provider.reasoningEffort === "medium"
+                      ? 8000
+                      : 20000,
+                includeThoughts: true,
+              },
             },
           },
-        },
-      }),
+        }),
     };
     // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question.trim()} inputs: ${JSON.stringify(inputs, null, 2)}`);
     const result = streamText(inputs);
     for await (const part of result.fullStream) {
       // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question.trim()} response: ${JSON.stringify(part, null, 2)}`);
       switch (part.type) {
-        case 'text-delta': {
+        case "text-delta": {
           updateResponse(part.text);
           chunks.push(part.text);
           break;
@@ -189,7 +212,7 @@ export async function chatGpt(
         }
         case "tool-call": {
           let formattedArgs = part.input;
-          if (typeof formattedArgs === 'string') {
+          if (typeof formattedArgs === "string") {
             try {
               formattedArgs = JSON.parse(formattedArgs);
             } catch (e) {
@@ -247,24 +270,78 @@ export async function chatGpt(
         // @ts-ignore;
         case "tool-result": {
           // @ts-ignore
-          logger.appendLine(`INFO: Tool ${part.toolName} result received: ${JSON.stringify(part.result)}`);
+          const toolName = part.toolName;
+          // @ts-ignore - The correct property is 'output' according to AI SDK types
+          const result = part.output;
 
-          // @ts-ignore
-          let formattedResult = part.result;
-          if (typeof formattedResult === 'string') {
+          logger.appendLine(
+            `INFO: Tool ${toolName} result received: ${JSON.stringify(result)}`,
+          );
+
+          let formattedResult = result;
+
+          // First check if result is already an object with MCP format
+          if (
+            formattedResult &&
+            typeof formattedResult === "object" &&
+            "content" in formattedResult &&
+            Array.isArray(formattedResult.content)
+          ) {
+            // Extract text from content array
+            const textContent = formattedResult.content
+              .filter((item: any) => item.type === "text")
+              .map((item: any) => item.text)
+              .join("\n");
+
+            if (textContent) {
+              // Try to parse the text content as JSON for better formatting
+              try {
+                const parsedContent = JSON.parse(textContent);
+                formattedResult = parsedContent;
+              } catch (e) {
+                // If not JSON, keep as text (might be markdown or plain text)
+                formattedResult = textContent;
+              }
+            }
+          } else if (typeof formattedResult === "string") {
+            // Try to parse if it's a string
             try {
-              formattedResult = JSON.parse(formattedResult);
+              const parsed = JSON.parse(formattedResult);
+              // Check if parsed result has MCP format
+              if (
+                parsed &&
+                typeof parsed === "object" &&
+                "content" in parsed &&
+                Array.isArray(parsed.content)
+              ) {
+                // Extract text from content array
+                const textContent = parsed.content
+                  .filter((item: any) => item.type === "text")
+                  .map((item: any) => item.text)
+                  .join("\n");
+
+                if (textContent) {
+                  // Try to parse the text content as JSON for better formatting
+                  try {
+                    const parsedContent = JSON.parse(textContent);
+                    formattedResult = parsedContent;
+                  } catch (e) {
+                    // If not JSON, keep as text (might be markdown or plain text)
+                    formattedResult = textContent;
+                  }
+                }
+              } else {
+                formattedResult = parsed;
+              }
             } catch (e) {
               // If parsing fails, use the original string
-              // @ts-ignore
-              formattedResult = part.result;
+              formattedResult = result;
             }
           }
+
           // Create a special marker for tool results that will be processed by tool-call.js
-          // @ts-ignore
-          // Store the complete result object with full structure to allow proper extraction in tool-call.js
-          const toolResultText = `<tool-result data-tool-name="${part.toolName}" data-counter="${toolCallCounter}">
-          ${JSON.stringify(formattedResult)}
+          const toolResultText = `<tool-result data-tool-name="${toolName}" data-counter="${toolCallCounter}">
+          ${JSON.stringify(formattedResult, null, 2)}
           </tool-result>`;
 
           updateResponse(toolResultText);
@@ -276,7 +353,6 @@ export async function chatGpt(
           // raise the error to be caught by the catch block
           throw new Error(`${part.error}`);
         }
-
 
         default: {
           logger.appendLine(
@@ -300,7 +376,7 @@ export async function chatGpt(
     // Save both the text response and tool calls in the chat history
     const assistantResponse: any = {
       role: "assistant",
-      content: chunks.join("")
+      content: chunks.join(""),
     };
     provider.chatHistory.push(assistantResponse);
 

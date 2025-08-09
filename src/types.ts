@@ -31,7 +31,6 @@ export function isOpenAIOModel(model: string) {
   );
 }
 
-
 export function isReasoningModel(model: string) {
   const m = model.toLowerCase();
   return (

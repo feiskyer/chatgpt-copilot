@@ -17,7 +17,7 @@ import { logger } from "./logger";
 import { getHeaders } from "./model-config";
 import {
   executePromptToolCall,
-  generateToolDescriptions
+  generateToolDescriptions,
 } from "./prompt-based-tools";
 import { ToolCallParser } from "./tool-call-parser";
 import { isOpenAIOModel, PromptBasedToolConfig } from "./types";
@@ -58,7 +58,9 @@ export async function chatGptWithPromptTools(
 
     const promptToolConfig = getPromptBasedToolConfig();
     const modelName = provider.model ? provider.model : "gpt-4o";
-    logger.appendLine(`INFO: Using prompt-based tools: ${promptToolConfig.enabled}, model: ${modelName}`);
+    logger.appendLine(
+      `INFO: Using prompt-based tools: ${promptToolConfig.enabled}, model: ${modelName}`,
+    );
 
     var chatMessage: ModelMessage = {
       role: "user",
@@ -89,7 +91,9 @@ export async function chatGptWithPromptTools(
     if (promptToolConfig.enabled && provider.toolSet) {
       const toolDescriptions = generateToolDescriptions(provider.toolSet);
       if (toolDescriptions) {
-        systemPrompt = systemPrompt ? `${systemPrompt}\n\n${toolDescriptions}` : toolDescriptions;
+        systemPrompt = systemPrompt
+          ? `${systemPrompt}\n\n${toolDescriptions}`
+          : toolDescriptions;
         logger.appendLine(`INFO: Added tool descriptions to system prompt`);
       }
     }
@@ -104,7 +108,7 @@ export async function chatGptWithPromptTools(
         reasonChunks,
         toolCallCounter,
         updateResponse,
-        updateReasoning
+        updateReasoning,
       );
     } else {
       // Use standard AI SDK with native tools
@@ -116,7 +120,7 @@ export async function chatGptWithPromptTools(
         reasonChunks,
         toolCallCounter,
         updateResponse,
-        updateReasoning
+        updateReasoning,
       );
     }
 
@@ -151,7 +155,7 @@ async function executePromptBasedToolLoop(
   reasonChunks: string[],
   toolCallCounter: number,
   updateResponse: (message: string) => void,
-  updateReasoning: (message: string, roundNumber?: number) => void
+  updateReasoning: (message: string, roundNumber?: number) => void,
 ): Promise<number> {
   const maxSteps = provider.maxSteps || 15;
   let currentStep = 0;
@@ -159,7 +163,9 @@ async function executePromptBasedToolLoop(
 
   while (currentStep < maxSteps) {
     currentStep++;
-    logger.appendLine(`INFO: Prompt-based tool loop step ${currentStep}/${maxSteps}`);
+    logger.appendLine(
+      `INFO: Prompt-based tool loop step ${currentStep}/${maxSteps}`,
+    );
 
     // Make API call
     const inputs: any = {
@@ -181,19 +187,29 @@ async function executePromptBasedToolLoop(
         },
       }),
       ...(!isOpenAIOModel(modelName) && {
-        maxOutputTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
+        maxOutputTokens:
+          provider.modelConfig.maxTokens > 0
+            ? provider.modelConfig.maxTokens
+            : undefined,
         temperature: provider.modelConfig.temperature,
       }),
-      ...(provider.provider === "Google" && provider.reasoningEffort && provider.reasoningEffort !== "" && {
-        providerOptions: {
-          google: {
-            thinkingConfig: {
-              thinkingBudget: provider.reasoningEffort === "low" ? 1500 : provider.reasoningEffort === "medium" ? 8000 : 20000,
-              includeThoughts: true,
+      ...(provider.provider === "Google" &&
+        provider.reasoningEffort &&
+        provider.reasoningEffort !== "" && {
+          providerOptions: {
+            google: {
+              thinkingConfig: {
+                thinkingBudget:
+                  provider.reasoningEffort === "low"
+                    ? 1500
+                    : provider.reasoningEffort === "medium"
+                      ? 8000
+                      : 20000,
+                includeThoughts: true,
+              },
             },
           },
-        },
-      }),
+        }),
     };
 
     const result = streamText(inputs);
@@ -203,7 +219,7 @@ async function executePromptBasedToolLoop(
     // Process streaming response
     for await (const part of result.fullStream) {
       switch (part.type) {
-        case 'text-delta': {
+        case "text-delta": {
           accumulatedText += part.text;
           updateResponse(part.text);
           chunks.push(part.text);
@@ -232,7 +248,9 @@ async function executePromptBasedToolLoop(
 
     if (toolCalls.length === 0) {
       // No tool calls found, conversation is complete
-      logger.appendLine(`INFO: No tool calls found in step ${currentStep}, ending loop`);
+      logger.appendLine(
+        `INFO: No tool calls found in step ${currentStep}, ending loop`,
+      );
       break;
     }
 
@@ -251,11 +269,16 @@ async function executePromptBasedToolLoop(
       toolResults.push(result);
 
       // Create tool result UI (exactly like native tool calls)
-      const toolResultHtml = createPromptToolResultHtml(result, toolCallCounter);
+      const toolResultHtml = createPromptToolResultHtml(
+        result,
+        toolCallCounter,
+      );
       updateResponse(toolResultHtml);
       chunks.push(toolResultHtml);
 
-      logger.appendLine(`INFO: Tool ${toolCall.toolName} executed with result: ${JSON.stringify(result.result)}`);
+      logger.appendLine(
+        `INFO: Tool ${toolCall.toolName} executed with result: ${JSON.stringify(result.result)}`,
+      );
     }
 
     // Add assistant response with tool calls to conversation history
@@ -269,7 +292,7 @@ async function executePromptBasedToolLoop(
     for (const result of toolResults) {
       const toolResultMessage: ModelMessage = {
         role: "user",
-        content: `Tool ${result.toolName} result: ${JSON.stringify(result.result)}`
+        content: `Tool ${result.toolName} result: ${JSON.stringify(result.result)}`,
       };
       conversationHistory.push(toolResultMessage);
     }
@@ -293,7 +316,7 @@ async function executeStandardChat(
   reasonChunks: string[],
   toolCallCounter: number,
   updateResponse: (message: string) => void,
-  updateReasoning: (message: string, roundNumber?: number) => void
+  updateReasoning: (message: string, roundNumber?: number) => void,
 ): Promise<number> {
   const inputs: any = {
     system: systemPrompt,
@@ -315,25 +338,35 @@ async function executeStandardChat(
       },
     }),
     ...(!isOpenAIOModel(modelName) && {
-      maxOutputTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
+      maxOutputTokens:
+        provider.modelConfig.maxTokens > 0
+          ? provider.modelConfig.maxTokens
+          : undefined,
       temperature: provider.modelConfig.temperature,
     }),
-    ...(provider.provider === "Google" && provider.reasoningEffort && provider.reasoningEffort !== "" && {
-      providerOptions: {
-        google: {
-          thinkingConfig: {
-            thinkingBudget: provider.reasoningEffort === "low" ? 1500 : provider.reasoningEffort === "medium" ? 8000 : 20000,
-            includeThoughts: true,
+    ...(provider.provider === "Google" &&
+      provider.reasoningEffort &&
+      provider.reasoningEffort !== "" && {
+        providerOptions: {
+          google: {
+            thinkingConfig: {
+              thinkingBudget:
+                provider.reasoningEffort === "low"
+                  ? 1500
+                  : provider.reasoningEffort === "medium"
+                    ? 8000
+                    : 20000,
+              includeThoughts: true,
+            },
           },
         },
-      },
-    }),
+      }),
   };
 
   const result = streamText(inputs);
   for await (const part of result.fullStream) {
     switch (part.type) {
-      case 'text-delta': {
+      case "text-delta": {
         updateResponse(part.text);
         chunks.push(part.text);
         break;
@@ -354,9 +387,7 @@ async function executeStandardChat(
         throw new Error(`${part.error}`);
       }
       default: {
-        logger.appendLine(
-          `INFO: standard chat: ${JSON.stringify(part)}`,
-        );
+        logger.appendLine(`INFO: standard chat: ${JSON.stringify(part)}`);
         break;
       }
     }
@@ -365,7 +396,7 @@ async function executeStandardChat(
   // Add final assistant response to chat history
   const assistantResponse: ModelMessage = {
     role: "assistant",
-    content: chunks.join("")
+    content: chunks.join(""),
   };
   provider.chatHistory.push(assistantResponse);
 
@@ -377,7 +408,7 @@ async function executeStandardChat(
  */
 function createToolCallHtml(part: any, toolCallCounter: number): string {
   let formattedArgs = part.args;
-  if (typeof formattedArgs === 'string') {
+  if (typeof formattedArgs === "string") {
     try {
       formattedArgs = JSON.parse(formattedArgs);
     } catch (e) {
@@ -424,7 +455,10 @@ function createToolCallHtml(part: any, toolCallCounter: number): string {
 /**
  * Create HTML for prompt-based tool calls
  */
-function createPromptToolCallHtml(toolCall: any, toolCallCounter: number): string {
+function createPromptToolCallHtml(
+  toolCall: any,
+  toolCallCounter: number,
+): string {
   const toolCallId = `prompt-tool-call-${Date.now()}-${toolCallCounter}`;
   const toolIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="tool-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -464,7 +498,10 @@ function createPromptToolCallHtml(toolCall: any, toolCallCounter: number): strin
 /**
  * Create HTML for prompt-based tool results
  */
-function createPromptToolResultHtml(result: any, toolCallCounter: number): string {
+function createPromptToolResultHtml(
+  result: any,
+  toolCallCounter: number,
+): string {
   return `<tool-result data-tool-name="${result.toolName}" data-counter="${toolCallCounter}">
 ${JSON.stringify(result.result)}
 </tool-result>`;

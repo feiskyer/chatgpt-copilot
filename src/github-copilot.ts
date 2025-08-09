@@ -4,7 +4,7 @@ import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
 import {
   executePromptToolCall,
-  generateToolDescriptions
+  generateToolDescriptions,
 } from "./prompt-based-tools";
 import { ToolCallParser } from "./tool-call-parser";
 import { PromptBasedToolConfig } from "./types";
@@ -35,12 +35,16 @@ export async function chatCopilot(
   );
 
   const promptToolConfig = getPromptBasedToolConfig();
-  logger.appendLine(`INFO: Using prompt-based tools: ${promptToolConfig.enabled}, model: ${provider.model}`);
+  logger.appendLine(
+    `INFO: Using prompt-based tools: ${promptToolConfig.enabled}, model: ${provider.model}`,
+  );
 
   const models = await vscode.lm.selectChatModels({
     vendor: "copilot",
   });
-  logger.appendLine(`INFO: available Github copilot models: ${models.map(m => m.family).join(', ')}`);
+  logger.appendLine(
+    `INFO: available Github copilot models: ${models.map((m) => m.family).join(", ")}`,
+  );
   if (models.length === 0) {
     provider.sendMessage({
       type: "addError",
@@ -94,7 +98,9 @@ export async function chatCopilot(
   if (provider.toolSet) {
     const toolDescriptions = generateToolDescriptions(provider.toolSet);
     if (toolDescriptions) {
-      systemPrompt = systemPrompt ? `${systemPrompt}\n\n${toolDescriptions}` : toolDescriptions;
+      systemPrompt = systemPrompt
+        ? `${systemPrompt}\n\n${toolDescriptions}`
+        : toolDescriptions;
       logger.appendLine(`INFO: Added tool descriptions to system prompt`);
     }
   }
@@ -109,7 +115,7 @@ export async function chatCopilot(
       reasonChunks,
       toolCallCounter,
       updateResponse,
-      updateReasoning
+      updateReasoning,
     );
   } else {
     // Use standard GitHub Copilot without tools
@@ -121,7 +127,7 @@ export async function chatCopilot(
       reasonChunks,
       toolCallCounter,
       updateResponse,
-      updateReasoning
+      updateReasoning,
     );
   }
 
@@ -146,7 +152,7 @@ async function executeGitHubCopilotToolLoop(
   reasonChunks: string[],
   toolCallCounter: number,
   updateResponse: (message: string) => void,
-  updateReasoning?: (message: string, roundNumber?: number) => void
+  updateReasoning?: (message: string, roundNumber?: number) => void,
 ): Promise<number> {
   const maxSteps = provider.maxSteps || 15;
   let currentStep = 0;
@@ -154,12 +160,14 @@ async function executeGitHubCopilotToolLoop(
 
   while (currentStep < maxSteps) {
     currentStep++;
-    logger.appendLine(`INFO: GitHub Copilot tool loop step ${currentStep}/${maxSteps}`);
+    logger.appendLine(
+      `INFO: GitHub Copilot tool loop step ${currentStep}/${maxSteps}`,
+    );
 
     // Prepare messages with system prompt
     const messagesWithSystem = [
       { role: "system" as const, content: systemPrompt },
-      ...conversationHistory
+      ...conversationHistory,
     ];
     const messages = convertToLMChatMessages(messagesWithSystem);
 
@@ -169,7 +177,7 @@ async function executeGitHubCopilotToolLoop(
       const cancellationTokenSource = new vscode.CancellationTokenSource();
       // If we have an abort controller, listen to it and cancel the token
       if (provider.abortController) {
-        provider.abortController.signal.addEventListener('abort', () => {
+        provider.abortController.signal.addEventListener("abort", () => {
           cancellationTokenSource.cancel();
         });
       }
@@ -213,9 +221,11 @@ async function executeGitHubCopilotToolLoop(
 
     // If there are tool calls, only output text that comes before the first tool call
     if (toolCalls.length > 0) {
-      const firstToolCallIndex = accumulatedText.indexOf('<tool_call>');
+      const firstToolCallIndex = accumulatedText.indexOf("<tool_call>");
       if (firstToolCallIndex > 0) {
-        const textBeforeToolCalls = accumulatedText.substring(0, firstToolCallIndex).trim();
+        const textBeforeToolCalls = accumulatedText
+          .substring(0, firstToolCallIndex)
+          .trim();
         if (textBeforeToolCalls) {
           updateResponse(textBeforeToolCalls);
           chunks.push(textBeforeToolCalls);
@@ -229,7 +239,9 @@ async function executeGitHubCopilotToolLoop(
 
     if (toolCalls.length === 0) {
       // No tool calls found, conversation is complete
-      logger.appendLine(`INFO: No tool calls found in step ${currentStep}, ending loop`);
+      logger.appendLine(
+        `INFO: No tool calls found in step ${currentStep}, ending loop`,
+      );
       break;
     }
 
@@ -239,7 +251,10 @@ async function executeGitHubCopilotToolLoop(
       toolCallCounter++; // Increment counter for each tool call
 
       // Create tool call UI (exactly like native tool calls)
-      const toolCallHtml = createGitHubCopilotToolCallHtml(toolCall, toolCallCounter);
+      const toolCallHtml = createGitHubCopilotToolCallHtml(
+        toolCall,
+        toolCallCounter,
+      );
       updateResponse(toolCallHtml);
       chunks.push(toolCallHtml);
 
@@ -248,18 +263,25 @@ async function executeGitHubCopilotToolLoop(
       toolResults.push(result);
 
       // Create tool result UI (exactly like native tool calls)
-      const toolResultHtml = createGitHubCopilotToolResultHtml(result, toolCallCounter);
+      const toolResultHtml = createGitHubCopilotToolResultHtml(
+        result,
+        toolCallCounter,
+      );
       updateResponse(toolResultHtml);
       chunks.push(toolResultHtml);
 
-      logger.appendLine(`INFO: Tool ${toolCall.toolName} executed with result: ${JSON.stringify(result.result)}`);
+      logger.appendLine(
+        `INFO: Tool ${toolCall.toolName} executed with result: ${JSON.stringify(result.result)}`,
+      );
     }
 
     // Add assistant response with tool calls to conversation history
     // Only include the text before tool calls, not the tool call syntax itself
-    const firstToolCallIndex = accumulatedText.indexOf('<tool_call>');
+    const firstToolCallIndex = accumulatedText.indexOf("<tool_call>");
     if (firstToolCallIndex > 0) {
-      const textBeforeToolCalls = accumulatedText.substring(0, firstToolCallIndex).trim();
+      const textBeforeToolCalls = accumulatedText
+        .substring(0, firstToolCallIndex)
+        .trim();
       if (textBeforeToolCalls) {
         const assistantMessage: ModelMessage = {
           role: "assistant",
@@ -273,7 +295,7 @@ async function executeGitHubCopilotToolLoop(
     for (const result of toolResults) {
       const toolResultMessage: ModelMessage = {
         role: "user",
-        content: `Tool ${result.toolName} result: ${JSON.stringify(result.result)}`
+        content: `Tool ${result.toolName} result: ${JSON.stringify(result.result)}`,
       };
       conversationHistory.push(toolResultMessage);
     }
@@ -297,12 +319,12 @@ async function executeStandardGitHubCopilotChat(
   reasonChunks: string[],
   toolCallCounter: number,
   updateResponse: (message: string) => void,
-  updateReasoning?: (message: string, roundNumber?: number) => void
+  updateReasoning?: (message: string, roundNumber?: number) => void,
 ): Promise<number> {
   // Prepare messages with system prompt
   const messagesWithSystem = [
     { role: "system" as const, content: systemPrompt },
-    ...provider.chatHistory
+    ...provider.chatHistory,
   ];
   const messages = convertToLMChatMessages(messagesWithSystem);
 
@@ -311,7 +333,7 @@ async function executeStandardGitHubCopilotChat(
     const cancellationTokenSource = new vscode.CancellationTokenSource();
     // If we have an abort controller, listen to it and cancel the token
     if (provider.abortController) {
-      provider.abortController.signal.addEventListener('abort', () => {
+      provider.abortController.signal.addEventListener("abort", () => {
         cancellationTokenSource.cancel();
       });
     }
@@ -349,7 +371,7 @@ async function executeStandardGitHubCopilotChat(
   // Add final assistant response to chat history
   const assistantResponse: ModelMessage = {
     role: "assistant",
-    content: chunks.join("")
+    content: chunks.join(""),
   };
   provider.chatHistory.push(assistantResponse);
 
@@ -382,7 +404,10 @@ function convertToLMChatMessages(
 /**
  * Create HTML for GitHub Copilot tool calls
  */
-function createGitHubCopilotToolCallHtml(toolCall: any, toolCallCounter: number): string {
+function createGitHubCopilotToolCallHtml(
+  toolCall: any,
+  toolCallCounter: number,
+): string {
   const toolCallId = `github-copilot-tool-call-${Date.now()}-${toolCallCounter}`;
   const toolIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="tool-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -422,7 +447,10 @@ function createGitHubCopilotToolCallHtml(toolCall: any, toolCallCounter: number)
 /**
  * Create HTML for GitHub Copilot tool results
  */
-function createGitHubCopilotToolResultHtml(result: any, toolCallCounter: number): string {
+function createGitHubCopilotToolResultHtml(
+  result: any,
+  toolCallCounter: number,
+): string {
   return `<tool-result data-tool-name="${result.toolName}" data-counter="${toolCallCounter}">
 ${JSON.stringify(result.result)}
 </tool-result>`;

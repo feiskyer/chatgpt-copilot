@@ -17,7 +17,7 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createGroq } from "@ai-sdk/groq";
 import { createMistral } from "@ai-sdk/mistral";
 import { createPerplexity } from "@ai-sdk/perplexity";
-import { createReplicate } from '@ai-sdk/replicate';
+import { createReplicate } from "@ai-sdk/replicate";
 import { createTogetherAI } from "@ai-sdk/togetherai";
 import { createXai } from "@ai-sdk/xai";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
@@ -89,9 +89,7 @@ export async function initGeminiModel(
       });
     }
   } else {
-    const model = viewProvider.model
-      ? viewProvider.model
-      : "gemini-2.5-pro";
+    const model = viewProvider.model ? viewProvider.model : "gemini-2.5-pro";
     viewProvider.apiChat = ai(model);
     if (config.searchGrounding) {
       viewProvider.apiChat = ai(model);
@@ -173,7 +171,11 @@ export async function initXAIModel(
   }
 
   // Ensure the base URL includes the /v1 path component
-  if (apiBaseUrl && !apiBaseUrl.endsWith('/v1') && !apiBaseUrl.includes('/v1/')) {
+  if (
+    apiBaseUrl &&
+    !apiBaseUrl.endsWith("/v1") &&
+    !apiBaseUrl.includes("/v1/")
+  ) {
     apiBaseUrl = `${apiBaseUrl}/v1`;
   }
 
@@ -419,7 +421,9 @@ export async function initReplicateModel(
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     });
   } else {
-    const model = viewProvider.model ? viewProvider.model : "deepseek-ai/deepseek-r1";
+    const model = viewProvider.model
+      ? viewProvider.model
+      : "deepseek-ai/deepseek-r1";
     if (isReasoningModel(model)) {
       viewProvider.apiChat = wrapLanguageModel({
         model: ai.languageModel(model) as any,

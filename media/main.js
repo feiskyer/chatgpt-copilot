@@ -20,36 +20,47 @@
     const styleSheet = document.createElement('style');
     document.head.appendChild(styleSheet);
 
-    marked.use({
-        gfm: true,
-        breaks: true,
-        listItemIndent: 'one',
-        renderer: {
-            listitem(text, task, checked) {
-                if (task) {
-                    return `<li class="task-list-item"><input type="checkbox" ${checked ? 'checked' : ''} disabled> ${text}</li>`;
-                }
-                return `<li>${text}</li>`;
-            },
-            list(body, ordered, start) {
-                const type = ordered ? 'ol' : 'ul';
-                const startAttr = (ordered && start !== 1) ? ` start="${start}"` : '';
-                return `<${type}${startAttr} class="list-${ordered ? 'decimal' : 'disc'}">${body}</${type}>`;
-            }
+    // Create a proper Renderer instance
+    const renderer = new marked.Renderer();
+    
+    // Only override specific methods we need to customize
+    // Custom list item renderer for task lists
+    renderer.listitem = function(text, task, checked) {
+        if (task) {
+            return `<li class="task-list-item"><input type="checkbox" ${checked ? 'checked' : ''} disabled> ${text}</li>`;
         }
-    });
+        // Use default behavior for non-task list items
+        return `<li>${text}</li>`;
+    };
+    
+    // Custom list renderer for styling classes
+    renderer.list = function(body, ordered, start) {
+        const type = ordered ? 'ol' : 'ul';
+        const startAttr = (ordered && start !== 1) ? ` start="${start}"` : '';
+        return `<${type}${startAttr} class="list-${ordered ? 'decimal' : 'disc'}">${body}</${type}>`;
+    };
 
+    // Configure marked with the renderer instance
     marked.setOptions({
-        renderer: new marked.Renderer(),
-        highlight: function (code, _lang) {
+        renderer: renderer,
+        highlight: function (code, lang) {
+            // Use highlight.js if language is specified, otherwise auto-detect
+            if (lang && hljs.getLanguage(lang)) {
+                try {
+                    return hljs.highlight(code, { language: lang }).value;
+                } catch (e) {
+                    // Fall back to auto-detection if language highlighting fails
+                    return hljs.highlightAuto(code).value;
+                }
+            }
             return hljs.highlightAuto(code).value;
         },
         langPrefix: 'hljs language-',
         pedantic: false,
-        gfm: true,
-        breaks: true,
-        sanitize: false,
-        smartypants: false,
+        gfm: true,  // GitHub Flavored Markdown
+        breaks: true,  // Convert \n to <br>
+        sanitize: false,  // Don't sanitize HTML
+        smartypants: false,  // Don't use smart quotes
         xhtml: false
     });
 
@@ -342,11 +353,8 @@
 
                         buttonWrapper.append(copyButton, insert, newTab);
 
-                        if (preCode.parentNode.previousSibling) {
-                            preCode.parentNode.parentNode.insertBefore(buttonWrapper, preCode.parentNode.previousSibling);
-                        } else {
-                            preCode.parentNode.parentNode.prepend(buttonWrapper);
-                        }
+                        // Insert the button wrapper right before the pre element
+                        preCode.parentNode.parentNode.insertBefore(buttonWrapper, preCode.parentNode);
                     });
                 }
 
@@ -753,15 +761,20 @@
         if (targetButton?.classList?.contains("code-element-ext")) {
             e.preventDefault();
 
-            const code = targetButton.closest(".pre-code-element").querySelector("code").textContent;
+            // Find the code element - the button wrapper is a sibling of the pre element
+            const buttonWrapper = targetButton.closest(".code-actions-wrapper");
+            const preElement = buttonWrapper?.nextElementSibling || buttonWrapper?.parentElement?.querySelector(".pre-code-element");
+            const code = preElement?.querySelector("code")?.textContent;
 
-            navigator.clipboard.writeText(code).then(() => {
-                targetButton.innerHTML = `${checkSvg} Copied`;
+            if (code) {
+                navigator.clipboard.writeText(code).then(() => {
+                    targetButton.innerHTML = `${checkSvg} Copied`;
 
-                setTimeout(() => {
-                    targetButton.innerHTML = `${clipboardSvg} Copy`;
-                }, 1500);
-            });
+                    setTimeout(() => {
+                        targetButton.innerHTML = `${clipboardSvg} Copy`;
+                    }, 1500);
+                });
+            }
 
             return;
         }
@@ -769,12 +782,17 @@
         if (targetButton?.classList?.contains("edit-element-ext")) {
             e.preventDefault();
 
-            const code = targetButton.closest(".pre-code-element").querySelector("code").textContent;
+            // Find the code element - the button wrapper is a sibling of the pre element
+            const buttonWrapper = targetButton.closest(".code-actions-wrapper");
+            const preElement = buttonWrapper?.nextElementSibling || buttonWrapper?.parentElement?.querySelector(".pre-code-element");
+            const code = preElement?.querySelector("code")?.textContent;
 
-            vscode.postMessage({
-                type: "editCode",
-                value: code
-            });
+            if (code) {
+                vscode.postMessage({
+                    type: "editCode",
+                    value: code
+                });
+            }
 
             return;
         }
@@ -782,12 +800,17 @@
         if (targetButton?.classList?.contains("new-code-element-ext")) {
             e.preventDefault();
 
-            const code = targetButton.closest(".pre-code-element").querySelector("code").textContent;
+            // Find the code element - the button wrapper is a sibling of the pre element
+            const buttonWrapper = targetButton.closest(".code-actions-wrapper");
+            const preElement = buttonWrapper?.nextElementSibling || buttonWrapper?.parentElement?.querySelector(".pre-code-element");
+            const code = preElement?.querySelector("code")?.textContent;
 
-            vscode.postMessage({
-                type: "newCode",
-                value: code
-            });
+            if (code) {
+                vscode.postMessage({
+                    type: "newCode",
+                    value: code
+                });
+            }
 
             return;
         }
