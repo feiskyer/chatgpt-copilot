@@ -10,7 +10,7 @@
  * copies or substantial portions of the Software.
  */
 
-import { CoreMessage, streamText } from "ai";
+import { ModelMessage, stepCountIs, streamText } from "ai";
 import * as vscode from "vscode";
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
@@ -60,7 +60,7 @@ export async function chatGptWithPromptTools(
     const modelName = provider.model ? provider.model : "gpt-4o";
     logger.appendLine(`INFO: Using prompt-based tools: ${promptToolConfig.enabled}, model: ${modelName}`);
 
-    var chatMessage: CoreMessage = {
+    var chatMessage: ModelMessage = {
       role: "user",
       content: [
         {
@@ -167,7 +167,7 @@ async function executePromptBasedToolLoop(
       model: provider.apiChat,
       messages: conversationHistory,
       abortSignal: provider.abortController?.signal,
-      maxSteps: 1, // Single step for manual control
+      stopWhen: stepCountIs(provider.maxSteps),
       headers: getHeaders(),
       ...(isOpenAIOModel(modelName) && {
         providerOptions: {
@@ -181,7 +181,7 @@ async function executePromptBasedToolLoop(
         },
       }),
       ...(!isOpenAIOModel(modelName) && {
-        maxTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
+        maxOutputTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
         temperature: provider.modelConfig.temperature,
       }),
       // ...(provider.provider === "Google" && provider.modelConfig.searchGrounding && {
@@ -193,23 +193,23 @@ async function executePromptBasedToolLoop(
       // }),
     };
 
-    const result = await streamText(inputs);
+    const result = streamText(inputs);
     let accumulatedText = "";
     let stepChunks: string[] = [];
 
     // Process streaming response
     for await (const part of result.fullStream) {
       switch (part.type) {
-        case "text-delta": {
-          accumulatedText += part.textDelta;
-          updateResponse(part.textDelta);
-          chunks.push(part.textDelta);
-          stepChunks.push(part.textDelta);
+        case 'text-delta': {
+          accumulatedText += part.text;
+          updateResponse(part.text);
+          chunks.push(part.text);
+          stepChunks.push(part.text);
           break;
         }
-        case "reasoning": {
-          updateReasoning(part.textDelta, currentStep);
-          reasonChunks.push(part.textDelta);
+        case "reasoning-delta": {
+          updateReasoning(part.text, currentStep);
+          reasonChunks.push(part.text);
           break;
         }
         case "error": {
@@ -256,7 +256,7 @@ async function executePromptBasedToolLoop(
     }
 
     // Add assistant response with tool calls to conversation history
-    const assistantMessage: CoreMessage = {
+    const assistantMessage: ModelMessage = {
       role: "assistant",
       content: stepChunks.join(""),
     };
@@ -264,7 +264,7 @@ async function executePromptBasedToolLoop(
 
     // Add tool results as user messages (this is how AI SDK does it)
     for (const result of toolResults) {
-      const toolResultMessage: CoreMessage = {
+      const toolResultMessage: ModelMessage = {
         role: "user",
         content: `Tool ${result.toolName} result: ${JSON.stringify(result.result)}`
       };
@@ -312,7 +312,7 @@ async function executeStandardChat(
       },
     }),
     ...(!isOpenAIOModel(modelName) && {
-      maxTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
+      maxOutputTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
       temperature: provider.modelConfig.temperature,
     }),
     // ...(provider.provider === "Google" && provider.modelConfig.searchGrounding && {
@@ -324,17 +324,17 @@ async function executeStandardChat(
     // }),
   };
 
-  const result = await streamText(inputs);
+  const result = streamText(inputs);
   for await (const part of result.fullStream) {
     switch (part.type) {
-      case "text-delta": {
-        updateResponse(part.textDelta);
-        chunks.push(part.textDelta);
+      case 'text-delta': {
+        updateResponse(part.text);
+        chunks.push(part.text);
         break;
       }
-      case "reasoning": {
-        updateReasoning(part.textDelta, 1); // Standard chat only has one reasoning round
-        reasonChunks.push(part.textDelta);
+      case "reasoning-delta": {
+        updateReasoning(part.text, 1); // Standard chat only has one reasoning round
+        reasonChunks.push(part.text);
         break;
       }
       case "tool-call": {
@@ -357,7 +357,7 @@ async function executeStandardChat(
   }
 
   // Add final assistant response to chat history
-  const assistantResponse: CoreMessage = {
+  const assistantResponse: ModelMessage = {
     role: "assistant",
     content: chunks.join("")
   };

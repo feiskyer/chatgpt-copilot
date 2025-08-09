@@ -1,5 +1,5 @@
 /* eslint-disable eqeqeq */
-/* eslint-disable @typescript-eslint/naming-convention */
+
 /**
  * @author Pengfei Ni
  *
@@ -84,9 +84,7 @@ export async function initGeminiModel(
 
     if (config.searchGrounding) {
       viewProvider.apiReasoning = wrapLanguageModel({
-        model: ai(model, {
-          useSearchGrounding: config.searchGrounding,
-        }),
+        model: ai(model),
         middleware: extractReasoningMiddleware({ tagName: "think" }),
       });
     }
@@ -96,9 +94,7 @@ export async function initGeminiModel(
       : "gemini-2.5-pro";
     viewProvider.apiChat = ai(model);
     if (config.searchGrounding) {
-      viewProvider.apiChat = ai(model, {
-        useSearchGrounding: config.searchGrounding,
-      });
+      viewProvider.apiChat = ai(model);
     }
   }
 }

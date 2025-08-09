@@ -1,4 +1,4 @@
-import { CoreMessage } from "ai";
+import { ModelMessage } from "ai";
 import * as vscode from "vscode";
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
@@ -76,7 +76,7 @@ export async function chatCopilot(
     return;
   }
 
-  var chatMessage: CoreMessage = {
+  var chatMessage: ModelMessage = {
     role: "user",
     content: question,
   };
@@ -261,7 +261,7 @@ async function executeGitHubCopilotToolLoop(
     if (firstToolCallIndex > 0) {
       const textBeforeToolCalls = accumulatedText.substring(0, firstToolCallIndex).trim();
       if (textBeforeToolCalls) {
-        const assistantMessage: CoreMessage = {
+        const assistantMessage: ModelMessage = {
           role: "assistant",
           content: textBeforeToolCalls,
         };
@@ -271,7 +271,7 @@ async function executeGitHubCopilotToolLoop(
 
     // Add tool results as user messages (this is how AI SDK does it)
     for (const result of toolResults) {
-      const toolResultMessage: CoreMessage = {
+      const toolResultMessage: ModelMessage = {
         role: "user",
         content: `Tool ${result.toolName} result: ${JSON.stringify(result.result)}`
       };
@@ -347,7 +347,7 @@ async function executeStandardGitHubCopilotChat(
   }
 
   // Add final assistant response to chat history
-  const assistantResponse: CoreMessage = {
+  const assistantResponse: ModelMessage = {
     role: "assistant",
     content: chunks.join("")
   };
@@ -357,7 +357,7 @@ async function executeStandardGitHubCopilotChat(
 }
 
 function convertToLMChatMessages(
-  messages: CoreMessage[],
+  messages: ModelMessage[],
 ): vscode.LanguageModelChatMessage[] {
   return messages.map((message) => {
     switch (message.role) {

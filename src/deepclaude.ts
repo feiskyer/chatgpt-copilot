@@ -1,5 +1,5 @@
 /* eslint-disable eqeqeq */
-/* eslint-disable @typescript-eslint/naming-convention */
+
 /**
  * @author Pengfei Ni
  *
@@ -11,7 +11,7 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  */
-import { CoreMessage, streamText } from "ai";
+import { ModelMessage, stepCountIs, streamText } from "ai";
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
 import { getHeaders } from "./model-config";
@@ -38,7 +38,7 @@ export async function reasoningChat(
       `INFO: deepclaude.model: ${provider.model}, reasoning.model: ${provider.reasoningModel}, question: ${question}`,
     );
 
-    var chatMessage: CoreMessage = {
+    var chatMessage: ModelMessage = {
       role: "user",
       content: [
         {
@@ -60,7 +60,7 @@ export async function reasoningChat(
       const reasonChunks = [];
       let hasReasoning = false;
       let reasoningDone = false;
-      const result = await streamText({
+      const result = streamText({
         model: provider.apiReasoning,
         messages: provider.chatHistory,
 
@@ -71,14 +71,14 @@ export async function reasoningChat(
           providerOptions: {
             openai: {
               reasoningEffort: provider.reasoningEffort,
-              ...provider.modelConfig.maxTokens > 0 && {
+              ...(provider.modelConfig.maxTokens > 0 && {
                 maxCompletionTokens: provider.modelConfig.maxTokens,
-              },
+              }),
             },
           },
         }),
         ...(!isOpenAIOModel(provider.reasoningModel) && {
-          maxTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
+          maxOutputTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
           temperature: provider.modelConfig.temperature,
           // topP: provider.modelConfig.topP,
         }),
@@ -91,7 +91,7 @@ export async function reasoningChat(
         }
 
         switch (part.type) {
-          case "text-delta": {
+          case 'text-delta': {
             if (hasReasoning) {
               // Reasoning may be empty
               if (reasonChunks.join("").trim() == "") {
@@ -100,15 +100,15 @@ export async function reasoningChat(
                 reasoningDone = true;
               }
             } else {
-              updateReasoning(part.textDelta, 1); // First reasoning phase
-              chunks.push(part.textDelta);
+              updateReasoning(part.text, 1); // First reasoning phase
+              chunks.push(part.text);
             }
             break;
           }
-          case "reasoning": {
+          case "reasoning-delta": {
             hasReasoning = true;
-            updateReasoning(part.textDelta, 1); // First reasoning phase
-            reasonChunks.push(part.textDelta);
+            updateReasoning(part.text, 1); // First reasoning phase
+            reasonChunks.push(part.text);
             break;
           }
           case "error":
@@ -174,26 +174,26 @@ export async function reasoningChat(
     const reasonChunks = [];
     // Add a counter for tool calls to generate unique IDs
     let toolCallCounter = 0;
-    const result = await streamText({
+    const result = streamText({
       system: provider.modelConfig.systemPrompt,
       model: provider.apiChat,
       messages: provider.chatHistory,
       abortSignal: provider.abortController?.signal,
       tools: provider.toolSet?.tools || undefined,
-      maxSteps: provider.maxSteps,
+      stopWhen: stepCountIs(provider.maxSteps),
       headers: getHeaders(),
       ...(isOpenAIOModel(provider.model ? provider.model : "") && {
         providerOptions: {
           openai: {
             reasoningEffort: provider.reasoningEffort,
-            ...provider.modelConfig.maxTokens > 0 && {
+            ...(provider.modelConfig.maxTokens > 0 && {
               maxCompletionTokens: provider.modelConfig.maxTokens,
-            },
+            }),
           },
         },
       }),
       ...(!isOpenAIOModel(provider.model ? provider.model : "") && {
-        maxTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
+        maxOutputTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
         temperature: provider.modelConfig.temperature,
         // topP: provider.modelConfig.topP,
       }),
@@ -208,18 +208,18 @@ export async function reasoningChat(
     for await (const part of result.fullStream) {
       // logger.appendLine(`INFO: deepclaude.model: ${provider.model} deepclaude.question: ${question} response: ${JSON.stringify(part, null, 2)}`);
       switch (part.type) {
-        case "text-delta": {
-          updateResponse(part.textDelta);
-          chunks.push(part.textDelta);
+        case 'text-delta': {
+          updateResponse(part.text);
+          chunks.push(part.text);
           break;
         }
-        case "reasoning": {
-          updateReasoning(part.textDelta, 2); // Second reasoning phase (chat phase)
-          reasonChunks.push(part.textDelta);
+        case "reasoning-delta": {
+          updateReasoning(part.text, 2); // Second reasoning phase (chat phase)
+          reasonChunks.push(part.text);
           break;
         }
         case "tool-call": {
-          let formattedArgs = part.args;
+          let formattedArgs = part.input;
           if (typeof formattedArgs === 'string') {
             try {
               formattedArgs = JSON.parse(formattedArgs);

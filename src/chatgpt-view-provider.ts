@@ -15,8 +15,7 @@
 
 // @ts-ignore
 import { OpenAIChatLanguageModel, OpenAICompletionLanguageModel } from "@ai-sdk/openai/internal";
-import { LanguageModelV1 } from "@ai-sdk/provider";
-import { CoreMessage } from "ai";
+import { LanguageModel, ModelMessage } from 'ai';
 import delay from "delay";
 import path from "path";
 import * as vscode from "vscode";
@@ -60,9 +59,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public reasoningProvider: string = "Auto";
   public reasoningModelConfig!: ModelConfig;
   public systemPromptOverride: string = "";
-  public apiCompletion?: OpenAICompletionLanguageModel | LanguageModelV1;
-  public apiChat?: OpenAIChatLanguageModel | LanguageModelV1;
-  public apiReasoning?: OpenAIChatLanguageModel | LanguageModelV1;
+  public apiCompletion?: OpenAICompletionLanguageModel | LanguageModel;
+  public apiChat?: OpenAIChatLanguageModel | LanguageModel;
+  public apiReasoning?: OpenAIChatLanguageModel | LanguageModel;
   public conversationId?: string;
   public questionCounter: number = 0;
   public inProgress: boolean = false;
@@ -70,7 +69,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public currentMessageId: string = "";
   public reasoning: string = "";
   public response: string = "";
-  public chatHistory: CoreMessage[] = [];
+  public chatHistory: ModelMessage[] = [];
   public toolSet?: ToolSet;
   public reasoningRounds: Map<string, number> = new Map(); // Track reasoning rounds per message
   public contentSequence: number = 0; // Sequence counter for ordering content
@@ -1325,8 +1324,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 							</div>
 							<div class="modern-button-area" role="toolbar" aria-label="Chat input actions">
 								<div class="modern-button-left">
-									<button id="file-attachment-button" 
-										title="Attach file" 
+									<button id="file-attachment-button"
+										title="Attach file"
 										class="modern-button modern-button-inactive"
 										aria-label="Attach file to conversation"
 										aria-describedby="attach-help">
@@ -1335,8 +1334,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 										</svg>
 									</button>
 									<div id="attach-help" class="sr-only">Click to open file picker and attach files to your conversation</div>
-									<button id="more-button" 
-										title="More actions" 
+									<button id="more-button"
+										title="More actions"
 										class="modern-button modern-button-inactive"
 										aria-label="More actions menu"
 										aria-describedby="more-help"
@@ -1347,8 +1346,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 									<div id="more-help" class="sr-only">Access additional options like new chat, settings, and export</div>
 								</div>
 								<div class="modern-button-right">
-									<button id="ask-button" 
-										title="Submit prompt" 
+									<button id="ask-button"
+										title="Submit prompt"
 										class="modern-button modern-button-inactive"
 										aria-label="Send message"
 										aria-describedby="send-help"
@@ -1359,22 +1358,22 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 								</div>
 							</div>
 						</div>
-						<div id="chat-button-wrapper" 
+						<div id="chat-button-wrapper"
 							class="absolute bottom-14 items-center more-menu right-8 border border-gray-200 shadow-xl hidden text-xs"
 							role="menu"
 							aria-label="Chat actions menu"
 							aria-hidden="true">
-							<button class="flex gap-2 items-center justify-start p-2 w-full" 
+							<button class="flex gap-2 items-center justify-start p-2 w-full"
 								id="clear-button"
 								role="menuitem"
 								aria-label="Start a new chat conversation">
 								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" /></svg>&nbsp;New chat</button>
-							<button class="flex gap-2 items-center justify-start p-2 w-full" 
+							<button class="flex gap-2 items-center justify-start p-2 w-full"
 								id="settings-button"
 								role="menuitem"
 								aria-label="Open extension settings">
 								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>&nbsp;Update settings</button>
-							<button class="flex gap-2 items-center justify-start p-2 w-full" 
+							<button class="flex gap-2 items-center justify-start p-2 w-full"
 								id="export-button"
 								role="menuitem"
 								aria-label="Export conversation to markdown file">

@@ -1,5 +1,5 @@
 /* eslint-disable eqeqeq */
-/* eslint-disable @typescript-eslint/naming-convention */
+
 /**
  * @author Pengfei Ni
  *
@@ -14,8 +14,9 @@
 import { createAzure } from "@ai-sdk/azure";
 import { createOpenAI } from "@ai-sdk/openai";
 import {
-  CoreMessage,
   extractReasoningMiddleware,
+  ModelMessage,
+  stepCountIs,
   streamText,
   wrapLanguageModel
 } from "ai";
@@ -113,7 +114,7 @@ export async function chatGpt(
       `INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question.trim()}`,
     );
 
-    var chatMessage: CoreMessage = {
+    var chatMessage: ModelMessage = {
       role: "user",
       content: [
         {
@@ -144,7 +145,7 @@ export async function chatGpt(
       messages: provider.chatHistory,
       abortSignal: provider.abortController?.signal,
       tools: provider.toolSet?.tools || undefined,
-      maxSteps: provider.maxSteps,
+      stopWhen: stepCountIs(provider.maxSteps),
       headers: getHeaders(),
       ...(isOpenAIOModel(modelName) && {
         providerOptions: {
@@ -158,7 +159,7 @@ export async function chatGpt(
         },
       }),
       ...(!isOpenAIOModel(modelName) && {
-        maxTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
+        maxOutputTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
         temperature: provider.modelConfig.temperature,
         // topP: provider.modelConfig.topP,
       }),
@@ -171,22 +172,22 @@ export async function chatGpt(
       // }),
     };
     // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question.trim()} inputs: ${JSON.stringify(inputs, null, 2)}`);
-    const result = await streamText(inputs);
+    const result = streamText(inputs);
     for await (const part of result.fullStream) {
       // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question.trim()} response: ${JSON.stringify(part, null, 2)}`);
       switch (part.type) {
-        case "text-delta": {
-          updateResponse(part.textDelta);
-          chunks.push(part.textDelta);
+        case 'text-delta': {
+          updateResponse(part.text);
+          chunks.push(part.text);
           break;
         }
-        case "reasoning": {
-          updateReasoning(part.textDelta, 1); // Main chat only has one reasoning round
-          reasonChunks.push(part.textDelta);
+        case "reasoning-delta": {
+          updateReasoning(part.text, 1); // Main chat only has one reasoning round
+          reasonChunks.push(part.text);
           break;
         }
         case "tool-call": {
-          let formattedArgs = part.args;
+          let formattedArgs = part.input;
           if (typeof formattedArgs === 'string') {
             try {
               formattedArgs = JSON.parse(formattedArgs);
@@ -289,7 +290,7 @@ export async function chatGpt(
     if (reasonChunks.join("") != "") {
       provider.reasoning = reasonChunks.join("");
     }
-    const reasoning = await result.reasoning;
+    const reasoning = await result.reasoningText;
     if (reasoning && reasoning != "") {
       provider.reasoning = reasoning;
       updateReasoning(reasoning, 1); // Main chat only has one reasoning round

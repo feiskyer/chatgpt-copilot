@@ -13,7 +13,7 @@
  */
 import { createAzure } from "@ai-sdk/azure";
 import { createOpenAI } from "@ai-sdk/openai";
-import { CoreMessage, streamText } from "ai";
+import { ModelMessage, streamText } from "ai";
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
 import { ModelConfig, getHeaders } from "./model-config";
@@ -72,7 +72,7 @@ export async function chatCompletion(
     throw new Error("apiCompletion is not defined");
   }
 
-  var chatMessage: CoreMessage = {
+  var chatMessage: ModelMessage = {
     role: "user",
     content: [
       {
@@ -101,11 +101,11 @@ export async function chatCompletion(
   }
   prompt += `AI: `;
 
-  const result = await streamText({
+  const result = streamText({
     system: provider.modelConfig.systemPrompt,
     model: provider.apiCompletion,
     prompt: prompt,
-    maxTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
+    maxOutputTokens: provider.modelConfig.maxTokens > 0 ? provider.modelConfig.maxTokens : undefined,
     temperature: provider.modelConfig.temperature,
     abortSignal: provider.abortController?.signal,
     tools: provider.toolSet?.tools || undefined,

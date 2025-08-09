@@ -136,7 +136,7 @@ export async function createToolSet(config: MCPServerConfig): Promise<ToolSet> {
 
         toolset.tools[toolName] = tool({
           description: t.description || toolName,
-          parameters: parameters,
+          inputSchema: parameters,
           execute: async (args) => {
             const result = await client.callTool({
               name: t.name,
