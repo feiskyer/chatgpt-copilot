@@ -35,6 +35,17 @@ export type MCPServerConfig = {
     args: any,
     result: string | Promise<string>,
   ) => void;
+
+  /**
+   * Optional callback that will be called during MCP server initialization
+   * Useful for showing status updates to the user
+   */
+  onServerStatus?: (
+    serverName: string,
+    status: "starting" | "connected" | "error",
+    toolCount?: number,
+    error?: string,
+  ) => void;
 };
 
 /**
@@ -110,6 +121,11 @@ export async function createToolSet(config: MCPServerConfig): Promise<ToolSet> {
     }
 
     try {
+      // Report server is starting
+      if (config.onServerStatus) {
+        config.onServerStatus(serverName, "starting");
+      }
+
       const client = await createMCPClientForServer(serverName, serverConfig);
       toolset.clients[serverName] = client;
 
@@ -151,8 +167,26 @@ export async function createToolSet(config: MCPServerConfig): Promise<ToolSet> {
       logger.appendLine(
         `INFO: MCP server ${serverName} connected with ${Object.keys(mcpTools).length} tools`,
       );
+
+      // Report server successfully connected with tool count
+      if (config.onServerStatus) {
+        config.onServerStatus(
+          serverName,
+          "connected",
+          Object.keys(mcpTools).length,
+        );
+      }
     } catch (error) {
-      logger.appendLine(`ERROR: MCP server ${serverName} failed: ${error}`);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      logger.appendLine(
+        `ERROR: MCP server ${serverName} failed: ${errorMessage}`,
+      );
+
+      // Report server connection error
+      if (config.onServerStatus) {
+        config.onServerStatus(serverName, "error", undefined, errorMessage);
+      }
       continue;
     }
   }

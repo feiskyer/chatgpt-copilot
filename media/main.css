@@ -21,6 +21,87 @@
     --modern-input-bg-focus: var(--vscode-input-background);
 }
 
+/* MCP Status Notifications */
+#mcp-status-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 9999;
+    max-width: 24rem;
+    pointer-events: none;
+}
+
+#mcp-status-container > div {
+    pointer-events: auto;
+    margin-bottom: 0.5rem;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Status notification colors */
+.bg-blue-100 {
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.border-blue-400 {
+    border-color: rgba(59, 130, 246, 0.4);
+}
+
+.text-blue-800 {
+    color: #1e40af;
+}
+
+.bg-green-100 {
+    background-color: rgba(34, 197, 94, 0.1);
+}
+
+.border-green-400 {
+    border-color: rgba(34, 197, 94, 0.4);
+}
+
+.text-green-800 {
+    color: #166534;
+}
+
+.bg-red-100 {
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+.border-red-400 {
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+.text-red-800 {
+    color: #991b1b;
+}
+
+.text-red-600 {
+    color: #dc2626;
+}
+
 /* Dark theme overrides - removed, using VS Code theme variables directly */
 
 /* High contrast theme overrides - removed, using VS Code theme variables directly */
@@ -443,15 +524,25 @@ textarea::placeholder {
     }
 }
 
+/* Apply cursor only to the very last text content in streaming mode */
 .result-streaming>:not(ol):not(ul):not(pre):last-child:after,
-.result-streaming>ol:last-child li:last-child:after,
+.result-streaming>ol:last-child>li:last-child:after,
 .result-streaming>pre:last-child code:after,
-.result-streaming>ul:last-child li:last-child:after {
+.result-streaming>ul:last-child>li:last-child:after {
     -webkit-animation: blink 1s steps(5, start) infinite;
     animation: blink 1s steps(5, start) infinite;
     content: "▋";
     margin-left: 0.25rem;
     vertical-align: baseline;
+}
+
+/* Prevent cursor on nested list items */
+.result-streaming ol li ol li:after,
+.result-streaming ul li ul li:after,
+.result-streaming ol li ul li:after,
+.result-streaming ul li ol li:after {
+    content: none !important;
+    animation: none !important;
 }
 
 @media (max-height: 560px) {

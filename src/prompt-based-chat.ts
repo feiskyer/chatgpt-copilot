@@ -20,7 +20,6 @@ import {
   executePromptToolCall,
   generateToolDescriptions,
 } from "./prompt-based-tools";
-import { recordParsingAttempt } from "./prompt-tools-monitor";
 import { ToolCallParser } from "./tool-call-parser";
 import { isOpenAIOModel, PromptBasedToolConfig } from "./types";
 
@@ -246,22 +245,12 @@ async function executePromptBasedToolLoop(
     }
 
     // Check for tool calls in the accumulated text
-    const parseStartTime = Date.now();
     const parseResult = ToolCallParser.parseToolCalls(
       accumulatedText,
       15,
       false,
     );
-    const parseTime = Date.now() - parseStartTime;
     const toolCalls = parseResult.toolCalls;
-
-    // Record parsing attempt in monitoring system
-    recordParsingAttempt(
-      parseResult.errors.length === 0 && toolCalls.length > 0,
-      parseTime,
-      toolCalls.length,
-      parseResult.errors,
-    );
 
     if (toolCalls.length === 0) {
       // No tool calls found, conversation is complete

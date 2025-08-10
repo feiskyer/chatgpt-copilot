@@ -12,10 +12,6 @@
 
 import { logger } from "./logger";
 import { ToolSet } from "./mcp";
-import {
-  recordToolExecution,
-  recordParsingAttempt,
-} from "./prompt-tools-monitor";
 import { ToolCallParser } from "./tool-call-parser";
 import {
   PromptBasedToolCall,
@@ -291,13 +287,6 @@ export async function executePromptToolCall(
         result: result,
       };
 
-      // Record successful execution in monitoring system
-      recordToolExecution(
-        toolCall.toolName,
-        toolCall,
-        successResult,
-        executionTime,
-      );
 
       return successResult;
     } catch (error) {
@@ -328,13 +317,6 @@ export async function executePromptToolCall(
     error: `Tool execution failed after ${executionConfig.maxRetries + 1} attempts (${executionTime}ms): ${lastError instanceof Error ? lastError.message : String(lastError)}`,
   };
 
-  // Record failed execution in monitoring system
-  recordToolExecution(
-    toolCall.toolName,
-    toolCall,
-    failureResult,
-    executionTime,
-  );
 
   return failureResult;
 }
@@ -545,19 +527,9 @@ export async function processPromptBasedToolCalls(
   } = options;
 
   // Use the enhanced ToolCallParser
-  const parseStartTime = Date.now();
   const parseResult = ToolCallParser.parseToolCalls(text, 15, false);
-  const parseTime = Date.now() - parseStartTime;
   const toolCalls = parseResult.toolCalls;
   const parseErrors = parseResult.errors;
-
-  // Record parsing attempt in monitoring system
-  recordParsingAttempt(
-    parseErrors.length === 0 && toolCalls.length > 0,
-    parseTime,
-    toolCalls.length,
-    parseErrors,
-  );
   const results: PromptBasedToolResult[] = [];
   const executionErrors: string[] = [...parseErrors];
 

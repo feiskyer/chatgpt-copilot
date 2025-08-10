@@ -650,41 +650,70 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           .join(", ");
         logger.appendLine(`INFO: enabled MCP servers: ${enabledMcpServers}`);
 
+        // Show loading state in UI
+        this.sendMessage({
+          type: "showInProgress",
+          inProgress: true,
+          showStopButton: false,
+        });
+
         // Close existing connections if any
         if (this.toolSet) {
           await this.closeMCPServers();
         }
 
-        // Create new tool set
-        this.toolSet = await createToolSet({
-          mcpServers: mcpStore.servers.reduce(
-            (
-              acc: Record<
-                string,
-                {
-                  command: string;
-                  args: any;
-                  env?: any;
-                  isEnabled: boolean;
-                  type: string;
-                  url: string;
-                }
-              >,
-              server,
-            ) => {
-              acc[server.name] = {
-                command: server.command || "",
-                args: server.arguments || [],
-                env: server.env || {},
-                url: server.url || "",
-                isEnabled: server.isEnabled,
-                type: server.type || "local",
-              };
-              return acc;
+        try {
+          // Create new tool set
+          this.toolSet = await createToolSet({
+            mcpServers: mcpStore.servers.reduce(
+              (
+                acc: Record<
+                  string,
+                  {
+                    command: string;
+                    args: any;
+                    env?: any;
+                    isEnabled: boolean;
+                    type: string;
+                    url: string;
+                  }
+                >,
+                server,
+              ) => {
+                acc[server.name] = {
+                  command: server.command || "",
+                  args: server.arguments || [],
+                  env: server.env || {},
+                  url: server.url || "",
+                  isEnabled: server.isEnabled,
+                  type: server.type || "local",
+                };
+                return acc;
+              },
+              {},
+            ),
+            onServerStatus: (serverName, status, toolCount, error) => {
+              this.sendMessage({
+                type: "mcpServerStatus",
+                serverName,
+                status,
+                toolCount,
+                error,
+              });
             },
-            {},
-          ),
-        });
+          });
+        } catch (error) {
+          // If all servers fail, still clear the loading state
+          logger.appendLine(
+            `ERROR: Failed to initialize MCP servers: ${error}`,
+          );
+        } finally {
+          // Clear loading state after all servers are processed
+          this.sendMessage({
+            type: "showInProgress",
+            inProgress: false,
+          });
+        }
       }
     } else if (this.toolSet) {
       // No enabled servers but we have active connections - close them
@@ -1353,16 +1382,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
        </head>
       <body class="overflow-hidden">
 				<div class="flex flex-col h-screen">
-					<div class="absolute top-2 right-2 z-10 flex gap-2">
-						<button id="toggle-prompt-manager" class="p-1.5 rounded-lg" title="Manage Prompts">
-							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
-							</svg>
-						</button>
-						<button id="toggle-mcp-servers" class="p-1.5 rounded-lg" title="Manage MCP Servers">
-							<img src="${lightSvgUri}" alt="MCP Servers" class="w-5 h-5" />
-						</button>
-					</div>
 
 					<div id="introduction" class="flex flex-col justify-between h-full justify-center px-6 w-full relative login-screen overflow-auto">
 						<div class="flex items-start text-center features-block my-5">

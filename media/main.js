@@ -383,6 +383,9 @@
                     list.lastChild?.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
                 }
                 break;
+            case "mcpServerStatus":
+                handleMcpServerStatus(message);
+                break;
             case "clearConversation":
                 clearConversation();
                 break;
@@ -557,6 +560,92 @@
         vscode.postMessage({
             type: "clearConversation"
         });
+    };
+
+    const handleMcpServerStatus = (message) => {
+        const { serverName, status, toolCount, error } = message;
+        
+        // Create or get existing status container
+        let statusContainer = document.getElementById('mcp-status-container');
+        if (!statusContainer) {
+            statusContainer = document.createElement('div');
+            statusContainer.id = 'mcp-status-container';
+            statusContainer.className = 'fixed top-4 right-4 z-50 max-w-sm space-y-2';
+            document.body.appendChild(statusContainer);
+        }
+        
+        const statusId = `mcp-status-${serverName}`;
+        let statusElement = document.getElementById(statusId);
+        
+        if (status === 'starting') {
+            // Create new status element for starting server
+            statusElement = document.createElement('div');
+            statusElement.id = statusId;
+            statusElement.className = 'bg-blue-100 border border-blue-400 text-blue-800 px-3 py-2 rounded-lg text-sm shadow-lg';
+            statusElement.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <div class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"></div>
+                    <span>Starting MCP server: <strong>${serverName}</strong></span>
+                </div>
+            `;
+            statusContainer.appendChild(statusElement);
+        } else if (status === 'connected') {
+            // Update to success state
+            if (statusElement) {
+                statusElement.className = 'bg-green-100 border border-green-400 text-green-800 px-3 py-2 rounded-lg text-sm shadow-lg';
+                statusElement.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <div class="w-4 h-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                            </svg>
+                        </div>
+                        <span>Connected: <strong>${serverName}</strong> (${toolCount} tools)</span>
+                    </div>
+                `;
+                
+                // Auto-remove success message after 3 seconds
+                setTimeout(() => {
+                    if (statusElement && statusElement.parentNode) {
+                        statusElement.parentNode.removeChild(statusElement);
+                        // Remove container if empty
+                        if (statusContainer.children.length === 0) {
+                            statusContainer.parentNode.removeChild(statusContainer);
+                        }
+                    }
+                }, 3000);
+            }
+        } else if (status === 'error') {
+            // Update to error state
+            if (statusElement) {
+                statusElement.className = 'bg-red-100 border border-red-400 text-red-800 px-3 py-2 rounded-lg text-sm shadow-lg';
+                statusElement.innerHTML = `
+                    <div class="flex items-center justify-between space-x-2">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </div>
+                            <span>Failed: <strong>${serverName}</strong></span>
+                        </div>
+                        <button onclick="this.parentNode.parentNode.parentNode.remove(); if(document.getElementById('mcp-status-container').children.length === 0) document.getElementById('mcp-status-container').remove();" class="text-red-600 hover:text-red-800 font-bold text-lg">&times;</button>
+                    </div>
+                    ${error ? `<div class="text-xs mt-1 text-red-600">${error}</div>` : ''}
+                `;
+                
+                // Auto-remove error message after 10 seconds
+                setTimeout(() => {
+                    if (statusElement && statusElement.parentNode) {
+                        statusElement.parentNode.removeChild(statusElement);
+                        // Remove container if empty
+                        if (statusContainer.children.length === 0) {
+                            statusContainer.parentNode.removeChild(statusContainer);
+                        }
+                    }
+                }, 10000);
+            }
+        }
     };
 
     // Make functions globally accessible for jQuery autocomplete and other contexts

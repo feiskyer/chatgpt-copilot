@@ -4,7 +4,7 @@
   "displayName": "ChatGPT Copilot",
   "icon": "images/ai-logo.png",
   "description": "An VS Code ChatGPT Copilot Extension",
-  "version": "4.9.5",
+  "version": "4.9.6",
   "aiKey": "",
   "repository": {
     "url": "https://github.com/feiskyer/chatgpt-copilot"
@@ -106,6 +106,16 @@
         {
           "command": "chatgpt-copilot.openMCPServers",
           "when": "view == mcpServersView",
+          "group": "navigation"
+        },
+        {
+          "command": "chatgpt-copilot.togglePromptManager",
+          "when": "view == chatgpt-copilot.view",
+          "group": "navigation"
+        },
+        {
+          "command": "chatgpt-copilot.openMCPServers",
+          "when": "view == chatgpt-copilot.view",
           "group": "navigation"
         }
       ]
@@ -249,7 +259,8 @@
       },
       {
         "command": "chatgpt-copilot.togglePromptManager",
-        "title": "ChatGPT: Toggle Prompt Manager"
+        "title": "ChatGPT: Toggle Prompt Manager",
+        "icon": "$(list-unordered)"
       },
       {
         "command": "chatgpt-copilot.addCurrentFile",
@@ -262,7 +273,8 @@
       },
       {
         "command": "chatgpt-copilot.openMCPServers",
-        "title": "ChatGPT: Open MCP Servers"
+        "title": "ChatGPT: Open MCP Servers",
+        "icon": "media/mcp.svg"
       }
     ],
     "viewsContainers": {
