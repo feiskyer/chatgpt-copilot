@@ -6,6 +6,7 @@ import {
   executePromptToolCall,
   generateToolDescriptions,
 } from "./prompt-based-tools";
+import { recordParsingAttempt } from "./prompt-tools-monitor";
 import { ToolCallParser } from "./tool-call-parser";
 import { PromptBasedToolConfig } from "./types";
 
@@ -132,7 +133,7 @@ export async function chatCopilot(
   }
 
   provider.response = chunks.join("");
-  if (reasonChunks.join("") != "") {
+  if (reasonChunks.join("") !== "") {
     provider.reasoning = reasonChunks.join("");
   }
 
@@ -217,7 +218,22 @@ async function executeGitHubCopilotToolLoop(
     }
 
     // Check for tool calls in the accumulated text
-    const toolCalls = ToolCallParser.parseToolCalls(accumulatedText);
+    const parseStartTime = Date.now();
+    const parseResult = ToolCallParser.parseToolCalls(
+      accumulatedText,
+      15,
+      false,
+    );
+    const parseTime = Date.now() - parseStartTime;
+    const toolCalls = parseResult.toolCalls;
+
+    // Record parsing attempt in monitoring system
+    recordParsingAttempt(
+      parseResult.errors.length === 0 && toolCalls.length > 0,
+      parseTime,
+      toolCalls.length,
+      parseResult.errors,
+    );
 
     // If there are tool calls, only output text that comes before the first tool call
     if (toolCalls.length > 0) {
@@ -422,7 +438,7 @@ function createGitHubCopilotToolCallHtml(
     </svg>
     <div class="tool-info">
       ${toolIcon}
-      <span class="tool-name">${toolCall.toolName} (GitHub Copilot)</span>
+      <span class="tool-name">${toolCall.toolName}</span>
     </div>
     <span class="tool-status status-running">Running</span>
   </div>

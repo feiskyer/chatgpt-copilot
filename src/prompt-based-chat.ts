@@ -20,6 +20,7 @@ import {
   executePromptToolCall,
   generateToolDescriptions,
 } from "./prompt-based-tools";
+import { recordParsingAttempt } from "./prompt-tools-monitor";
 import { ToolCallParser } from "./tool-call-parser";
 import { isOpenAIOModel, PromptBasedToolConfig } from "./types";
 
@@ -126,7 +127,7 @@ export async function chatGptWithPromptTools(
     }
 
     provider.response = chunks.join("");
-    if (reasonChunks.join("") != "") {
+    if (reasonChunks.join("") !== "") {
       provider.reasoning = reasonChunks.join("");
     }
 
@@ -245,7 +246,22 @@ async function executePromptBasedToolLoop(
     }
 
     // Check for tool calls in the accumulated text
-    const toolCalls = ToolCallParser.parseToolCalls(accumulatedText);
+    const parseStartTime = Date.now();
+    const parseResult = ToolCallParser.parseToolCalls(
+      accumulatedText,
+      15,
+      false,
+    );
+    const parseTime = Date.now() - parseStartTime;
+    const toolCalls = parseResult.toolCalls;
+
+    // Record parsing attempt in monitoring system
+    recordParsingAttempt(
+      parseResult.errors.length === 0 && toolCalls.length > 0,
+      parseTime,
+      toolCalls.length,
+      parseResult.errors,
+    );
 
     if (toolCalls.length === 0) {
       // No tool calls found, conversation is complete
@@ -282,18 +298,33 @@ async function executePromptBasedToolLoop(
       );
     }
 
-    // Add assistant response with tool calls to conversation history
+    // Add structured conversation history with enhanced context
+    const assistantResponse = stepChunks.join("");
+    const toolCallsInResponse = toolCalls.length;
+
+    // Create structured assistant message with metadata
     const assistantMessage: ModelMessage = {
       role: "assistant",
-      content: stepChunks.join(""),
+      content: assistantResponse,
     };
-    conversationHistory.push(assistantMessage);
 
-    // Add tool results as user messages (this is how AI SDK does it)
-    for (const result of toolResults) {
+    // Add metadata as a separate context message for better tracking
+    if (toolCallsInResponse > 0) {
+      const contextMessage: ModelMessage = {
+        role: "system",
+        content: `[Assistant made ${toolCallsInResponse} tool calls in step ${currentStep}]`,
+      };
+      conversationHistory.push(assistantMessage, contextMessage);
+    } else {
+      conversationHistory.push(assistantMessage);
+    }
+
+    // Add structured tool results with enhanced context
+    if (toolResults.length > 0) {
+      const toolResultSummary = createToolResultSummary(toolResults);
       const toolResultMessage: ModelMessage = {
         role: "user",
-        content: `Tool ${result.toolName} result: ${JSON.stringify(result.result)}`,
+        content: toolResultSummary,
       };
       conversationHistory.push(toolResultMessage);
     }
@@ -301,8 +332,16 @@ async function executePromptBasedToolLoop(
     // Continue the loop for the next step
   }
 
-  // Update provider's chat history with the final conversation
-  provider.chatHistory = conversationHistory;
+  // Clean up and optimize conversation history before final update
+  const optimizedHistory = optimizeConversationHistory(
+    conversationHistory,
+    provider.maxSteps,
+  );
+  provider.chatHistory = optimizedHistory;
+
+  // Log conversation statistics
+  logConversationStats(conversationHistory, toolCallCounter, currentStep);
+
   return toolCallCounter;
 }
 
@@ -474,7 +513,7 @@ function createPromptToolCallHtml(
     </svg>
     <div class="tool-info">
       ${toolIcon}
-      <span class="tool-name">${toolCall.toolName} (prompt-based)</span>
+      <span class="tool-name">${toolCall.toolName}</span>
     </div>
     <span class="tool-status status-running">Running</span>
   </div>
@@ -506,4 +545,138 @@ function createPromptToolResultHtml(
   return `<tool-result data-tool-name="${result.toolName}" data-counter="${toolCallCounter}">
 ${JSON.stringify(result.result)}
 </tool-result>`;
+}
+
+/**
+ * Create a structured summary of tool results for conversation history
+ */
+function createToolResultSummary(toolResults: any[]): string {
+  if (toolResults.length === 0) {
+    return "[No tool results]";
+  }
+
+  if (toolResults.length === 1) {
+    const result = toolResults[0];
+    if (result.error) {
+      return `Tool ${result.toolName} failed: ${result.error}`;
+    }
+
+    const resultStr = JSON.stringify(result.result);
+    const truncated =
+      resultStr.length > 1000
+        ? resultStr.substring(0, 1000) + "..."
+        : resultStr;
+    return `Tool ${result.toolName} result: ${truncated}`;
+  }
+
+  const successful = toolResults.filter((r) => !r.error);
+  const failed = toolResults.filter((r) => r.error);
+
+  let summary = `Tool execution summary (${toolResults.length} tools): `;
+  if (successful.length > 0) {
+    summary += `${successful.length} successful`;
+  }
+  if (failed.length > 0) {
+    summary += `${successful.length > 0 ? ", " : ""}${failed.length} failed`;
+  }
+
+  summary += "\n\n";
+  for (const result of toolResults) {
+    if (result.error) {
+      summary += `❌ ${result.toolName}: ${result.error}\n`;
+    } else {
+      const resultStr = JSON.stringify(result.result);
+      const truncated =
+        resultStr.length > 200
+          ? resultStr.substring(0, 200) + "..."
+          : resultStr;
+      summary += `✅ ${result.toolName}: ${truncated}\n`;
+    }
+  }
+
+  return summary.trim();
+}
+
+function optimizeConversationHistory(
+  conversationHistory: ModelMessage[],
+  maxSteps: number,
+): ModelMessage[] {
+  if (conversationHistory.length <= maxSteps * 3) {
+    return conversationHistory;
+  }
+
+  const optimized: ModelMessage[] = [];
+  let systemMessageCount = 0;
+  let toolResultCount = 0;
+
+  if (
+    conversationHistory.length > 0 &&
+    conversationHistory[0].role === "user"
+  ) {
+    optimized.push(conversationHistory[0]);
+  }
+
+  for (let i = 1; i < conversationHistory.length; i++) {
+    const message = conversationHistory[i];
+
+    if (message.role === "assistant") {
+      optimized.push(message);
+      continue;
+    }
+
+    if (message.role === "system") {
+      systemMessageCount++;
+      if (systemMessageCount <= 5) {
+        optimized.push(message);
+      }
+      continue;
+    }
+
+    if (
+      message.role === "user" &&
+      typeof message.content === "string" &&
+      message.content.includes("Tool ")
+    ) {
+      toolResultCount++;
+      if (toolResultCount <= 3) {
+        optimized.push(message);
+      } else if (toolResultCount === 4) {
+        optimized.push({
+          role: "system",
+          content: "[Previous tool results summarized]",
+        });
+      }
+      continue;
+    }
+
+    optimized.push(message);
+  }
+
+  logger.appendLine(
+    `INFO: Optimized conversation history from ${conversationHistory.length} to ${optimized.length} messages`,
+  );
+  return optimized;
+}
+
+function logConversationStats(
+  conversationHistory: ModelMessage[],
+  toolCallCount: number,
+  stepCount: number,
+): void {
+  const stats = {
+    totalMessages: conversationHistory.length,
+    toolCallCount,
+    stepCount,
+    totalTokensEstimate: conversationHistory
+      .reduce(
+        (sum, msg) =>
+          sum + (typeof msg.content === "string" ? msg.content.length / 4 : 0),
+        0,
+      )
+      .toFixed(0),
+  };
+
+  logger.appendLine(
+    `INFO: Conversation stats - Messages: ${stats.totalMessages}, Tools: ${stats.toolCallCount}, Steps: ${stats.stepCount}, Tokens: ~${stats.totalTokensEstimate}`,
+  );
 }

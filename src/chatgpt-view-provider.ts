@@ -209,6 +209,14 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
             data.language === "markdown" ? "code-exported" : "code-opened",
           );
           break;
+        case "exportConversation":
+          const exportedDocument = await vscode.workspace.openTextDocument({
+            content: data.value,
+            language: "markdown",
+          });
+          vscode.window.showTextDocument(exportedDocument);
+          this.logEvent("conversation-exported");
+          break;
         case "clearConversation":
           this.conversationId = undefined;
           this.chatHistory = [];
