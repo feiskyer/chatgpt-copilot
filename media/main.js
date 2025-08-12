@@ -692,13 +692,10 @@
     document.addEventListener("click", (e) => {
         const targetButton = e.target.closest('button');
 
-        if (targetButton?.id === "more-button") {
+        if (targetButton?.id === "new-chat-button") {
             e.preventDefault();
-            document.getElementById('chat-button-wrapper')?.classList.toggle("hidden");
-
+            clearConversation();
             return;
-        } else {
-            document.getElementById('chat-button-wrapper')?.classList.add("hidden");
         }
 
         if (e.target?.id === "settings-button") {
@@ -737,11 +734,6 @@
             return;
         }
 
-        if (targetButton?.id === "clear-button") {
-            e.preventDefault();
-            clearConversation();
-            return;
-        }
 
         if (targetButton?.id === "export-button") {
             e.preventDefault();
@@ -1621,7 +1613,9 @@ class ButtonStateManager {
 
             // Update other buttons based on disabled state
             this.setButtonDisabled('file-attachment-button', isDisabled);
-            this.setButtonDisabled('more-button', isDisabled);
+            this.setButtonDisabled('new-chat-button', isDisabled);
+            this.setButtonDisabled('export-button', isDisabled);
+            this.setButtonDisabled('settings-button', isDisabled);
         } catch (error) {
             console.warn('Error updating button states:', error);
         }

@@ -31,7 +31,7 @@
     pointer-events: none;
 }
 
-#mcp-status-container > div {
+#mcp-status-container>div {
     pointer-events: auto;
     margin-bottom: 0.5rem;
     animation: slideIn 0.3s ease-out;
@@ -42,6 +42,7 @@
         transform: translateX(100%);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;
@@ -52,6 +53,7 @@
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }
@@ -1107,36 +1109,49 @@ tool-result {
     width: 100%;
     max-width: 100%;
     margin: 0;
-    padding: 0.75rem;
-    background: transparent;
+    padding: 12px;
+    /* background: transparent; */
     border: none;
     position: relative;
     z-index: 10;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, system-ui, -apple-system, sans-serif;
 }
 
 .modern-input-wrapper {
     position: relative;
     display: flex;
     flex-direction: column;
-    border-radius: 1.25rem;
-    /* 20px */
+    border-radius: 24px;
     overflow: hidden;
-    background: var(--vscode-input-background);
-    border: 1px solid var(--vscode-widget-border);
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.09), rgba(0, 0, 0, 0.09)),
+        var(--vscode-editor-background, var(--vscode-sideBar-background));
+    border: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+    min-height: 70px;
 }
 
 .modern-input-wrapper:hover {
-    background: var(--vscode-input-background);
-    border-color: var(--vscode-focusBorder);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.09), rgba(0, 0, 0, 0.09)),
+        var(--vscode-input-background);
+    /* box-shadow: none; */
 }
 
 .modern-input-wrapper:focus-within {
-    border-color: var(--vscode-focusBorder);
-    box-shadow: 0 0 0 1px var(--vscode-focusBorder), 0 2px 8px rgba(0, 0, 0, 0.1);
-    background: var(--vscode-input-background);
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.09), rgba(0, 0, 0, 0.09)),
+        var(--vscode-input-background);
+    /* box-shadow: 0 0 0 2px var(--vscode-focusBorder); */
+}
+
+/* Remove inner container - use consistent background */
+.modern-input-inner {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
 }
 
 /* File References Modern Styling */
@@ -1426,9 +1441,8 @@ tool-result {
 
 /* Enhanced focus indicators for better keyboard navigation */
 .modern-textarea:focus {
-    outline: 2px solid var(--vscode-focusBorder);
-    outline-offset: 2px;
-    border-color: var(--vscode-focusBorder);
+    outline: none;
+    border: none;
 }
 
 .modern-button:focus {
@@ -1441,9 +1455,8 @@ tool-result {
 body[data-vscode-theme-kind="vscode-high-contrast"] .modern-textarea:focus,
 body[data-vscode-theme-name*="high-contrast"] .modern-textarea:focus,
 body[data-vscode-theme-name*="High Contrast"] .modern-textarea:focus {
-    outline: 3px solid var(--vscode-contrastActiveBorder);
-    outline-offset: 2px;
-    border-color: var(--vscode-contrastActiveBorder);
+    outline: none;
+    border: none;
 }
 
 body[data-vscode-theme-kind="vscode-high-contrast"] .modern-button:focus,
@@ -1575,23 +1588,6 @@ body[data-vscode-theme-name*="High Contrast"] .modern-button:focus {
 
 .ui-autocomplete::-webkit-scrollbar-thumb:hover {
     background: var(--vscode-scrollbarSlider-hoverBackground) !important;
-}
-
-/* Input field improvements for better theme matching */
-.modern-textarea {
-    border: 1px solid var(--vscode-input-border) !important;
-    background: var(--vscode-input-background) !important;
-    color: var(--vscode-input-foreground) !important;
-}
-
-.modern-textarea:focus {
-    border-color: var(--vscode-focusBorder) !important;
-    outline: 1px solid var(--vscode-focusBorder) !important;
-    outline-offset: -1px !important;
-}
-
-.modern-textarea::placeholder {
-    color: var(--vscode-input-placeholderForeground) !important;
 }
 
 /* Button improvements for better integration */
@@ -1773,7 +1769,8 @@ body[data-vscode-theme-name*="High Contrast"] .modern-button:focus {
     align-items: center;
     justify-content: space-between;
     padding: 0 12px;
-    border-top: 1px solid var(--modern-border-light);
+    border-top: none;
+    background: inherit;
 }
 
 .modern-button-left,
@@ -1884,26 +1881,29 @@ body[data-vscode-theme-name*="High Contrast"] .modern-button:focus {
 /* Modern Textarea Area */
 .modern-textarea-area {
     overflow-y: auto;
-    max-height: 164px;
-    /* ~10 lines */
+    max-height: 120px;
+    flex: 1;
+    display: flex;
+    align-items: stretch;
 }
 
 .modern-textarea {
     width: 100%;
-    min-height: 48px;
-    max-height: 164px;
-    padding: 0.75rem 1rem;
+    min-height: 50px;
+    max-height: 120px;
+    padding: 16px;
     border: none;
     outline: none;
-    background: transparent;
+    background: inherit;
     color: var(--vscode-input-foreground);
     font-family: var(--vscode-font-family);
-    font-size: var(--vscode-editor-font-size);
-    line-height: 1.5;
+    font-size: 14px;
+    line-height: 1.4;
     resize: none;
-    overflow: hidden;
-    transition: height 0.2s ease;
+    overflow-y: auto;
+    transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     box-sizing: border-box;
+    flex: 1;
 }
 
 /* Auto-resize specific styles */
@@ -1918,6 +1918,7 @@ body[data-vscode-theme-name*="High Contrast"] .modern-button:focus {
 
 .modern-textarea::placeholder {
     color: var(--vscode-input-placeholderForeground);
+    font-weight: 400;
 }
 
 .modern-textarea::-webkit-scrollbar {
@@ -1939,38 +1940,70 @@ body[data-vscode-theme-name*="High Contrast"] .modern-button:focus {
 
 /* Modern Button Area */
 .modern-button-area {
-    height: 3rem;
-    /* 48px */
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 0.75rem;
+    padding: 0 16px;
     border-top: none;
-    background: transparent;
+    background: inherit;
 }
 
 .modern-button-left,
 .modern-button-right {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 8px;
+}
+
+.modern-button-left {
+    flex: 1;
 }
 
 /* Modern Button Styling */
 .modern-button {
     border-radius: 50%;
     padding: 0;
-    transition: all 0.2s ease;
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    min-width: 2.25rem;
-    min-height: 2.25rem;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
     position: relative;
+    background: transparent;
+    color: var(--vscode-foreground);
+    opacity: 0.7;
+}
+
+.modern-button:hover {
+    background: var(--vscode-toolbar-hoverBackground);
+    opacity: 1;
+}
+
+.modern-button:active {
+    transform: scale(0.95);
+}
+
+.modern-button:focus {
+    outline: 2px solid var(--vscode-focusBorder);
+    outline-offset: 2px;
+}
+
+.modern-button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Button icon styles */
+.modern-button svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
 }
 
 .modern-button-inactive {
@@ -2235,7 +2268,7 @@ body[data-vscode-theme-name*="High Contrast"] .modern-button:focus {
     }
 
     .modern-input-wrapper {
-        border-radius: 0.5rem;
+        border-radius: 0.8rem;
     }
 
     .modern-button {
@@ -2305,8 +2338,8 @@ body[data-vscode-theme-name*="High Contrast"] .modern-button:focus {
 }
 
 /* Ensure proper rendering of inline code */
-.answer-element-ext :not(pre) > code,
-.question-element-ext :not(pre) > code {
+.answer-element-ext :not(pre)>code,
+.question-element-ext :not(pre)>code {
     background: var(--vscode-textCodeBlock-background);
     padding: 2px 4px;
     border-radius: 3px;
@@ -2337,12 +2370,29 @@ body[data-vscode-theme-name*="High Contrast"] .modern-button:focus {
     line-height: 1.4;
 }
 
-.answer-element-ext h1 { font-size: 1.5em; }
-.answer-element-ext h2 { font-size: 1.3em; }
-.answer-element-ext h3 { font-size: 1.15em; }
-.answer-element-ext h4 { font-size: 1.05em; }
-.answer-element-ext h5 { font-size: 1em; }
-.answer-element-ext h6 { font-size: 0.95em; }
+.answer-element-ext h1 {
+    font-size: 1.5em;
+}
+
+.answer-element-ext h2 {
+    font-size: 1.3em;
+}
+
+.answer-element-ext h3 {
+    font-size: 1.15em;
+}
+
+.answer-element-ext h4 {
+    font-size: 1.05em;
+}
+
+.answer-element-ext h5 {
+    font-size: 1em;
+}
+
+.answer-element-ext h6 {
+    font-size: 0.95em;
+}
 
 /* Blockquotes */
 .answer-element-ext blockquote {

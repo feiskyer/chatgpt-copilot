@@ -359,6 +359,16 @@ export async function activate(context: vscode.ExtensionContext) {
     },
   );
 
+  const openSettings = vscode.commands.registerCommand(
+    "chatgpt-copilot.openSettings",
+    async () => {
+      await vscode.commands.executeCommand(
+        "workbench.action.openSettings",
+        "@ext:feiskyer.chatgpt-copilot"
+      );
+    },
+  );
+
   context.subscriptions.push(
     view,
     freeText,
@@ -376,6 +386,7 @@ export async function activate(context: vscode.ExtensionContext) {
     addCurrentFileCommand,
     mcpServerView,
     openMCPServers,
+    openSettings,
   );
 
   const setContext = () => {

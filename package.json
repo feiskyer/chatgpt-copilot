@@ -99,6 +99,11 @@
       ],
       "view/title": [
         {
+          "command": "chatgpt-copilot.openSettings",
+          "when": "view == chatgpt-copilot.view",
+          "group": "navigation@3"
+        },
+        {
           "command": "chatgpt-copilot.openPromptManager",
           "when": "view == promptManager",
           "group": "navigation"
@@ -111,12 +116,12 @@
         {
           "command": "chatgpt-copilot.togglePromptManager",
           "when": "view == chatgpt-copilot.view",
-          "group": "navigation"
+          "group": "navigation@1"
         },
         {
           "command": "chatgpt-copilot.openMCPServers",
           "when": "view == chatgpt-copilot.view",
-          "group": "navigation"
+          "group": "navigation@2"
         }
       ]
     },
@@ -275,6 +280,11 @@
         "command": "chatgpt-copilot.openMCPServers",
         "title": "ChatGPT: Open MCP Servers",
         "icon": "media/mcp.svg"
+      },
+      {
+        "command": "chatgpt-copilot.openSettings",
+        "title": "ChatGPT: Open Settings",
+        "icon": "$(gear)"
       }
     ],
     "viewsContainers": {
