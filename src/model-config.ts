@@ -11,6 +11,8 @@
  * copies or substantial portions of the Software.
  */
 
+import { MCPServer } from "./mcp-server-provider";
+
 export class ModelConfig {
   public provider;
   public apiKey: string;
@@ -24,6 +26,8 @@ export class ModelConfig {
   public searchGrounding: boolean;
   public enableResponsesAPI: boolean;
   public isReasoning: boolean;
+  public claudeCodePath: string;
+  public enabledMCPServers: MCPServer[];
 
   constructor({
     provider,
@@ -38,6 +42,8 @@ export class ModelConfig {
     searchGrounding,
     enableResponsesAPI,
     isReasoning,
+    claudeCodePath,
+    enabledMCPServers,
   }: {
     provider: string;
     apiKey: string;
@@ -51,6 +57,8 @@ export class ModelConfig {
     searchGrounding?: boolean;
     enableResponsesAPI?: boolean;
     isReasoning?: boolean;
+    claudeCodePath?: string;
+    enabledMCPServers?: MCPServer[];
   }) {
     this.provider = provider;
     this.apiKey = apiKey;
@@ -64,6 +72,8 @@ export class ModelConfig {
     this.searchGrounding = searchGrounding ?? false;
     this.enableResponsesAPI = enableResponsesAPI ?? false;
     this.isReasoning = isReasoning ?? false;
+    this.claudeCodePath = claudeCodePath ?? "";
+    this.enabledMCPServers = enabledMCPServers ?? [];
   }
 }
 

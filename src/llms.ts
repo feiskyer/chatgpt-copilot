@@ -24,9 +24,120 @@ import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { createAzure } from "@quail-ai/azure-ai-provider";
 import { extractReasoningMiddleware, wrapLanguageModel } from "ai";
 import { createOllama } from "ollama-ai-provider";
+import * as vscode from "vscode";
 import ChatGptViewProvider from "./chatgpt-view-provider";
+import { createClaudeCode } from "./claudecode";
+import { logger } from "./logger";
+import { MCPServer } from "./mcp-server-provider";
 import { ModelConfig } from "./model-config";
 import { isReasoningModel } from "./types";
+const fs = require("fs");
+const path = require("path");
+const { promisify } = require("util");
+
+/**
+ * Converts enabled MCP servers to Claude Code format
+ * @param enabledServers Array of enabled MCP servers
+ * @returns A Record of MCP server configurations for Claude Code
+ */
+async function convertMCPServersForClaudeCode(
+  enabledServers: MCPServer[],
+): Promise<Record<string, any>> {
+  const claudeCodeMcpServers: Record<string, any> = {};
+
+  for (const server of enabledServers) {
+    const serverConfig: any = {};
+
+    switch (server.type) {
+      case "stdio":
+        serverConfig.type = "stdio";
+        serverConfig.command = server.command || "";
+        if (server.arguments && server.arguments.length > 0) {
+          serverConfig.args = server.arguments;
+        }
+        if (server.env && Object.keys(server.env).length > 0) {
+          serverConfig.env = server.env;
+        }
+        break;
+
+      case "sse":
+        serverConfig.type = "sse";
+        serverConfig.url = server.url || "";
+        if (server.headers && Object.keys(server.headers).length > 0) {
+          serverConfig.headers = server.headers;
+        }
+        break;
+
+      case "streamable-http":
+        // Claude Code uses "http" for streamable-http
+        serverConfig.type = "http";
+        serverConfig.url = server.url || "";
+        if (server.headers && Object.keys(server.headers).length > 0) {
+          serverConfig.headers = server.headers;
+        }
+        break;
+
+      default:
+        // Default to stdio if type is not specified
+        serverConfig.type = "stdio";
+        serverConfig.command = server.command || "";
+        if (server.arguments && server.arguments.length > 0) {
+          serverConfig.args = server.arguments;
+        }
+        if (server.env && Object.keys(server.env).length > 0) {
+          serverConfig.env = server.env;
+        }
+        break;
+    }
+
+    claudeCodeMcpServers[server.name] = serverConfig;
+  }
+
+  if (Object.keys(claudeCodeMcpServers).length > 0) {
+    logger.appendLine(
+      `INFO: Converting ${Object.keys(claudeCodeMcpServers).length} enabled MCP servers for Claude Code: ${Object.keys(claudeCodeMcpServers).join(", ")}`,
+    );
+  }
+
+  return claudeCodeMcpServers;
+}
+
+// initClaudeCodeModel initializes the Claude Code model with the given parameters.
+export async function initClaudeCodeModel(
+  viewProvider: ChatGptViewProvider,
+  config: ModelConfig,
+) {
+  // Get the workspace folder path, fallback to process.cwd() if no workspace is open
+  logger.appendLine(`Initializing Claude Code model...`);
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+  const cwd = workspaceFolder ? workspaceFolder.uri.fsPath : process.cwd();
+  const claudeCodePath = await resolveExecutablePath(config.claudeCodePath);
+
+  // Convert enabled MCP servers to Claude Code format
+  const mcpServers = await convertMCPServersForClaudeCode(
+    config.enabledMCPServers,
+  );
+
+  const claudeCode = createClaudeCode({
+    defaultSettings: {
+      pathToClaudeCodeExecutable: claudeCodePath,
+      permissionMode: "bypassPermissions",
+      maxTurns: viewProvider.maxSteps,
+      cwd: cwd,
+      verbose: true,
+      logger: {
+        warn: (message: string) =>
+          logger.appendLine(`[WARN] Claude Code: ${message}`),
+        error: (message: string) =>
+          logger.appendLine(`[ERROR] Claude Code: ${message}`),
+      },
+      mcpServers: mcpServers,
+    },
+  });
+
+  const model = viewProvider.model ? viewProvider.model : "sonnet";
+  viewProvider.apiChat = claudeCode(model);
+}
 
 // initClaudeModel initializes the Claude model with the given parameters.
 export async function initClaudeModel(
@@ -433,4 +544,48 @@ export async function initReplicateModel(
       viewProvider.apiChat = ai.languageModel(model) as any;
     }
   }
+}
+/**
+ * Resolves an executable path by checking if it exists and is executable.
+ * If the path is not absolute, attempts to find it in the system PATH.
+ *
+ * @param executablePath The path to the executable
+ * @returns The resolved executable path or the original path if not found
+ */
+async function resolveExecutablePath(executablePath: string): Promise<string> {
+  const access = promisify(fs.access);
+
+  // If path is empty or a placeholder, return as is
+  if (!executablePath) {
+    return executablePath;
+  }
+
+  // If it's an absolute path, check if it exists and is executable
+  if (path.isAbsolute(executablePath)) {
+    try {
+      await access(executablePath, fs.constants.X_OK);
+      return executablePath;
+    } catch (error) {
+      // Path doesn't exist or isn't executable
+      return executablePath;
+    }
+  }
+
+  // For non-absolute paths, try to find in PATH
+  const envPath = process.env.PATH || "";
+  const pathSeparator = process.platform === "win32" ? ";" : ":";
+  const pathDirs = envPath.split(pathSeparator);
+
+  for (const dir of pathDirs) {
+    const fullPath = path.join(dir, executablePath);
+    try {
+      await access(fullPath, fs.constants.X_OK);
+      return fullPath;
+    } catch {
+      // Continue to next directory
+    }
+  }
+
+  // If not found, return the original path
+  return executablePath;
 }

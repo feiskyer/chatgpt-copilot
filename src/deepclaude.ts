@@ -1,7 +1,6 @@
 /* eslint-disable eqeqeq */
 
 /**
- * @author Pengfei Ni
  *
  * @license
  * Copyright (c) 2024 - Present, Pengfei Ni
@@ -207,20 +206,20 @@ export async function reasoningChat(
       ...(provider.provider === "Google" &&
         provider.reasoningEffort &&
         provider.reasoningEffort !== "" && {
-          providerOptions: {
-            google: {
-              thinkingConfig: {
-                thinkingBudget:
-                  provider.reasoningEffort === "low"
-                    ? 1500
-                    : provider.reasoningEffort === "medium"
-                      ? 8000
-                      : 20000,
-                includeThoughts: true,
-              },
+        providerOptions: {
+          google: {
+            thinkingConfig: {
+              thinkingBudget:
+                provider.reasoningEffort === "low"
+                  ? 1500
+                  : provider.reasoningEffort === "medium"
+                    ? 8000
+                    : 20000,
+              includeThoughts: true,
             },
           },
-        }),
+        },
+      }),
     });
     for await (const part of result.fullStream) {
       // logger.appendLine(`INFO: deepclaude.model: ${provider.model} deepclaude.question: ${question} response: ${JSON.stringify(part, null, 2)}`);

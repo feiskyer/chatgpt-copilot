@@ -123,6 +123,7 @@ export async function activate(context: vscode.ExtensionContext) {
       e.affectsConfiguration("chatgpt.gpt3.organization") ||
       e.affectsConfiguration("chatgpt.gpt3.maxTokens") ||
       e.affectsConfiguration("chatgpt.gpt3.temperature") ||
+      e.affectsConfiguration("chatgpt.gpt3.claudeCodePath") ||
       e.affectsConfiguration("chatgpt.gpt3.reasoning.provider") ||
       e.affectsConfiguration("chatgpt.gpt3.reasoning.model") ||
       e.affectsConfiguration("chatgpt.gpt3.reasoning.apiKey") ||
@@ -364,7 +365,7 @@ export async function activate(context: vscode.ExtensionContext) {
     async () => {
       await vscode.commands.executeCommand(
         "workbench.action.openSettings",
-        "@ext:feiskyer.chatgpt-copilot"
+        "@ext:feiskyer.chatgpt-copilot",
       );
     },
   );

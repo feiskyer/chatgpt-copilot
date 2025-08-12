@@ -4,7 +4,7 @@
   "displayName": "ChatGPT Copilot",
   "icon": "images/ai-logo.png",
   "description": "An VS Code ChatGPT Copilot Extension",
-  "version": "4.9.6",
+  "version": "4.9.7",
   "aiKey": "",
   "repository": {
     "url": "https://github.com/feiskyer/chatgpt-copilot"
@@ -326,7 +326,8 @@
             "DeepSeek",
             "Groq",
             "Perplexity",
-            "OpenRouter"
+            "OpenRouter",
+            "ClaudeCode"
           ],
           "markdownEnumDescriptions": [
             "Auto - Infer provider from model",
@@ -343,7 +344,8 @@
             "DeepSeek",
             "Groq",
             "Perplexity",
-            "OpenRouter"
+            "OpenRouter",
+            "ClaudeCode"
           ],
           "default": "Auto",
           "order": 0
@@ -664,6 +666,12 @@
           "default": false,
           "markdownDescription": "Enable prompt-based tool calls for models that don't support native tool calling. This allows tool usage through text parsing instead of native API support.",
           "order": 156
+        },
+        "chatgpt.gpt3.claudeCodePath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Absolute path for claude code CLI.",
+          "order": 157
         }
       }
     }
@@ -708,6 +716,7 @@
     "rimraf": "^6.0.1",
     "ts-loader": "^9.5.2",
     "typescript": "^5.9.2",
+    "vitest": "^3.2.4",
     "webpack": "^5.101.0"
   },
   "dependencies": {
@@ -723,10 +732,12 @@
     "@ai-sdk/replicate": "^1.0.1",
     "@ai-sdk/togetherai": "^1.0.2",
     "@ai-sdk/xai": "^2.0.2",
+    "@anthropic-ai/claude-code": "^1.0.73",
     "@modelcontextprotocol/sdk": "^1.17.1",
     "@openrouter/ai-sdk-provider": "^1.1.0",
     "@quail-ai/azure-ai-provider": "^1.2.0",
-    "ai": "^5.0.5",
+    "ai": "^5.0.10",
+    "ai-sdk-provider-gemini-cli": "^0.1.1",
     "ajv": "^8.17.1",
     "axios": "^1.11.0",
     "cheerio": "^1.1.2",

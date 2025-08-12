@@ -287,7 +287,6 @@ export async function executePromptToolCall(
         result: result,
       };
 
-
       return successResult;
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
@@ -316,7 +315,6 @@ export async function executePromptToolCall(
     result: null,
     error: `Tool execution failed after ${executionConfig.maxRetries + 1} attempts (${executionTime}ms): ${lastError instanceof Error ? lastError.message : String(lastError)}`,
   };
-
 
   return failureResult;
 }

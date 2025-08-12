@@ -19,17 +19,6 @@ import {
   OpenAICompletionLanguageModel,
 } from "@ai-sdk/openai/internal";
 import { LanguageModel as LanguageModelV2, ModelMessage } from "ai";
-
-// Temporary compatibility type to handle LanguageModelV1 and LanguageModelV2
-type CompatibleLanguageModel =
-  | LanguageModelV2
-  | {
-      specificationVersion: "v1";
-      provider: string;
-      modelId: string;
-      doGenerate: any;
-      doStream: any;
-    };
 import delay from "delay";
 import path from "path";
 import * as vscode from "vscode";
@@ -37,6 +26,7 @@ import { reasoningChat } from "./deepclaude";
 import { chatCopilot } from "./github-copilot";
 import {
   initAzureAIModel,
+  initClaudeCodeModel,
   initClaudeModel,
   initDeepSeekModel,
   initGeminiModel,
@@ -56,6 +46,17 @@ import { ModelConfig } from "./model-config";
 import { chatGpt, initGptModel } from "./openai";
 import { chatCompletion, initGptLegacyModel } from "./openai-legacy";
 import { PromptStore } from "./types";
+
+// Temporary compatibility type to handle LanguageModelV1 and LanguageModelV2
+type CompatibleLanguageModel =
+  | LanguageModelV2
+  | {
+    specificationVersion: "v1";
+    provider: string;
+    modelId: string;
+    doGenerate: any;
+    doStream: any;
+  };
 
 export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private webView?: vscode.WebviewView;
@@ -89,6 +90,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public toolSet?: ToolSet;
   public reasoningRounds: Map<string, number> = new Map(); // Track reasoning rounds per message
   public contentSequence: number = 0; // Sequence counter for ordering content
+  public claudeCodePath: string = "";
   /**
    * Message to be rendered lazily if they haven't been rendered
    * in time before resolveWebviewView is called.
@@ -104,9 +106,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     };
     filesSent: boolean;
   } = {
-    files: {},
-    filesSent: false,
-  };
+      files: {},
+      filesSent: false,
+    };
 
   constructor(private context: vscode.ExtensionContext) {
     this.subscribeToResponse =
@@ -136,7 +138,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.maxSteps = vscode.workspace
       .getConfiguration("chatgpt")
       .get("gpt3.maxSteps") as number;
-
+    this.claudeCodePath = vscode.workspace
+      .getConfiguration("chatgpt")
+      .get("gpt3.claudeCodePath") as string;
     this.reasoningModel = vscode.workspace
       .getConfiguration("chatgpt")
       .get("gpt3.reasoning.model") as string;
@@ -624,11 +628,12 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       "gpt3.reasoning.apiBaseUrl",
     ) as string;
     this.provider = configuration.get("gpt3.provider") as string;
+    this.claudeCodePath = configuration.get("gpt3.claudeCodePath") as string;
     this.reasoningProvider = configuration.get(
       "gpt3.reasoning.provider",
     ) as string;
 
-    const mcpStore = this.context.globalState.get<{ servers: MCPServer[] }>(
+    const mcpStore = this.context.globalState.get<{ servers: MCPServer[]; }>(
       "mcpServers",
       { servers: [] },
     );
@@ -636,8 +641,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       (server) => server.isEnabled,
     );
 
-    // Only log and initialize MCP servers if configuration has changed
-    if (enabledServers.length > 0) {
+    // Only log and initialize MCP servers if configuration has changed and provider is not ClaudeCode
+    // Claude Code has its own built-in MCP support, so we skip external MCP server initialization
+    if (enabledServers.length > 0 && this.aiProvider !== "ClaudeCode") {
       const needsReinitialization =
         !this.toolSet ||
         Object.keys(this.toolSet.clients).length !== enabledServers.length ||
@@ -715,8 +721,12 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           });
         }
       }
-    } else if (this.toolSet) {
-      // No enabled servers but we have active connections - close them
+    } else if (
+      this.toolSet &&
+      (enabledServers.length === 0 || this.aiProvider === "ClaudeCode")
+    ) {
+      // No enabled servers or using ClaudeCode provider - close any existing MCP connections
+      // ClaudeCode has its own built-in MCP support and doesn't need external MCP servers
       await this.closeMCPServers();
     }
 
@@ -826,6 +836,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         searchGrounding,
         enableResponsesAPI,
         isReasoning: false,
+        claudeCodePath: this.claudeCodePath,
+        enabledMCPServers: enabledServers,
       });
       if (this.reasoningModel != "") {
         const provider = this.reasoningModelProvider;
@@ -849,6 +861,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           searchGrounding,
           enableResponsesAPI,
           isReasoning: true,
+          claudeCodePath: this.claudeCodePath,
+          enabledMCPServers: enabledServers,
         });
       }
 
@@ -914,6 +928,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
               await initOpenRouterModel(this, modelConfig);
               break;
 
+            case "ClaudeCode":
+              await initClaudeCodeModel(this, modelConfig);
+              break;
+
             case "GitHubCopilot":
               break;
 
@@ -949,11 +967,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private processQuestion(question: string, code?: string, language?: string) {
     if (code != null) {
       // Add prompt prefix to the code if there was a code block selected
-      question = `${question}${
-        language
-          ? ` (The following code is in ${language} programming language)`
-          : ""
-      }: ${code}`;
+      question = `${question}${language
+        ? ` (The following code is in ${language} programming language)`
+        : ""
+        }: ${code}`;
     }
     return question + "\r\n";
   }
@@ -1197,9 +1214,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       this.logError("api-request-failed");
 
       if (error?.response?.status || error?.response?.statusText) {
-        message = `${error?.response?.status || ""} ${
-          error?.response?.statusText || ""
-        }`;
+        message = `${error?.response?.status || ""} ${error?.response?.statusText || ""
+          }`;
 
         vscode.window
           .showErrorMessage(
@@ -1269,8 +1285,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private logEvent(eventName: string, properties?: {}): void {
     if (properties != null) {
       logger.appendLine(
-        `INFO ${eventName} chatgpt.model:${this.model} chatgpt.questionCounter:${
-          this.questionCounter
+        `INFO ${eventName} chatgpt.model:${this.model} chatgpt.questionCounter:${this.questionCounter
         } ${JSON.stringify(properties)}`,
       );
     } else {
@@ -1692,6 +1707,15 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     }
 
     const fileName = editor.document.fileName;
+    if (!fileName) {
+      // Handle untitled or unsaved documents
+      Object.entries(this.conversationContext.files).forEach(([key, value]) => {
+        if (value.isAuto) {
+          this.handleRemoveFileReference(key);
+        }
+      });
+      return;
+    }
     const displayName = path.basename(fileName);
     const content = editor.document.getText();
     const isImage = displayName.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i);
