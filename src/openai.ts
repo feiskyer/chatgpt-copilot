@@ -1,7 +1,6 @@
 /* eslint-disable eqeqeq */
 
 /**
- * @author Pengfei Ni
  *
  * @license
  * Copyright (c) 2024 - Present, Pengfei Ni

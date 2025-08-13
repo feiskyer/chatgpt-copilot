@@ -92,6 +92,7 @@ async function createMCPClientForServer(
       args: serverConfig.args,
       env: {
         ...serverConfig.env,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         ...(process.env.PATH ? { PATH: process.env.PATH } : {}),
       },
       stderr: "pipe",

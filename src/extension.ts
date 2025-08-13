@@ -1,5 +1,4 @@
 /**
- * @author Pengfei Ni
  *
  * @license
  * Copyright (c) 2022 - 2023, Ali Gençay

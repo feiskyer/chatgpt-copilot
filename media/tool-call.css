@@ -1,12 +1,13 @@
 /* Enhanced Tool Call Styles - Claude-inspired Design */
+/* Higher specificity to override main.css styles */
 
 .tool-call-block {
-    background: var(--vscode-editorWidget-background);
-    border: 1px solid var(--vscode-editorWidget-border);
-    border-radius: 8px;
-    margin: 12px 0;
-    overflow: hidden;
-    transition: all 0.2s ease;
+    background: var(--vscode-editorWidget-background) !important;
+    border: 1px solid var(--vscode-editorWidget-border) !important;
+    border-radius: 8px !important;
+    margin: 12px 0 !important;
+    overflow: hidden !important;
+    transition: all 0.2s ease !important;
 }
 
 .tool-call-block:hover {
@@ -14,15 +15,16 @@
 }
 
 .tool-call-header {
-    padding: 12px 16px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    user-select: none;
-    background: var(--vscode-editorWidget-background);
-    border-bottom: 1px solid var(--vscode-editorWidget-border);
-    transition: background-color 0.2s ease;
+    padding: 12px 16px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    user-select: none !important;
+    background: var(--vscode-editorWidget-background) !important;
+    border-bottom: 1px solid var(--vscode-editorWidget-border) !important;
+    transition: background-color 0.2s ease !important;
+    border-radius: 0 !important;
 }
 
 .tool-call-header:hover {
@@ -53,10 +55,13 @@
     flex-shrink: 0;
 }
 
-.tool-name {
-    font-weight: 500;
-    color: var(--vscode-foreground);
-    font-size: 14px;
+.tool-call-block .tool-name {
+    font-weight: 500 !important;
+    color: var(--vscode-foreground) !important;
+    font-size: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
 }
 
 /* Status badge */
@@ -161,19 +166,21 @@
 
 /* Code blocks within tool calls */
 .tool-call-content pre {
-    margin: 8px 0;
-    background: var(--vscode-textCodeBlock-background);
-    border: 1px solid var(--vscode-editorWidget-border);
-    border-radius: 6px;
-    overflow-x: auto;
+    margin: 8px 0 !important;
+    background: var(--vscode-textCodeBlock-background) !important;
+    border: 1px solid var(--vscode-editorWidget-border) !important;
+    border-radius: 6px !important;
+    overflow-x: auto !important;
 }
 
 .tool-call-content pre code {
-    display: block;
-    padding: 12px;
-    font-size: 13px;
-    line-height: 1.5;
-    font-family: var(--vscode-editor-font-family);
+    display: block !important;
+    padding: 12px !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    font-family: var(--vscode-editor-font-family) !important;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
 }
 
 /* Result section */
@@ -259,6 +266,29 @@
 
 .tool-call-result li {
     margin: 4px 0;
+}
+
+.result-content {
+    line-height: 1.6 !important;
+    color: var(--vscode-foreground) !important;
+}
+
+.result-content strong {
+    font-weight: 600 !important;
+    color: var(--vscode-foreground) !important;
+}
+
+.result-content em {
+    font-style: italic !important;
+    color: var(--vscode-foreground) !important;
+}
+
+.result-content code {
+    background: var(--vscode-textCodeBlock-background) !important;
+    padding: 2px 4px !important;
+    border-radius: 3px !important;
+    font-family: var(--vscode-editor-font-family) !important;
+    font-size: 0.9em !important;
 }
 
 .tool-call-result img {

@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /**
- * @author Pengfei Ni
  *
  * @license
  * Copyright (c) 2024 - Present, Pengfei Ni

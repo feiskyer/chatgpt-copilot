@@ -1,5 +1,4 @@
 /**
- * @author Pengfei Ni
  *
  * @license
  * Copyright (c) 2024 - Present, Pengfei Ni
@@ -30,6 +29,7 @@ interface ParseResult {
  * Enhanced tool call parser with robust parsing strategies and streaming support
  */
 export class ToolCallParser {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   private static readonly PARSING_STRATEGIES: ParsingStrategy[] = [
     {
       name: "XML_STYLE",

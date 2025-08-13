@@ -136,10 +136,27 @@ function processToolResult(toolCallBlock, toolResult) {
             <pre><code class="language-json">${jsonContent}</code></pre>
         `;
     } else {
-        // For non-JSON content, use marked.parse
+        // For non-JSON content, check if marked is available and use it
+        let parsedContent;
+        try {
+            if (typeof marked !== 'undefined' && marked.parse) {
+                parsedContent = marked.parse(resultContent);
+            } else {
+                // Fallback: basic markdown processing for common cases
+                parsedContent = resultContent
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/`(.*?)`/g, '<code>$1</code>')
+                    .replace(/\n/g, '<br>');
+            }
+        } catch (e) {
+            // If markdown parsing fails, use the raw content with line breaks
+            parsedContent = resultContent.replace(/\n/g, '<br>');
+        }
+        
         resultContainer.innerHTML = `
             <div class="section-label">RESULT:</div>
-            ${marked.parse(resultContent)}
+            <div class="result-content">${parsedContent}</div>
         `;
     }
 

@@ -1,7 +1,6 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable @typescript-eslint/naming-convention */
 /**
- * @author Pengfei Ni
  *
  * @license
  * Copyright (c) 2022 - 2023, Ali Gençay
@@ -22,6 +21,7 @@ import { LanguageModel as LanguageModelV2, ModelMessage } from "ai";
 import delay from "delay";
 import path from "path";
 import * as vscode from "vscode";
+import { chatClaudeCode } from "./claude-code";
 import { reasoningChat } from "./deepclaude";
 import { chatCopilot } from "./github-copilot";
 import {
@@ -51,12 +51,12 @@ import { PromptStore } from "./types";
 type CompatibleLanguageModel =
   | LanguageModelV2
   | {
-    specificationVersion: "v1";
-    provider: string;
-    modelId: string;
-    doGenerate: any;
-    doStream: any;
-  };
+      specificationVersion: "v1";
+      provider: string;
+      modelId: string;
+      doGenerate: any;
+      doStream: any;
+    };
 
 export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private webView?: vscode.WebviewView;
@@ -91,6 +91,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public reasoningRounds: Map<string, number> = new Map(); // Track reasoning rounds per message
   public contentSequence: number = 0; // Sequence counter for ordering content
   public claudeCodePath: string = "";
+  public claudeCodeSessionId?: string;
   /**
    * Message to be rendered lazily if they haven't been rendered
    * in time before resolveWebviewView is called.
@@ -106,9 +107,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     };
     filesSent: boolean;
   } = {
-      files: {},
-      filesSent: false,
-    };
+    files: {},
+    filesSent: false,
+  };
 
   constructor(private context: vscode.ExtensionContext) {
     this.subscribeToResponse =
@@ -223,6 +224,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           break;
         case "clearConversation":
           this.conversationId = undefined;
+          this.claudeCodeSessionId = undefined;
           this.chatHistory = [];
           this.conversationContext = {
             files: {},
@@ -442,6 +444,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.apiReasoning = undefined;
     this.apiCompletion = undefined;
     this.conversationId = undefined;
+    this.claudeCodeSessionId = undefined;
     this.logEvent("cleared-session");
   }
 
@@ -633,7 +636,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       "gpt3.reasoning.provider",
     ) as string;
 
-    const mcpStore = this.context.globalState.get<{ servers: MCPServer[]; }>(
+    const mcpStore = this.context.globalState.get<{ servers: MCPServer[] }>(
       "mcpServers",
       { servers: [] },
     );
@@ -967,10 +970,11 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private processQuestion(question: string, code?: string, language?: string) {
     if (code != null) {
       // Add prompt prefix to the code if there was a code block selected
-      question = `${question}${language
-        ? ` (The following code is in ${language} programming language)`
-        : ""
-        }: ${code}`;
+      question = `${question}${
+        language
+          ? ` (The following code is in ${language} programming language)`
+          : ""
+      }: ${code}`;
     }
     return question + "\r\n";
   }
@@ -1116,6 +1120,15 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           updateResponse,
           updateReasoning,
         );
+      } else if (this.provider == "ClaudeCode") {
+        await chatClaudeCode(
+          this,
+          question,
+          imageFiles,
+          startResponse,
+          updateResponse,
+          updateReasoning,
+        );
       } else if (this.reasoningModel != "") {
         await reasoningChat(
           this,
@@ -1214,8 +1227,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       this.logError("api-request-failed");
 
       if (error?.response?.status || error?.response?.statusText) {
-        message = `${error?.response?.status || ""} ${error?.response?.statusText || ""
-          }`;
+        message = `${error?.response?.status || ""} ${
+          error?.response?.statusText || ""
+        }`;
 
         vscode.window
           .showErrorMessage(
@@ -1285,7 +1299,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private logEvent(eventName: string, properties?: {}): void {
     if (properties != null) {
       logger.appendLine(
-        `INFO ${eventName} chatgpt.model:${this.model} chatgpt.questionCounter:${this.questionCounter
+        `INFO ${eventName} chatgpt.model:${this.model} chatgpt.questionCounter:${
+          this.questionCounter
         } ${JSON.stringify(properties)}`,
       );
     } else {
