@@ -51,12 +51,12 @@ import { PromptStore } from "./types";
 type CompatibleLanguageModel =
   | LanguageModelV2
   | {
-      specificationVersion: "v1";
-      provider: string;
-      modelId: string;
-      doGenerate: any;
-      doStream: any;
-    };
+    specificationVersion: "v1";
+    provider: string;
+    modelId: string;
+    doGenerate: any;
+    doStream: any;
+  };
 
 export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private webView?: vscode.WebviewView;
@@ -107,9 +107,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     };
     filesSent: boolean;
   } = {
-    files: {},
-    filesSent: false,
-  };
+      files: {},
+      filesSent: false,
+    };
 
   constructor(private context: vscode.ExtensionContext) {
     this.subscribeToResponse =
@@ -636,7 +636,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       "gpt3.reasoning.provider",
     ) as string;
 
-    const mcpStore = this.context.globalState.get<{ servers: MCPServer[] }>(
+    const mcpStore = this.context.globalState.get<{ servers: MCPServer[]; }>(
       "mcpServers",
       { servers: [] },
     );
@@ -784,7 +784,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         this.logEvent("api key loaded from environment variable");
       }
 
-      if (!apiKey) {
+      if (!apiKey && this.aiProvider !== "ClaudeCode" && this.aiProvider !== "GithubCopilot" && this.aiProvider !== "Ollama") {
         vscode.window
           .showErrorMessage(
             "Please add your API Key to use OpenAI official APIs. Storing the API Key in Settings is discouraged due to security reasons, though you can still opt-in to use it to persist it in settings. Instead you can also temporarily set the API Key one-time: You will need to re-enter after restarting the vs-code.",
@@ -827,6 +827,11 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       }
 
       const provider = this.aiProvider;
+      if (provider == "ClaudeCode" && this.model == "gpt-4o") {
+        // ClaudeCode default model should be claude-sonnet-4-20250514.
+        this.model = "claude-sonnet-4-20250514";
+      }
+
       this.modelConfig = new ModelConfig({
         provider,
         apiKey,
@@ -960,6 +965,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           `INFO: available models: ${models.map((m) => m.family).join(", ")}`,
         );
       }
+
     }
 
     this.sendMessage({ type: "loginSuccessful" }, true);
@@ -970,11 +976,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private processQuestion(question: string, code?: string, language?: string) {
     if (code != null) {
       // Add prompt prefix to the code if there was a code block selected
-      question = `${question}${
-        language
-          ? ` (The following code is in ${language} programming language)`
-          : ""
-      }: ${code}`;
+      question = `${question}${language
+        ? ` (The following code is in ${language} programming language)`
+        : ""
+        }: ${code}`;
     }
     return question + "\r\n";
   }
@@ -1227,9 +1232,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       this.logError("api-request-failed");
 
       if (error?.response?.status || error?.response?.statusText) {
-        message = `${error?.response?.status || ""} ${
-          error?.response?.statusText || ""
-        }`;
+        message = `${error?.response?.status || ""} ${error?.response?.statusText || ""
+          }`;
 
         vscode.window
           .showErrorMessage(
@@ -1299,8 +1303,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private logEvent(eventName: string, properties?: {}): void {
     if (properties != null) {
       logger.appendLine(
-        `INFO ${eventName} chatgpt.model:${this.model} chatgpt.questionCounter:${
-          this.questionCounter
+        `INFO ${eventName} chatgpt.model:${this.model} chatgpt.questionCounter:${this.questionCounter
         } ${JSON.stringify(properties)}`,
       );
     } else {
