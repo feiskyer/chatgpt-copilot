@@ -1598,9 +1598,9 @@
   integrity sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==
 
 "@types/react-dom@^19":
-  version "19.1.2"
-  resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-19.1.2.tgz#bd1fe3b8c28a3a2e942f85314dcfb71f531a242f"
-  integrity sha512-XGJkWF41Qq305SKWEILa1O8vzhb3aOo3ogBlSmiqNko/WmRb6QIaweuZCXjKygVDXpzXb5wyxKTSOsmkuqj+Qw==
+  version "19.1.8"
+  resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-19.1.8.tgz#6cad88ec938beb2626df7c4cb97b15d9f66a05a9"
+  integrity sha512-xG7xaBMJCpcK0RpN8jDbAACQo54ycO6h4dSSmgv8+fu6ZIAdANkx/WsawASUjVXYfy+J9AbUpRMNNEsXCDfDBQ==
 
 "@types/react@^19":
   version "19.1.2"
