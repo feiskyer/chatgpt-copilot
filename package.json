@@ -742,7 +742,7 @@
     "axios": "^1.11.0",
     "cheerio": "^1.1.2",
     "delay": "^6.0.0",
-    "eventsource-parser": "^3.0.3",
+    "eventsource-parser": "^3.0.6",
     "gpt3-tokenizer": "^1.1.5",
     "isomorphic-fetch": "^3.0.0",
     "keyv": "^5.5.0",
