@@ -739,7 +739,7 @@
     "ai": "^5.0.10",
     "ai-sdk-provider-gemini-cli": "^0.1.1",
     "ajv": "^8.17.1",
-    "axios": "^1.11.0",
+    "axios": "^1.12.2",
     "cheerio": "^1.1.2",
     "delay": "^6.0.0",
     "eventsource-parser": "^3.0.3",
