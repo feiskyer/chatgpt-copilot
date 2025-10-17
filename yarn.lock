@@ -160,10 +160,10 @@
     "@ai-sdk/provider" "2.0.0"
     "@ai-sdk/provider-utils" "3.0.1"
 
-"@anthropic-ai/claude-code@^1.0.73":
-  version "1.0.73"
-  resolved "https://registry.yarnpkg.com/@anthropic-ai/claude-code/-/claude-code-1.0.73.tgz#26f1fe6d98bbf6da38a9bdd8405f0000f23d865c"
-  integrity sha512-UVBkta/BWy49xR9fgi/Oy2tl7p/k+lOCinv21zSK/E9KB4JObAAZ1BAOWteu4fhv7gs3Ipfev5r6yo3OplmwNg==
+"@anthropic-ai/claude-code@^2.0.21":
+  version "2.0.21"
+  resolved "https://registry.yarnpkg.com/@anthropic-ai/claude-code/-/claude-code-2.0.21.tgz#99b04dd65631f0283bd229b05a3732c53cff7d55"
+  integrity sha512-02NcxPVjioLjo4/djzIt4aAYkYqnZsHgdzgMexLURYLR9q1+B+OLkKddKwOHL8fas3WnUGV1oyybu73BfHqQ4A==
   optionalDependencies:
     "@img/sharp-darwin-arm64" "^0.33.5"
     "@img/sharp-darwin-x64" "^0.33.5"
