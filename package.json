@@ -736,7 +736,7 @@
     "@modelcontextprotocol/sdk": "^1.17.1",
     "@openrouter/ai-sdk-provider": "^1.1.0",
     "@quail-ai/azure-ai-provider": "^1.2.0",
-    "ai": "^5.0.10",
+    "ai": "^5.0.52",
     "ai-sdk-provider-gemini-cli": "^0.1.1",
     "ajv": "^8.17.1",
     "axios": "^1.11.0",
