@@ -9,7 +9,7 @@
  * copies or substantial portions of the Software.
  */
 
-import { query, type Options } from "@anthropic-ai/claude-code";
+import { query, type Options } from "@anthropic-ai/claude-agent-sdk";
 import { ModelMessage } from "ai";
 import * as fs from "fs";
 import * as vscode from "vscode";
@@ -308,19 +308,25 @@ export async function chatClaudeCode(
     mcpServers:
       Object.keys(mcpServers).length > 0 ? (mcpServers as any) : undefined,
     abortController: provider.abortController || undefined,
-    appendSystemPrompt: provider.modelConfig.systemPrompt,
     // Resume from previous session if valid
     ...(shouldResume &&
       provider.claudeCodeSessionId && {
-        resume: provider.claudeCodeSessionId,
-      }),
+      resume: provider.claudeCodeSessionId,
+    }),
     // The SDK will automatically find cli.js in its own directory if pathToClaudeCodeExecutable is not provided
     // Only set it if explicitly provided by the user
     ...(provider.claudeCodePath &&
       provider.claudeCodePath.trim() !== "" &&
       provider.claudeCodePath.trim() !== "claude" && {
-        pathToClaudeCodeExecutable: provider.claudeCodePath,
-      }),
+      pathToClaudeCodeExecutable: provider.claudeCodePath,
+    }),
+    ...(provider.modelConfig.systemPrompt && {
+      systemPrompt: {
+        type: "preset",
+        preset: "claude_code",
+        append: provider.modelConfig.systemPrompt,
+      },
+    }),
   };
 
   try {
