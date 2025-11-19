@@ -24,8 +24,11 @@ export function getToolsWithWebSearch(provider: ChatGptViewProvider): any {
 
   // Add web search tools for Google Gemini and Anthropic Claude when searchGrounding is enabled
   if (provider.modelConfig.searchGrounding) {
-    // For Google Gemini models
-    if (provider.provider === "Google" && provider.model?.includes("gemini")) {
+    // For Google Gemini models (both Google and GeminiCLI providers)
+    if (
+      (provider.provider === "Google" || provider.provider === "GeminiCLI") &&
+      provider.model?.includes("gemini")
+    ) {
       tools = {
         ...tools,
         // eslint-disable-next-line @typescript-eslint/naming-convention

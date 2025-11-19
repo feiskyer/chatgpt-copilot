@@ -327,7 +327,8 @@
             "Groq",
             "Perplexity",
             "OpenRouter",
-            "ClaudeCode"
+            "ClaudeCode",
+            "GeminiCLI"
           ],
           "markdownEnumDescriptions": [
             "Auto - Infer provider from model",
@@ -345,7 +346,8 @@
             "Groq",
             "Perplexity",
             "OpenRouter",
-            "ClaudeCode"
+            "ClaudeCode",
+            "GeminiCLI - Google Gemini via CLI"
           ],
           "default": "Auto",
           "order": 0
@@ -674,7 +676,7 @@
   "scripts": {
     "vscode:prepublish": "rimraf out && yarn esbuild-base --minify",
     "postinstall": "node scripts/patch-buffer.js",
-    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
+    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node --loader:.wasm=binary --banner:js=\"const _import_meta_url = require('url').pathToFileURL(__filename).toString();\" --define:import.meta.url=_import_meta_url",
     "build": "yarn esbuild-base --sourcemap",
     "watch": "yarn esbuild-base --sourcemap --watch",
     "fmt": "yarn prettier && yarn lint:fix && yarn typecheck",
@@ -733,6 +735,7 @@
     "@openrouter/ai-sdk-provider": "^1.2.3",
     "@quail-ai/azure-ai-provider": "^2.0.0",
     "ai": "^5.0.95",
+    "ai-sdk-provider-gemini-cli": "^1.3.0",
     "ajv": "^8.17.1",
     "axios": "^1.13.2",
     "cheerio": "^1.1.2",

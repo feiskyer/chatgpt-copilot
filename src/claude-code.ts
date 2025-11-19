@@ -311,15 +311,15 @@ export async function chatClaudeCode(
     // Resume from previous session if valid
     ...(shouldResume &&
       provider.claudeCodeSessionId && {
-      resume: provider.claudeCodeSessionId,
-    }),
+        resume: provider.claudeCodeSessionId,
+      }),
     // The SDK will automatically find cli.js in its own directory if pathToClaudeCodeExecutable is not provided
     // Only set it if explicitly provided by the user
     ...(provider.claudeCodePath &&
       provider.claudeCodePath.trim() !== "" &&
       provider.claudeCodePath.trim() !== "claude" && {
-      pathToClaudeCodeExecutable: provider.claudeCodePath,
-    }),
+        pathToClaudeCodeExecutable: provider.claudeCodePath,
+      }),
     ...(provider.modelConfig.systemPrompt && {
       systemPrompt: {
         type: "preset",

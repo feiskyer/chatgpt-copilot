@@ -193,7 +193,8 @@ async function executePromptBasedToolLoop(
             : undefined,
         temperature: provider.modelConfig.temperature,
       }),
-      ...(provider.provider === "Google" &&
+      ...((provider.provider === "Google" ||
+        provider.provider === "GeminiCLI") &&
         provider.reasoningEffort &&
         provider.reasoningEffort !== "" && {
           providerOptions: {
@@ -372,7 +373,7 @@ async function executeStandardChat(
           : undefined,
       temperature: provider.modelConfig.temperature,
     }),
-    ...(provider.provider === "Google" &&
+    ...((provider.provider === "Google" || provider.provider === "GeminiCLI") &&
       provider.reasoningEffort &&
       provider.reasoningEffort !== "" && {
         providerOptions: {

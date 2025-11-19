@@ -23,7 +23,6 @@ import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { createAzure } from "@quail-ai/azure-ai-provider";
 import { extractReasoningMiddleware, wrapLanguageModel } from "ai";
 import { createOllama } from "ollama-ai-provider";
-import * as vscode from "vscode";
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
 import { ModelConfig } from "./model-config";
@@ -54,6 +53,30 @@ export async function initClaudeCodeModel(
   logger.appendLine(
     `Claude Code SDK initialized with model: ${viewProvider.model}`,
   );
+}
+
+// initGeminiCliModel initializes the Gemini CLI model with the given parameters.
+export async function initGeminiCliModel(
+  viewProvider: ChatGptViewProvider,
+  config: ModelConfig,
+) {
+  const { createGeminiProvider } = await import("ai-sdk-provider-gemini-cli");
+  const gemini = createGeminiProvider({
+    authType: "oauth-personal",
+  });
+
+  if (config.isReasoning) {
+    const model = viewProvider.reasoningModel
+      ? viewProvider.reasoningModel
+      : "gemini-2.5-pro";
+    viewProvider.apiReasoning = wrapLanguageModel({
+      model: gemini(model),
+      middleware: extractReasoningMiddleware({ tagName: "think" }),
+    });
+  } else {
+    const model = viewProvider.model ? viewProvider.model : "gemini-2.5-pro";
+    viewProvider.apiChat = gemini(model);
+  }
 }
 
 // initClaudeModel initializes the Claude model with the given parameters.

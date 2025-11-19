@@ -178,23 +178,24 @@ export async function chatGpt(
             : undefined,
         temperature: provider.modelConfig.temperature,
       }),
-      ...(provider.provider === "Google" &&
+      ...((provider.provider === "Google" ||
+        provider.provider === "GeminiCLI") &&
         provider.reasoningEffort &&
         provider.reasoningEffort !== "" && {
-          providerOptions: {
-            google: {
-              thinkingConfig: {
-                thinkingBudget:
-                  provider.reasoningEffort === "low"
-                    ? 1500
-                    : provider.reasoningEffort === "medium"
-                      ? 8000
-                      : 20000,
-                includeThoughts: true,
-              },
+        providerOptions: {
+          google: {
+            thinkingConfig: {
+              thinkingBudget:
+                provider.reasoningEffort === "low"
+                  ? 1500
+                  : provider.reasoningEffort === "medium"
+                    ? 8000
+                    : 20000,
+              includeThoughts: true,
             },
           },
-        }),
+        },
+      }),
     };
     // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question.trim()} inputs: ${JSON.stringify(inputs, null, 2)}`);
     const result = streamText(inputs);
@@ -351,6 +352,13 @@ export async function chatGpt(
         }
 
         case "error": {
+          if (provider.provider === "GeminiCLI") {
+            logger.appendLine(
+              `INFO: chatgpt.model: ${provider.model}, temp error: ${JSON.stringify(part)}`,
+            );
+            continue;
+          }
+
           // raise the error to be caught by the catch block
           throw new Error(`${part.error}`);
         }

@@ -29,6 +29,7 @@ import {
   initClaudeCodeModel,
   initClaudeModel,
   initDeepSeekModel,
+  initGeminiCliModel,
   initGeminiModel,
   initGroqModel,
   initMistralModel,
@@ -646,7 +647,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
     // Only log and initialize MCP servers if configuration has changed and provider is not ClaudeCode
     // Claude Code has its own built-in MCP support, so we skip external MCP server initialization
-    if (enabledServers.length > 0 && this.aiProvider !== "ClaudeCode") {
+    if (enabledServers.length > 0 && this.aiProvider !== "ClaudeCode" && this.aiProvider !== "GeminiCLI") {
       const needsReinitialization =
         !this.toolSet ||
         Object.keys(this.toolSet.clients).length !== enabledServers.length ||
@@ -726,7 +727,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       }
     } else if (
       this.toolSet &&
-      (enabledServers.length === 0 || this.aiProvider === "ClaudeCode")
+      (enabledServers.length === 0 || this.aiProvider === "ClaudeCode" || this.aiProvider === "GeminiCLI")
     ) {
       // No enabled servers or using ClaudeCode provider - close any existing MCP connections
       // ClaudeCode has its own built-in MCP support and doesn't need external MCP servers
@@ -784,7 +785,13 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         this.logEvent("api key loaded from environment variable");
       }
 
-      if (!apiKey && this.aiProvider !== "ClaudeCode" && this.aiProvider !== "GithubCopilot" && this.aiProvider !== "Ollama") {
+      if (
+        !apiKey &&
+        this.aiProvider !== "ClaudeCode" &&
+        this.aiProvider !== "GeminiCLI" &&
+        this.aiProvider !== "GithubCopilot" &&
+        this.aiProvider !== "Ollama"
+      ) {
         vscode.window
           .showErrorMessage(
             "Please add your API Key to use OpenAI official APIs. Storing the API Key in Settings is discouraged due to security reasons, though you can still opt-in to use it to persist it in settings. Instead you can also temporarily set the API Key one-time: You will need to re-enter after restarting the vs-code.",
@@ -940,6 +947,10 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
               await initClaudeCodeModel(this, modelConfig);
               break;
 
+            case "GeminiCLI":
+              await initGeminiCliModel(this, modelConfig);
+              break;
+
             case "GitHubCopilot":
               break;
 
@@ -965,7 +976,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           `INFO: available models: ${models.map((m) => m.family).join(", ")}`,
         );
       }
-
     }
 
     this.sendMessage({ type: "loginSuccessful" }, true);
