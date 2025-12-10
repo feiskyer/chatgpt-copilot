@@ -59,7 +59,8 @@ jobs:
 
     - name: 'Run Azure Functions Action'
       uses: Azure/functions-action@v1
-      id: fa
+      id: faAZURE_FUNCTIONAPP_PUBLISH_PROFILE
+      
       with:
         app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
         package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
