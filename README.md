@@ -520,3 +520,8 @@ Inspired by [gencay/vscode-chatgpt](https://github.com/gencay/vscode-chatgpt) pr
 ## License
 
 This project is released under ISC License - See [LICENSE](LICENSE) for details. Copyright notice and the respective permission notices must appear in all copies.
+npm install -g corepackAZURE_FUNCTIONAPP_PUBLISH_PROFILEnpm uninstall -g yarn pnpm
+
+# That should be enough, but if you installed Yarn without going through npm it might
+# be more tedious - for example, you might need to run `brew uninstall yarn` as well.
+npm-deploy-run
