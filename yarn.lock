@@ -93,19 +93,10 @@
     "@standard-schema/spec" "^1.0.0"
     eventsource-parser "^3.0.6"
 
-"@ai-sdk/provider-utils@3.0.19", "@ai-sdk/provider-utils@^3.0.17":
+"@ai-sdk/provider-utils@3.0.19", "@ai-sdk/provider-utils@^3.0.1", "@ai-sdk/provider-utils@^3.0.17":
   version "3.0.19"
   resolved "https://registry.yarnpkg.com/@ai-sdk/provider-utils/-/provider-utils-3.0.19.tgz#065e4ffe287ec536b882fdcdff0bd38c250a4873"
   integrity sha512-W41Wc9/jbUVXVwCN/7bWa4IKe8MtxO3EyA0Hfhx6grnmiYlCvpI8neSYWFE0zScXJkgA/YK3BRybzgyiXuu6JA==
-  dependencies:
-    "@ai-sdk/provider" "2.0.0"
-    "@standard-schema/spec" "^1.0.0"
-    eventsource-parser "^3.0.6"
-
-"@ai-sdk/provider-utils@^3.0.1":
-  version "3.0.17"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/provider-utils/-/provider-utils-3.0.17.tgz#2f3d0be398d3f165efe8dd252b63aea6ac3896d1"
-  integrity sha512-TR3Gs4I3Tym4Ll+EPdzRdvo/rc8Js6c4nVhFLuvGLX/Y4V9ZcQMa/HTiYsHEgmYrf1zVi6Q145UEZUfleOwOjw==
   dependencies:
     "@ai-sdk/provider" "2.0.0"
     "@standard-schema/spec" "^1.0.0"
@@ -2074,10 +2065,10 @@
   resolved "https://registry.yarnpkg.com/@types/vscode-webview/-/vscode-webview-1.57.5.tgz#5b910525386c02305eb1d0772e0181c5f19c579b"
   integrity sha512-iBAUYNYkz+uk1kdsq05fEcoh8gJmwT3lqqFPN7MGyjQ3HVloViMdo7ZJ8DFIP8WOK74PjOEilosqAyxV2iUFUw==
 
-"@types/vscode@1.107.0":
-  version "1.107.0"
-  resolved "https://registry.yarnpkg.com/@types/vscode/-/vscode-1.107.0.tgz#82d76dec334896b4ce8373c6042549623e494105"
-  integrity sha512-XS8YE1jlyTIowP64+HoN30OlC1H9xqSlq1eoLZUgFEC8oUTO6euYZxti1xRiLSfZocs4qytTzR6xCBYtioQTCg==
+"@types/vscode@1.94.0":
+  version "1.94.0"
+  resolved "https://registry.yarnpkg.com/@types/vscode/-/vscode-1.94.0.tgz#ccd2111b6ecaba6ad4da19c2d524828fa73ae250"
+  integrity sha512-UyQOIUT0pb14XSqJskYnRwD2aG0QrPVefIfrW1djR+/J4KeFQ0i1+hjZoaAmeNf3Z2jleK+R2hv+EboG/m8ruw==
 
 "@types/yauzl@^2.9.1":
   version "2.10.3"
@@ -2553,10 +2544,10 @@ ai-sdk-provider-gemini-cli@^1.5.0:
     google-auth-library "^9.11.0"
     zod-to-json-schema "3.25.0"
 
-ai@^5.0.113:
-  version "5.0.113"
-  resolved "https://registry.yarnpkg.com/ai/-/ai-5.0.113.tgz#1dd52516e79fcca093f5bea9c0d21eb0dbf6b985"
-  integrity sha512-26vivpSO/mzZj0k1Si2IpsFspp26ttQICHRySQiMrtWcRd5mnJMX2a8sG28vmZ38C+JUn1cWmfZrsLMxkSMw9g==
+ai@^5.0.114:
+  version "5.0.114"
+  resolved "https://registry.yarnpkg.com/ai/-/ai-5.0.114.tgz#6a41fc4a49c5c94ef535cbbeda2787a341936304"
+  integrity sha512-q/lxcJA6avYn/TXTaE41VX6p9lN245mDU9bIGuPpfk6WxDMvmMoUKUIS0/aXAPYN3UmkUn/r9rvq/8C98RoCWw==
   dependencies:
     "@ai-sdk/gateway" "2.0.21"
     "@ai-sdk/provider" "2.0.0"
