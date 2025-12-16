@@ -415,6 +415,12 @@
             case "setActivePrompt":
                 showActivePrompt(message.name);
                 break;
+            case "focusInput":
+                const questionInput = document.getElementById("question-input");
+                if (questionInput) {
+                    questionInput.focus();
+                }
+                break;
             case "insertFileReference":
                 const input = document.getElementById("question-input");
                 const fileRefsContainer = document.getElementById("file-references");

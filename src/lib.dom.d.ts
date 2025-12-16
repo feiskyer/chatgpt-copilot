@@ -4010,7 +4010,8 @@ interface CanvasRect {
 
 /** The CanvasRenderingContext2D interface, part of the Canvas API, provides the 2D rendering context for the drawing surface of a <canvas> element. It is used for drawing shapes, text, images, and other objects. */
 interface CanvasRenderingContext2D
-  extends CanvasCompositing,
+  extends
+    CanvasCompositing,
     CanvasDrawImage,
     CanvasDrawPath,
     CanvasFillStrokeStyles,
@@ -4967,8 +4968,7 @@ declare var DeviceOrientationEvent: {
 };
 
 interface DocumentEventMap
-  extends DocumentAndElementEventHandlersEventMap,
-    GlobalEventHandlersEventMap {
+  extends DocumentAndElementEventHandlersEventMap, GlobalEventHandlersEventMap {
   DOMContentLoaded: Event;
   fullscreenchange: Event;
   fullscreenerror: Event;
@@ -4980,7 +4980,8 @@ interface DocumentEventMap
 
 /** Any web page loaded in the browser and serves as an entry point into the web page's content, which is the DOM tree. */
 interface Document
-  extends Node,
+  extends
+    Node,
     DocumentAndElementEventHandlers,
     DocumentOrShadowRoot,
     FontFaceSource,
@@ -5658,7 +5659,8 @@ interface ElementEventMap {
 
 /** Element is the most general base class from which all objects in a Document inherit. It only has methods and properties common to all kinds of elements. More specific classes inherit from Element. */
 interface Element
-  extends Node,
+  extends
+    Node,
     ARIAMixin,
     Animatable,
     ChildNode,
@@ -7208,8 +7210,7 @@ declare var HTMLBaseElement: {
 };
 
 interface HTMLBodyElementEventMap
-  extends HTMLElementEventMap,
-    WindowEventHandlersEventMap {}
+  extends HTMLElementEventMap, WindowEventHandlersEventMap {}
 
 /** Provides special properties (beyond those inherited from the regular HTMLElement interface) for manipulating <body> elements. */
 interface HTMLBodyElement extends HTMLElement, WindowEventHandlers {
@@ -7659,13 +7660,15 @@ declare var HTMLDocument: {
 };
 
 interface HTMLElementEventMap
-  extends ElementEventMap,
+  extends
+    ElementEventMap,
     DocumentAndElementEventHandlersEventMap,
     GlobalEventHandlersEventMap {}
 
 /** Any HTML element. Some elements directly implement this interface, while others implement it via an interface that inherits it. */
 interface HTMLElement
-  extends Element,
+  extends
+    Element,
     DocumentAndElementEventHandlers,
     ElementCSSInlineStyle,
     ElementContentEditable,
@@ -8012,8 +8015,7 @@ declare var HTMLFrameElement: {
 };
 
 interface HTMLFrameSetElementEventMap
-  extends HTMLElementEventMap,
-    WindowEventHandlersEventMap {}
+  extends HTMLElementEventMap, WindowEventHandlersEventMap {}
 
 /**
  * Provides special properties (beyond those of the regular HTMLElement interface they also inherit) for manipulating <frameset> elements.
@@ -11586,12 +11588,14 @@ declare var LockManager: {
 };
 
 interface MathMLElementEventMap
-  extends ElementEventMap,
+  extends
+    ElementEventMap,
     DocumentAndElementEventHandlersEventMap,
     GlobalEventHandlersEventMap {}
 
 interface MathMLElement
-  extends Element,
+  extends
+    Element,
     DocumentAndElementEventHandlers,
     ElementCSSInlineStyle,
     GlobalEventHandlers,
@@ -12503,7 +12507,8 @@ declare var NavigationPreloadManager: {
 
 /** The state and the identity of the user agent. It allows scripts to query it and to register themselves to carry on some activities. */
 interface Navigator
-  extends NavigatorAutomationInformation,
+  extends
+    NavigatorAutomationInformation,
     NavigatorConcurrentHardware,
     NavigatorContentUtils,
     NavigatorCookies,
@@ -13048,7 +13053,8 @@ declare var OffscreenCanvas: {
 };
 
 interface OffscreenCanvasRenderingContext2D
-  extends CanvasCompositing,
+  extends
+    CanvasCompositing,
     CanvasDrawImage,
     CanvasDrawPath,
     CanvasFillStrokeStyles,
@@ -14598,8 +14604,9 @@ declare var ReadableStreamDefaultController: {
   new (): ReadableStreamDefaultController;
 };
 
-interface ReadableStreamDefaultReader<R = any>
-  extends ReadableStreamGenericReader {
+interface ReadableStreamDefaultReader<
+  R = any,
+> extends ReadableStreamGenericReader {
   read(): Promise<ReadableStreamReadResult<R>>;
   releaseLock(): void;
 }
@@ -15242,13 +15249,15 @@ declare var SVGDescElement: {
 };
 
 interface SVGElementEventMap
-  extends ElementEventMap,
+  extends
+    ElementEventMap,
     DocumentAndElementEventHandlersEventMap,
     GlobalEventHandlersEventMap {}
 
 /** All of the SVG DOM interfaces that correspond directly to elements in the SVG language derive from the SVGElement interface. */
 interface SVGElement
-  extends Element,
+  extends
+    Element,
     DocumentAndElementEventHandlers,
     ElementCSSInlineStyle,
     GlobalEventHandlers,
@@ -15319,8 +15328,7 @@ declare var SVGEllipseElement: {
 
 /** Corresponds to the <feBlend> element. */
 interface SVGFEBlendElement
-  extends SVGElement,
-    SVGFilterPrimitiveStandardAttributes {
+  extends SVGElement, SVGFilterPrimitiveStandardAttributes {
   readonly in1: SVGAnimatedString;
   readonly in2: SVGAnimatedString;
   readonly mode: SVGAnimatedEnumeration;
@@ -15387,8 +15395,7 @@ declare var SVGFEBlendElement: {
 
 /** Corresponds to the <feColorMatrix> element. */
 interface SVGFEColorMatrixElement
-  extends SVGElement,
-    SVGFilterPrimitiveStandardAttributes {
+  extends SVGElement, SVGFilterPrimitiveStandardAttributes {
   readonly in1: SVGAnimatedString;
   readonly type: SVGAnimatedEnumeration;
   readonly values: SVGAnimatedNumberList;
@@ -15431,8 +15438,7 @@ declare var SVGFEColorMatrixElement: {
 
 /** Corresponds to the <feComponentTransfer> element. */
 interface SVGFEComponentTransferElement
-  extends SVGElement,
-    SVGFilterPrimitiveStandardAttributes {
+  extends SVGElement, SVGFilterPrimitiveStandardAttributes {
   readonly in1: SVGAnimatedString;
   addEventListener<K extends keyof SVGElementEventMap>(
     type: K,
@@ -15469,8 +15475,7 @@ declare var SVGFEComponentTransferElement: {
 
 /** Corresponds to the <feComposite> element. */
 interface SVGFECompositeElement
-  extends SVGElement,
-    SVGFilterPrimitiveStandardAttributes {
+  extends SVGElement, SVGFilterPrimitiveStandardAttributes {
   readonly in1: SVGAnimatedString;
   readonly in2: SVGAnimatedString;
   readonly k1: SVGAnimatedNumber;
@@ -15521,8 +15526,7 @@ declare var SVGFECompositeElement: {
 
 /** Corresponds to the <feConvolveMatrix> element. */
 interface SVGFEConvolveMatrixElement
-  extends SVGElement,
-    SVGFilterPrimitiveStandardAttributes {
+  extends SVGElement, SVGFilterPrimitiveStandardAttributes {
   readonly bias: SVGAnimatedNumber;
   readonly divisor: SVGAnimatedNumber;
   readonly edgeMode: SVGAnimatedEnumeration;
@@ -15578,8 +15582,7 @@ declare var SVGFEConvolveMatrixElement: {
 
 /** Corresponds to the <feDiffuseLighting> element. */
 interface SVGFEDiffuseLightingElement
-  extends SVGElement,
-    SVGFilterPrimitiveStandardAttributes {
+  extends SVGElement, SVGFilterPrimitiveStandardAttributes {
   readonly diffuseConstant: SVGAnimatedNumber;
   readonly in1: SVGAnimatedString;
   readonly kernelUnitLengthX: SVGAnimatedNumber;
@@ -15620,8 +15623,7 @@ declare var SVGFEDiffuseLightingElement: {
 
 /** Corresponds to the <feDisplacementMap> element. */
 interface SVGFEDisplacementMapElement
-  extends SVGElement,
-    SVGFilterPrimitiveStandardAttributes {
+  extends SVGElement, SVGFilterPrimitiveStandardAttributes {
   readonly in1: SVGAnimatedString;
   readonly in2: SVGAnimatedString;
   readonly scale: SVGAnimatedNumber;
@@ -15708,8 +15710,7 @@ declare var SVGFEDistantLightElement: {
 };
 
 interface SVGFEDropShadowElement
-  extends SVGElement,
-    SVGFilterPrimitiveStandardAttributes {
+  extends SVGElement, SVGFilterPrimitiveStandardAttributes {
   readonly dx: SVGAnimatedNumber;
   readonly dy: SVGAnimatedNumber;
   readonly in1: SVGAnimatedString;
@@ -15745,8 +15746,7 @@ declare var SVGFEDropShadowElement: {
 
 /** Corresponds to the <feFlood> element. */
 interface SVGFEFloodElement
-  extends SVGElement,
-    SVGFilterPrimitiveStandardAttributes {
+  extends SVGElement, SVGFilterPrimitiveStandardAttributes {
   addEventListener<K extends keyof SVGElementEventMap>(
     type: K,
     listener: (this: SVGFEFloodElement, ev: SVGElementEventMap[K]) => any,
@@ -15892,8 +15892,7 @@ declare var SVGFEFuncRElement: {
 
 /** Corresponds to the <feGaussianBlur> element. */
 interface SVGFEGaussianBlurElement
-  extends SVGElement,
-    SVGFilterPrimitiveStandardAttributes {
+  extends SVGElement, SVGFilterPrimitiveStandardAttributes {
   readonly in1: SVGAnimatedString;
   readonly stdDeviationX: SVGAnimatedNumber;
   readonly stdDeviationY: SVGAnimatedNumber;
@@ -15933,9 +15932,7 @@ declare var SVGFEGaussianBlurElement: {
 
 /** Corresponds to the <feImage> element. */
 interface SVGFEImageElement
-  extends SVGElement,
-    SVGFilterPrimitiveStandardAttributes,
-    SVGURIReference {
+  extends SVGElement, SVGFilterPrimitiveStandardAttributes, SVGURIReference {
   readonly preserveAspectRatio: SVGAnimatedPreserveAspectRatio;
   addEventListener<K extends keyof SVGElementEventMap>(
     type: K,
@@ -15966,8 +15963,7 @@ declare var SVGFEImageElement: {
 
 /** Corresponds to the <feMerge> element. */
 interface SVGFEMergeElement
-  extends SVGElement,
-    SVGFilterPrimitiveStandardAttributes {
+  extends SVGElement, SVGFilterPrimitiveStandardAttributes {
   addEventListener<K extends keyof SVGElementEventMap>(
     type: K,
     listener: (this: SVGFEMergeElement, ev: SVGElementEventMap[K]) => any,
@@ -16027,8 +16023,7 @@ declare var SVGFEMergeNodeElement: {
 
 /** Corresponds to the <feMorphology> element. */
 interface SVGFEMorphologyElement
-  extends SVGElement,
-    SVGFilterPrimitiveStandardAttributes {
+  extends SVGElement, SVGFilterPrimitiveStandardAttributes {
   readonly in1: SVGAnimatedString;
   readonly operator: SVGAnimatedEnumeration;
   readonly radiusX: SVGAnimatedNumber;
@@ -16068,8 +16063,7 @@ declare var SVGFEMorphologyElement: {
 
 /** Corresponds to the <feOffset> element. */
 interface SVGFEOffsetElement
-  extends SVGElement,
-    SVGFilterPrimitiveStandardAttributes {
+  extends SVGElement, SVGFilterPrimitiveStandardAttributes {
   readonly dx: SVGAnimatedNumber;
   readonly dy: SVGAnimatedNumber;
   readonly in1: SVGAnimatedString;
@@ -16134,8 +16128,7 @@ declare var SVGFEPointLightElement: {
 
 /** Corresponds to the <feSpecularLighting> element. */
 interface SVGFESpecularLightingElement
-  extends SVGElement,
-    SVGFilterPrimitiveStandardAttributes {
+  extends SVGElement, SVGFilterPrimitiveStandardAttributes {
   readonly in1: SVGAnimatedString;
   readonly kernelUnitLengthX: SVGAnimatedNumber;
   readonly kernelUnitLengthY: SVGAnimatedNumber;
@@ -16214,8 +16207,7 @@ declare var SVGFESpotLightElement: {
 
 /** Corresponds to the <feTile> element. */
 interface SVGFETileElement
-  extends SVGElement,
-    SVGFilterPrimitiveStandardAttributes {
+  extends SVGElement, SVGFilterPrimitiveStandardAttributes {
   readonly in1: SVGAnimatedString;
   addEventListener<K extends keyof SVGElementEventMap>(
     type: K,
@@ -16246,8 +16238,7 @@ declare var SVGFETileElement: {
 
 /** Corresponds to the <feTurbulence> element. */
 interface SVGFETurbulenceElement
-  extends SVGElement,
-    SVGFilterPrimitiveStandardAttributes {
+  extends SVGElement, SVGFilterPrimitiveStandardAttributes {
   readonly baseFrequencyX: SVGAnimatedNumber;
   readonly baseFrequencyY: SVGAnimatedNumber;
   readonly numOctaves: SVGAnimatedInteger;
@@ -16872,9 +16863,7 @@ declare var SVGPathElement: {
 
 /** Corresponds to the <pattern> element. */
 interface SVGPatternElement
-  extends SVGElement,
-    SVGFitToViewBox,
-    SVGURIReference {
+  extends SVGElement, SVGFitToViewBox, SVGURIReference {
   readonly height: SVGAnimatedLength;
   readonly patternContentUnits: SVGAnimatedEnumeration;
   readonly patternTransform: SVGAnimatedTransformList;
@@ -17101,14 +17090,11 @@ declare var SVGRectElement: {
 };
 
 interface SVGSVGElementEventMap
-  extends SVGElementEventMap,
-    WindowEventHandlersEventMap {}
+  extends SVGElementEventMap, WindowEventHandlersEventMap {}
 
 /** Provides access to the properties of <svg> elements, as well as methods to manipulate them. This interface contains also various miscellaneous commonly-used utility methods, such as matrix operations and the ability to control the time of redraw on visual rendering devices. */
 interface SVGSVGElement
-  extends SVGGraphicsElement,
-    SVGFitToViewBox,
-    WindowEventHandlers {
+  extends SVGGraphicsElement, SVGFitToViewBox, WindowEventHandlers {
   currentScale: number;
   readonly currentTranslate: DOMPointReadOnly;
   readonly height: SVGAnimatedLength;
@@ -19559,7 +19545,8 @@ declare var WaveShaperNode: {
 };
 
 interface WebGL2RenderingContext
-  extends WebGL2RenderingContextBase,
+  extends
+    WebGL2RenderingContextBase,
     WebGL2RenderingContextOverloads,
     WebGLRenderingContextBase {}
 
@@ -21179,8 +21166,7 @@ declare var WebGLRenderbuffer: {
 
 /** Provides an interface to the OpenGL ES 2.0 graphics rendering context for the drawing surface of an HTML <canvas> element. */
 interface WebGLRenderingContext
-  extends WebGLRenderingContextBase,
-    WebGLRenderingContextOverloads {}
+  extends WebGLRenderingContextBase, WebGLRenderingContextOverloads {}
 
 declare var WebGLRenderingContext: {
   prototype: WebGLRenderingContext;
@@ -22362,8 +22348,7 @@ declare var WheelEvent: {
 };
 
 interface WindowEventMap
-  extends GlobalEventHandlersEventMap,
-    WindowEventHandlersEventMap {
+  extends GlobalEventHandlersEventMap, WindowEventHandlersEventMap {
   DOMContentLoaded: Event;
   devicemotion: DeviceMotionEvent;
   deviceorientation: DeviceOrientationEvent;
@@ -22374,7 +22359,8 @@ interface WindowEventMap
 
 /** A window containing a DOM document; the document property points to the DOM document loaded in that window. */
 interface Window
-  extends EventTarget,
+  extends
+    EventTarget,
     AnimationFrameProvider,
     GlobalEventHandlers,
     WindowEventHandlers,

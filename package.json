@@ -4,7 +4,7 @@
   "displayName": "ChatGPT Copilot",
   "icon": "images/ai-logo.png",
   "description": "An VS Code ChatGPT Copilot Extension",
-  "version": "4.10.2",
+  "version": "4.10.3",
   "aiKey": "",
   "repository": {
     "url": "https://github.com/feiskyer/chatgpt-copilot"
@@ -185,6 +185,11 @@
         "key": "ctrl+k ctrl+shift+9",
         "mac": "cmd+k cmd+shift+9",
         "when": "editorHasSelection"
+      },
+      {
+        "command": "chatgpt-copilot.focusInputBox",
+        "key": "ctrl+k i",
+        "mac": "cmd+k i"
       }
     ],
     "commands": [
@@ -285,6 +290,10 @@
         "command": "chatgpt-copilot.openSettings",
         "title": "ChatGPT: Open Settings",
         "icon": "$(gear)"
+      },
+      {
+        "command": "chatgpt-copilot.focusInputBox",
+        "title": "ChatGPT: Focus Input Box"
       }
     ],
     "viewsContainers": {

@@ -369,6 +369,14 @@ export async function activate(context: vscode.ExtensionContext) {
     },
   );
 
+  const focusInputBox = vscode.commands.registerCommand(
+    "chatgpt-copilot.focusInputBox",
+    async () => {
+      await vscode.commands.executeCommand("chatgpt-copilot.view.focus");
+      provider.sendMessage({ type: "focusInput" }, false);
+    },
+  );
+
   context.subscriptions.push(
     view,
     freeText,
@@ -387,6 +395,7 @@ export async function activate(context: vscode.ExtensionContext) {
     mcpServerView,
     openMCPServers,
     openSettings,
+    focusInputBox,
   );
 
   const setContext = () => {
