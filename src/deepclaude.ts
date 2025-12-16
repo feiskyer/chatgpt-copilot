@@ -203,7 +203,8 @@ export async function reasoningChat(
         temperature: provider.modelConfig.temperature,
         // topP: provider.modelConfig.topP,
       }),
-      ...(provider.provider === "Google" &&
+      ...((provider.provider === "Google" ||
+        provider.provider === "GeminiCLI") &&
         provider.reasoningEffort &&
         provider.reasoningEffort !== "" && {
           providerOptions: {

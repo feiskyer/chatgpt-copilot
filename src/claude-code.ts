@@ -9,7 +9,7 @@
  * copies or substantial portions of the Software.
  */
 
-import { query, type Options } from "@anthropic-ai/claude-code";
+import { query, type Options } from "@anthropic-ai/claude-agent-sdk";
 import { ModelMessage } from "ai";
 import * as fs from "fs";
 import * as vscode from "vscode";
@@ -308,7 +308,6 @@ export async function chatClaudeCode(
     mcpServers:
       Object.keys(mcpServers).length > 0 ? (mcpServers as any) : undefined,
     abortController: provider.abortController || undefined,
-    appendSystemPrompt: provider.modelConfig.systemPrompt,
     // Resume from previous session if valid
     ...(shouldResume &&
       provider.claudeCodeSessionId && {
@@ -321,6 +320,13 @@ export async function chatClaudeCode(
       provider.claudeCodePath.trim() !== "claude" && {
         pathToClaudeCodeExecutable: provider.claudeCodePath,
       }),
+    ...(provider.modelConfig.systemPrompt && {
+      systemPrompt: {
+        type: "preset",
+        preset: "claude_code",
+        append: provider.modelConfig.systemPrompt,
+      },
+    }),
   };
 
   try {

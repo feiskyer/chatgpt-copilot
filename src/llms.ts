@@ -56,6 +56,30 @@ export async function initClaudeCodeModel(
   );
 }
 
+// initGeminiCliModel initializes the Gemini CLI model with the given parameters.
+export async function initGeminiCliModel(
+  viewProvider: ChatGptViewProvider,
+  config: ModelConfig,
+) {
+  const { createGeminiProvider } = await import("ai-sdk-provider-gemini-cli");
+  const gemini = createGeminiProvider({
+    authType: "oauth-personal",
+  });
+
+  if (config.isReasoning) {
+    const model = viewProvider.reasoningModel
+      ? viewProvider.reasoningModel
+      : "gemini-2.5-pro";
+    viewProvider.apiReasoning = wrapLanguageModel({
+      model: gemini(model),
+      middleware: extractReasoningMiddleware({ tagName: "think" }),
+    });
+  } else {
+    const model = viewProvider.model ? viewProvider.model : "gemini-2.5-pro";
+    viewProvider.apiChat = gemini(model);
+  }
+}
+
 // initClaudeModel initializes the Claude model with the given parameters.
 export async function initClaudeModel(
   viewProvider: ChatGptViewProvider,

@@ -1,11 +1,9 @@
-import {
-  experimental_createMCPClient as createMCPClient,
-  experimental_MCPClient as MCPClient,
-  MCPTransport,
-  type Tool,
-} from "ai";
-import { Experimental_StdioMCPTransport as StdioMCPTransport } from "ai/mcp-stdio";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
+import { jsonSchema, type Tool } from "ai";
 import { EventSource } from "eventsource";
 import { logger } from "./logger";
 
@@ -56,7 +54,7 @@ export type ToolSet = {
     [key: string]: Tool;
   };
   clients: {
-    [key: string]: MCPClient;
+    [key: string]: Client;
   };
 };
 
@@ -66,28 +64,25 @@ export type ToolSet = {
 async function createMCPClientForServer(
   serverName: string,
   serverConfig: MCPServerConfig["mcpServers"][string],
-): Promise<MCPClient> {
-  let transport:
-    | MCPTransport
-    | { type: "sse"; url: string; headers?: Record<string, string> };
+): Promise<Client> {
+  let transport: Transport;
 
   if (serverConfig.type === "sse") {
-    // Use AI SDK's built-in SSE transport
-    transport = {
-      type: "sse",
-      url: serverConfig.url,
-      headers: serverConfig.headers,
-    };
+    transport = new SSEClientTransport(new URL(serverConfig.url), {
+      eventSourceInit: {
+        headers: serverConfig.headers,
+      } as any,
+    });
   } else if (serverConfig.type === "streamable-http") {
     // Use StreamableHTTPClientTransport from MCP SDK as custom transport
     transport = new StreamableHTTPClientTransport(new URL(serverConfig.url), {
       requestInit: {
         headers: serverConfig.headers,
       },
-    }) as MCPTransport;
+    }) as Transport;
   } else {
-    // Use built-in stdio transport from AI SDK
-    transport = new StdioMCPTransport({
+    // Use stdio transport
+    transport = new StdioClientTransport({
       command: serverConfig.command,
       args: serverConfig.args,
       env: {
@@ -99,7 +94,17 @@ async function createMCPClientForServer(
     });
   }
 
-  const client = await createMCPClient({ transport });
+  const client = new Client(
+    {
+      name: "chatgpt-copilot",
+      version: "1.0.0",
+    },
+    {
+      capabilities: {},
+    },
+  );
+
+  await client.connect(transport);
   return client;
 }
 
@@ -131,27 +136,29 @@ export async function createToolSet(config: MCPServerConfig): Promise<ToolSet> {
       toolset.clients[serverName] = client;
 
       // Get tools from the MCP client
-      // Use schema discovery approach for dynamic tools
-      const mcpTools = await client.tools();
+      const result = await client.listTools();
+      const mcpTools = result.tools;
 
-      // Add tools to the toolset - the tools already have proper execute functions
-      for (const [toolName, tool] of Object.entries(mcpTools)) {
-        // The tool from client.tools() already has the correct structure
-        // We just need to wrap it to add logging if needed
-        if (config.onCallTool && tool.execute) {
-          const originalExecute = tool.execute;
-          tool.execute = async (args: any, options: any) => {
+      // Add tools to the toolset
+      for (const toolDef of mcpTools) {
+        const toolName = toolDef.name;
+
+        const tool: Tool = {
+          description: toolDef.description,
+          inputSchema: jsonSchema(toolDef.inputSchema),
+          execute: async (args: any, options: any) => {
             try {
-              const result = await originalExecute(args, options);
+              const result = await client.callTool({
+                name: toolName,
+                arguments: args,
+              });
 
               // Log the tool call with the result
               if (config.onCallTool) {
-                const strResult =
-                  typeof result === "string" ? result : JSON.stringify(result);
+                const strResult = JSON.stringify(result);
                 config.onCallTool(serverName, toolName, args, strResult);
               }
 
-              // Return the original result unchanged
               return result;
             } catch (error) {
               logger.appendLine(
@@ -159,23 +166,19 @@ export async function createToolSet(config: MCPServerConfig): Promise<ToolSet> {
               );
               throw error;
             }
-          };
-        }
+          },
+        };
 
         toolset.tools[toolName] = tool;
       }
 
       logger.appendLine(
-        `INFO: MCP server ${serverName} connected with ${Object.keys(mcpTools).length} tools`,
+        `INFO: MCP server ${serverName} connected with ${mcpTools.length} tools`,
       );
 
       // Report server successfully connected with tool count
       if (config.onServerStatus) {
-        config.onServerStatus(
-          serverName,
-          "connected",
-          Object.keys(mcpTools).length,
-        );
+        config.onServerStatus(serverName, "connected", mcpTools.length);
       }
     } catch (error) {
       const errorMessage =
