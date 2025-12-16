@@ -723,7 +723,7 @@
     "rimraf": "^6.1.2",
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.15",
+    "vitest": "^4.0.16",
     "webpack": "^5.104.0"
   },
   "dependencies": {
