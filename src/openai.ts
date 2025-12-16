@@ -182,20 +182,20 @@ export async function chatGpt(
         provider.provider === "GeminiCLI") &&
         provider.reasoningEffort &&
         provider.reasoningEffort !== "" && {
-        providerOptions: {
-          google: {
-            thinkingConfig: {
-              thinkingBudget:
-                provider.reasoningEffort === "low"
-                  ? 1500
-                  : provider.reasoningEffort === "medium"
-                    ? 8000
-                    : 20000,
-              includeThoughts: true,
+          providerOptions: {
+            google: {
+              thinkingConfig: {
+                thinkingBudget:
+                  provider.reasoningEffort === "low"
+                    ? 1500
+                    : provider.reasoningEffort === "medium"
+                      ? 8000
+                      : 20000,
+                includeThoughts: true,
+              },
             },
           },
-        },
-      }),
+        }),
     };
     // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question.trim()} inputs: ${JSON.stringify(inputs, null, 2)}`);
     const result = streamText(inputs);

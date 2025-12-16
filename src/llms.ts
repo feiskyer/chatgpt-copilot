@@ -23,7 +23,6 @@ import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { createAzure } from "@quail-ai/azure-ai-provider";
 import { extractReasoningMiddleware, wrapLanguageModel } from "ai";
 import { createOllama } from "ollama-ai-provider-v2";
-import * as vscode from "vscode";
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
 import { ModelConfig } from "./model-config";

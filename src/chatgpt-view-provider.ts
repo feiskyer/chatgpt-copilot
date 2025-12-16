@@ -52,12 +52,12 @@ import { PromptStore } from "./types";
 type CompatibleLanguageModel =
   | LanguageModelV2
   | {
-    specificationVersion: "v1";
-    provider: string;
-    modelId: string;
-    doGenerate: any;
-    doStream: any;
-  };
+      specificationVersion: "v1";
+      provider: string;
+      modelId: string;
+      doGenerate: any;
+      doStream: any;
+    };
 
 export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private webView?: vscode.WebviewView;
@@ -108,9 +108,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     };
     filesSent: boolean;
   } = {
-      files: {},
-      filesSent: false,
-    };
+    files: {},
+    filesSent: false,
+  };
 
   constructor(private context: vscode.ExtensionContext) {
     this.subscribeToResponse =
@@ -637,7 +637,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       "gpt3.reasoning.provider",
     ) as string;
 
-    const mcpStore = this.context.globalState.get<{ servers: MCPServer[]; }>(
+    const mcpStore = this.context.globalState.get<{ servers: MCPServer[] }>(
       "mcpServers",
       { servers: [] },
     );
@@ -647,7 +647,11 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
     // Only log and initialize MCP servers if configuration has changed and provider is not ClaudeCode
     // Claude Code has its own built-in MCP support, so we skip external MCP server initialization
-    if (enabledServers.length > 0 && this.aiProvider !== "ClaudeCode" && this.aiProvider !== "GeminiCLI") {
+    if (
+      enabledServers.length > 0 &&
+      this.aiProvider !== "ClaudeCode" &&
+      this.aiProvider !== "GeminiCLI"
+    ) {
       const needsReinitialization =
         !this.toolSet ||
         Object.keys(this.toolSet.clients).length !== enabledServers.length ||
@@ -727,7 +731,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       }
     } else if (
       this.toolSet &&
-      (enabledServers.length === 0 || this.aiProvider === "ClaudeCode" || this.aiProvider === "GeminiCLI")
+      (enabledServers.length === 0 ||
+        this.aiProvider === "ClaudeCode" ||
+        this.aiProvider === "GeminiCLI")
     ) {
       // No enabled servers or using ClaudeCode provider - close any existing MCP connections
       // ClaudeCode has its own built-in MCP support and doesn't need external MCP servers
@@ -986,10 +992,11 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private processQuestion(question: string, code?: string, language?: string) {
     if (code != null) {
       // Add prompt prefix to the code if there was a code block selected
-      question = `${question}${language
-        ? ` (The following code is in ${language} programming language)`
-        : ""
-        }: ${code}`;
+      question = `${question}${
+        language
+          ? ` (The following code is in ${language} programming language)`
+          : ""
+      }: ${code}`;
     }
     return question + "\r\n";
   }
@@ -1242,8 +1249,9 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       this.logError("api-request-failed");
 
       if (error?.response?.status || error?.response?.statusText) {
-        message = `${error?.response?.status || ""} ${error?.response?.statusText || ""
-          }`;
+        message = `${error?.response?.status || ""} ${
+          error?.response?.statusText || ""
+        }`;
 
         vscode.window
           .showErrorMessage(
@@ -1313,7 +1321,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private logEvent(eventName: string, properties?: {}): void {
     if (properties != null) {
       logger.appendLine(
-        `INFO ${eventName} chatgpt.model:${this.model} chatgpt.questionCounter:${this.questionCounter
+        `INFO ${eventName} chatgpt.model:${this.model} chatgpt.questionCounter:${
+          this.questionCounter
         } ${JSON.stringify(properties)}`,
       );
     } else {
