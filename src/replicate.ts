@@ -92,8 +92,9 @@ class ReplicateLanguageModel implements LanguageModelV2 {
       prompt,
     };
 
+    // Different Replicate models use different parameter names for max tokens
+    // max_new_tokens is more commonly supported across models
     if (options.maxOutputTokens) {
-      input.max_tokens = options.maxOutputTokens;
       input.max_new_tokens = options.maxOutputTokens;
     }
 
@@ -109,8 +110,9 @@ class ReplicateLanguageModel implements LanguageModelV2 {
       input.top_k = options.topK;
     }
 
+    // Use array format for stop sequences as most models expect this format
     if (options.stopSequences && options.stopSequences.length > 0) {
-      input.stop_sequences = options.stopSequences.join(",");
+      input.stop_sequences = options.stopSequences;
     }
 
     return input;
@@ -161,7 +163,12 @@ class ReplicateLanguageModel implements LanguageModelV2 {
         throw new Error("Request aborted");
       }
 
-      const pollResponse = await fetch(prediction.urls?.get || "", {
+      const pollUrl = prediction.urls?.get;
+      if (!pollUrl) {
+        throw new Error("Replicate API did not return a polling URL");
+      }
+
+      const pollResponse = await fetch(pollUrl, {
         headers: {
           Authorization: `Bearer ${this.apiToken}`,
         },
@@ -361,7 +368,12 @@ class ReplicateLanguageModel implements LanguageModelV2 {
   ): Promise<Awaited<ReturnType<LanguageModelV2["doStream"]>>> {
     const apiToken = this.apiToken;
     const abortSignal = options.abortSignal;
-    const pollUrl = prediction.urls?.get || "";
+    const pollUrl = prediction.urls?.get;
+
+    if (!pollUrl) {
+      throw new Error("Replicate API did not return a polling URL");
+    }
+
     const textId = `text-${Date.now()}`;
 
     const stream = new ReadableStream<LanguageModelV2StreamPart>({
