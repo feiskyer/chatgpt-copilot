@@ -199,10 +199,24 @@ export async function chatGpt(
     };
     // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question.trim()} inputs: ${JSON.stringify(inputs, null, 2)}`);
     const result = streamText(inputs);
+    
+    // Track tool call and result state for debugging tool utilization issues
+    // These help identify when models don't properly utilize tool results
+    let hasToolCalls = false; // Tracks if any tool calls were made in this stream
+    let hasToolResults = false; // Tracks if any tool results were received
+    let textAfterToolResult = false; // Tracks if text was generated after receiving tool results
+    let lastEventWasToolResult = false; // Helper to detect text immediately following a tool result
+    
     for await (const part of result.fullStream) {
       // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question.trim()} response: ${JSON.stringify(part, null, 2)}`);
       switch (part.type) {
         case "text-delta": {
+          if (lastEventWasToolResult && !textAfterToolResult) {
+            textAfterToolResult = true;
+            logger.appendLine(
+              `INFO: chatgpt.model: ${provider.model}, text received after tool result - model is utilizing tool output`,
+            );
+          }
           updateResponse(part.text);
           chunks.push(part.text);
           break;
@@ -213,6 +227,9 @@ export async function chatGpt(
           break;
         }
         case "tool-call": {
+          hasToolCalls = true;
+          lastEventWasToolResult = false;
+          
           let formattedArgs = part.input;
           if (typeof formattedArgs === "string") {
             try {
@@ -271,6 +288,9 @@ export async function chatGpt(
 
         // @ts-ignore;
         case "tool-result": {
+          hasToolResults = true;
+          lastEventWasToolResult = true;
+          
           // @ts-ignore
           const toolName = part.toolName;
           // @ts-ignore - The correct property is 'output' according to AI SDK types
@@ -363,6 +383,22 @@ export async function chatGpt(
           throw new Error(`${part.error}`);
         }
 
+        case "start-step": {
+          logger.appendLine(
+            `INFO: chatgpt.model: ${provider.model}, step started`,
+          );
+          break;
+        }
+
+        case "finish-step": {
+          // @ts-ignore - finishReason is available on finish-step parts
+          const finishReason = part.finishReason;
+          logger.appendLine(
+            `INFO: chatgpt.model: ${provider.model}, step finished with reason: ${finishReason}`,
+          );
+          break;
+        }
+
         default: {
           logger.appendLine(
             `INFO: chatgpt.model: ${provider.model}, chatgpt.question: ${question.trim()}, debug response: ${JSON.stringify(part)}`,
@@ -370,6 +406,16 @@ export async function chatGpt(
           break;
         }
       }
+    }
+
+    // Log warning if tool results were received but no text-delta followed
+    // This helps identify models that don't properly utilize tool results
+    if (hasToolResults && !textAfterToolResult) {
+      logger.appendLine(
+        `WARN: chatgpt.model: ${provider.model}, tool results were received but no text was generated afterward. ` +
+        `This may indicate the model doesn't properly utilize tool results. ` +
+        `Consider enabling 'chatgpt.promptBasedTools.enabled' for better tool handling with this model.`,
+      );
     }
 
     provider.response = chunks.join("");

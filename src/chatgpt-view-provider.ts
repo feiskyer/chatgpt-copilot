@@ -1166,13 +1166,25 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         const promptBasedToolsEnabled =
           configuration.get("promptBasedTools.enabled") || false;
 
+        // For Ollama provider, prefer prompt-based tools when MCP tools are available
+        // This is because many Ollama models don't properly utilize native tool calling results
+        const shouldUsePromptBasedTools =
+          promptBasedToolsEnabled ||
+          (this.provider === "Ollama" &&
+            this.toolSet &&
+            Object.keys(this.toolSet.tools).length > 0);
+
         if (
-          promptBasedToolsEnabled &&
+          shouldUsePromptBasedTools &&
           this.toolSet &&
           Object.keys(this.toolSet.tools).length > 0
         ) {
           // Use prompt-based tools implementation
+          // This provides better tool result utilization for models that don't natively support tool calling well
           const { chatGptWithPromptTools } = require("./prompt-based-chat");
+          logger.appendLine(
+            `INFO: Using prompt-based tools for provider: ${this.provider}, model: ${this.model}`,
+          );
           await chatGptWithPromptTools(
             this,
             question,
@@ -1182,7 +1194,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
             updateReasoning,
           );
         } else {
-          // Use LLM tools call
+          // Use LLM native tools call
           await chatGpt(
             this,
             question,
