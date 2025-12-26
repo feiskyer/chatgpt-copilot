@@ -135,10 +135,10 @@
     "@ai-sdk/provider" "2.0.0"
     "@ai-sdk/provider-utils" "3.0.19"
 
-"@anthropic-ai/claude-agent-sdk@^0.1.70":
-  version "0.1.70"
-  resolved "https://registry.yarnpkg.com/@anthropic-ai/claude-agent-sdk/-/claude-agent-sdk-0.1.70.tgz#389ab79de69ecb12358dee01f0009ed75c246ba7"
-  integrity sha512-4jpFPDX8asys6skO1r3Pzh0Fe9nbND2ASYTWuyFB5iN9bWEL6WScTFyGokjql3M2TkEp9ZGuB2YYpTCdaqT9Sw==
+"@anthropic-ai/claude-agent-sdk@^0.1.76":
+  version "0.1.76"
+  resolved "https://registry.yarnpkg.com/@anthropic-ai/claude-agent-sdk/-/claude-agent-sdk-0.1.76.tgz#ba6de7de8139483e8cce561cc7340433a1a4ab9e"
+  integrity sha512-s7RvpXoFaLXLG7A1cJBAPD8ilwOhhc/12fb5mJXRuD561o4FmPtQ+WRfuy9akMmrFRfLsKv8Ornw3ClGAPL2fw==
   optionalDependencies:
     "@img/sharp-darwin-arm64" "^0.33.5"
     "@img/sharp-darwin-x64" "^0.33.5"
