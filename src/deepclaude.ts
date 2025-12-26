@@ -177,6 +177,13 @@ export async function reasoningChat(
     const reasonChunks = [];
     // Add a counter for tool calls to generate unique IDs
     let toolCallCounter = 0;
+    
+    // Track tool call and result state for debugging
+    let hasToolCalls = false;
+    let hasToolResults = false;
+    let textAfterToolResult = false;
+    let lastEventWasToolResult = false;
+    
     const result = streamText({
       system: provider.modelConfig.systemPrompt,
       model: provider.apiChat as any,
@@ -226,6 +233,12 @@ export async function reasoningChat(
       // logger.appendLine(`INFO: deepclaude.model: ${provider.model} deepclaude.question: ${question} response: ${JSON.stringify(part, null, 2)}`);
       switch (part.type) {
         case "text-delta": {
+          if (lastEventWasToolResult && !textAfterToolResult) {
+            textAfterToolResult = true;
+            logger.appendLine(
+              `INFO: deepclaude.model: ${provider.model}, text received after tool result - model is utilizing tool output`,
+            );
+          }
           updateResponse(part.text);
           chunks.push(part.text);
           break;
@@ -236,6 +249,9 @@ export async function reasoningChat(
           break;
         }
         case "tool-call": {
+          hasToolCalls = true;
+          lastEventWasToolResult = false;
+          
           let formattedArgs = part.input;
           if (typeof formattedArgs === "string") {
             try {
@@ -294,6 +310,9 @@ export async function reasoningChat(
 
         // @ts-ignore
         case "tool-result": {
+          hasToolResults = true;
+          lastEventWasToolResult = true;
+          
           // @ts-ignore
           const toolName = part.toolName;
           // @ts-ignore - The correct property is 'output' according to AI SDK types
@@ -382,6 +401,22 @@ ${JSON.stringify(formattedResult, null, 2)}
           });
           break;
 
+        case "start-step": {
+          logger.appendLine(
+            `INFO: deepclaude.model: ${provider.model}, step started`,
+          );
+          break;
+        }
+
+        case "finish-step": {
+          // @ts-ignore - finishReason is available on finish-step parts
+          const finishReason = part.finishReason;
+          logger.appendLine(
+            `INFO: deepclaude.model: ${provider.model}, step finished with reason: ${finishReason}`,
+          );
+          break;
+        }
+
         default: {
           logger.appendLine(
             `INFO: deepclaude.model: ${provider.model} deepclaude.question: ${question} response: ${JSON.stringify(part, null, 2)}`,
@@ -389,6 +424,16 @@ ${JSON.stringify(formattedResult, null, 2)}
           break;
         }
       }
+    }
+
+    // Log warning if tool results were received but no text-delta followed
+    // This helps identify models that don't properly utilize tool results
+    if (hasToolResults && !textAfterToolResult) {
+      logger.appendLine(
+        `WARN: deepclaude.model: ${provider.model}, tool results were received but no text was generated afterward. ` +
+        `This may indicate the model doesn't properly utilize tool results. ` +
+        `Consider enabling 'chatgpt.promptBasedTools.enabled' for better tool handling with this model.`,
+      );
     }
 
     provider.response = chunks.join("");
