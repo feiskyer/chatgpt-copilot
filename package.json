@@ -336,6 +336,7 @@
             "Groq",
             "Perplexity",
             "OpenRouter",
+            "Replicate",
             "ClaudeCode",
             "GeminiCLI"
           ],
@@ -355,6 +356,7 @@
             "Groq",
             "Perplexity",
             "OpenRouter",
+            "Replicate - Replicate.com models (DeepSeek, Claude, Llama, etc.)",
             "ClaudeCode",
             "GeminiCLI - Google Gemini via CLI"
           ],

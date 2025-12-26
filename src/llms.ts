@@ -16,7 +16,6 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createGroq } from "@ai-sdk/groq";
 import { createMistral } from "@ai-sdk/mistral";
 import { createPerplexity } from "@ai-sdk/perplexity";
-import { createReplicate } from "@ai-sdk/replicate";
 import { createTogetherAI } from "@ai-sdk/togetherai";
 import { createXai } from "@ai-sdk/xai";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
@@ -26,6 +25,7 @@ import { createOllama } from "ollama-ai-provider-v2";
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
 import { ModelConfig } from "./model-config";
+import { createReplicateProvider } from "./replicate";
 import { isReasoningModel } from "./types";
 
 // initClaudeCodeModel initializes the Claude Code model with the given parameters.
@@ -447,7 +447,7 @@ export async function initAzureAIModel(
   }
 }
 
-// TODO: pending https://github.com/vercel/ai/issues/4918 to support language model.
+// initReplicateModel initializes the Replicate model with the custom provider.
 export async function initReplicateModel(
   viewProvider: ChatGptViewProvider,
   config: ModelConfig,
@@ -457,7 +457,7 @@ export async function initReplicateModel(
     apiBaseUrl = "https://api.replicate.com/v1";
   }
 
-  const ai = createReplicate({
+  const ai = createReplicateProvider({
     apiToken: config.apiKey,
     baseURL: apiBaseUrl,
   });
