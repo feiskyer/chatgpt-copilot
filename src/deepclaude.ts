@@ -178,11 +178,12 @@ export async function reasoningChat(
     // Add a counter for tool calls to generate unique IDs
     let toolCallCounter = 0;
     
-    // Track tool call and result state for debugging
-    let hasToolCalls = false;
-    let hasToolResults = false;
-    let textAfterToolResult = false;
-    let lastEventWasToolResult = false;
+    // Track tool call and result state for debugging tool utilization issues
+    // These help identify when models don't properly utilize tool results
+    let hasToolCalls = false; // Tracks if any tool calls were made in this stream
+    let hasToolResults = false; // Tracks if any tool results were received
+    let textAfterToolResult = false; // Tracks if text was generated after receiving tool results
+    let lastEventWasToolResult = false; // Helper to detect text immediately following a tool result
     
     const result = streamText({
       system: provider.modelConfig.systemPrompt,

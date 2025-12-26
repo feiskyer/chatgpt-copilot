@@ -200,11 +200,12 @@ export async function chatGpt(
     // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question.trim()} inputs: ${JSON.stringify(inputs, null, 2)}`);
     const result = streamText(inputs);
     
-    // Track tool call and result state for debugging
-    let hasToolCalls = false;
-    let hasToolResults = false;
-    let textAfterToolResult = false;
-    let lastEventWasToolResult = false;
+    // Track tool call and result state for debugging tool utilization issues
+    // These help identify when models don't properly utilize tool results
+    let hasToolCalls = false; // Tracks if any tool calls were made in this stream
+    let hasToolResults = false; // Tracks if any tool results were received
+    let textAfterToolResult = false; // Tracks if text was generated after receiving tool results
+    let lastEventWasToolResult = false; // Helper to detect text immediately following a tool result
     
     for await (const part of result.fullStream) {
       // logger.appendLine(`INFO: chatgpt.model: ${provider.model} chatgpt.question: ${question.trim()} response: ${JSON.stringify(part, null, 2)}`);
