@@ -349,7 +349,7 @@ The extension supports three types of MCP servers:
 
 ### **MCP Configuration**
 
-1. **Access MCP Manager**: Use `ChatGPT: Open MCP Servers` command or click the MCP icon in the sidebar
+1. **Access MCP Manager**: Use `ChatGPT: Open MCP Servers` command from the Command Palette (Ctrl+Shift+P / Cmd+Shift+P) or click the MCP icon in the top right of the ChatGPT panel
 2. **Add MCP Server**: Configure your MCP servers with:
    - **Name**: Unique identifier for the server
    - **Type**: Choose from stdio, sse, or streamable-http
