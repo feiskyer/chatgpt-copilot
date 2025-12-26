@@ -732,7 +732,7 @@
     "@ai-sdk/deepseek": "^1.0.32",
     "@ai-sdk/google": "^2.0.47",
     "@ai-sdk/groq": "^2.0.33",
-    "@ai-sdk/mistral": "^2.0.26",
+    "@ai-sdk/mistral": "^3.0.1",
     "@ai-sdk/openai": "^2.0.87",
     "@ai-sdk/perplexity": "^2.0.22",
     "@ai-sdk/provider": "^2.0.0",
