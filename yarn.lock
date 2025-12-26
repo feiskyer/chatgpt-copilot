@@ -5883,10 +5883,10 @@ open@^10.1.2:
     is-inside-container "^1.0.0"
     wsl-utils "^0.1.0"
 
-openai@^6.13.0:
-  version "6.13.0"
-  resolved "https://registry.yarnpkg.com/openai/-/openai-6.13.0.tgz#db1ddaace8fda170d518df367298c2024b961c72"
-  integrity sha512-yHbMo+EpNGPG3sRrXvmo0LhUPFN4bAURJw3G17bE+ax1G4tcTFCa9ZjvCWh3cvni0aHY0uWlk2IxcsPH4NR9Ow==
+openai@^6.14.0:
+  version "6.14.0"
+  resolved "https://registry.yarnpkg.com/openai/-/openai-6.14.0.tgz#459637e6e09bc14af1392a8dd38b1a64c2cc372a"
+  integrity sha512-ZPD9MG5/sPpyGZ0idRoDK0P5MWEMuXe0Max/S55vuvoxqyEVkN94m9jSpE3YgNgz3WoESFvozs57dxWqAco31w==
 
 optionator@^0.9.3:
   version "0.9.4"
