@@ -739,7 +739,7 @@
     "@ai-sdk/replicate": "^1.0.20",
     "@ai-sdk/togetherai": "^1.0.30",
     "@ai-sdk/xai": "^2.0.41",
-    "@anthropic-ai/claude-agent-sdk": "^0.1.70",
+    "@anthropic-ai/claude-agent-sdk": "^0.1.76",
     "@modelcontextprotocol/sdk": "^1.25.0",
     "@openrouter/ai-sdk-provider": "^1.5.4",
     "@quail-ai/azure-ai-provider": "^2.0.0",
