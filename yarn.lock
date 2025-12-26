@@ -52,13 +52,13 @@
     "@ai-sdk/provider" "2.0.0"
     "@ai-sdk/provider-utils" "3.0.19"
 
-"@ai-sdk/mistral@^2.0.26":
-  version "2.0.26"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/mistral/-/mistral-2.0.26.tgz#2f6b6b4a8bb18e12cfb87becf504288bd375e131"
-  integrity sha512-jxDB++4WI1wEx5ONNBI+VbkmYJOYIuS8UQY13/83UGRaiW7oB/WHiH4ETe6KzbKpQPB3XruwTJQjUMsMfKyTXA==
+"@ai-sdk/mistral@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/mistral/-/mistral-3.0.1.tgz#e257a372f7988a704c42d829ff3f54dd384657f5"
+  integrity sha512-Uc2FW8OLOY9is5tuLxCOOfDd11s38agtLUcs10oaIDGDwMeae/kAZufmkrPQq8aaGWtjPs1Sp06fJVcIMz7V7g==
   dependencies:
-    "@ai-sdk/provider" "2.0.0"
-    "@ai-sdk/provider-utils" "3.0.19"
+    "@ai-sdk/provider" "3.0.0"
+    "@ai-sdk/provider-utils" "4.0.1"
 
 "@ai-sdk/openai-compatible@1.0.29":
   version "1.0.29"
@@ -102,10 +102,26 @@
     "@standard-schema/spec" "^1.0.0"
     eventsource-parser "^3.0.6"
 
+"@ai-sdk/provider-utils@4.0.1":
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/provider-utils/-/provider-utils-4.0.1.tgz#6102fe98138021cd7196b2cdc1ce33f7f956426b"
+  integrity sha512-de2v8gH9zj47tRI38oSxhQIewmNc+OZjYIOOaMoVWKL65ERSav2PYYZHPSPCrfOeLMkv+Dyh8Y0QGwkO29wMWQ==
+  dependencies:
+    "@ai-sdk/provider" "3.0.0"
+    "@standard-schema/spec" "^1.1.0"
+    eventsource-parser "^3.0.6"
+
 "@ai-sdk/provider@2.0.0", "@ai-sdk/provider@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@ai-sdk/provider/-/provider-2.0.0.tgz#b853c739d523b33675bc74b6c506b2c690bc602b"
   integrity sha512-6o7Y2SeO9vFKB8lArHXehNuusnpddKPk7xqL7T2/b+OvXMRIXUO1rR4wcv1hAFUAT9avGZshty3Wlua/XA7TvA==
+  dependencies:
+    json-schema "^0.4.0"
+
+"@ai-sdk/provider@3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/provider/-/provider-3.0.0.tgz#de5b60ae8570177604048e79edf4a032c92851e6"
+  integrity sha512-m9ka3ptkPQbaHHZHqDXDF9C9B5/Mav0KTdky1k2HZ3/nrW2t1AgObxIVPyGDWQNS9FXT/FS6PIoSjpcP/No8rQ==
   dependencies:
     json-schema "^0.4.0"
 
@@ -1830,6 +1846,11 @@
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@standard-schema/spec/-/spec-1.0.0.tgz#f193b73dc316c4170f2e82a881da0f550d551b9c"
   integrity sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==
+
+"@standard-schema/spec@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@standard-schema/spec/-/spec-1.1.0.tgz#a79b55dbaf8604812f52d140b2c9ab41bc150bb8"
+  integrity sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==
 
 "@textlint/ast-node-types@15.4.0":
   version "15.4.0"
