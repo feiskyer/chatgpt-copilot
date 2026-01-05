@@ -16,6 +16,21 @@ import ChatGptViewProvider from "./chatgpt-view-provider";
 import MCPServerProvider from "./mcp-server-provider";
 import PromptManagerProvider from "./prompt-manager-provider";
 import { PromptStore } from "./types";
+import {
+  initializeTokenStorage,
+  initializeModelCache,
+  getOAuthProvider,
+  generatePKCEChallenge,
+  waitForCallback,
+  usesManualCodeEntry,
+  setToken,
+  deleteToken,
+  getAllTokens,
+  getModels,
+  OAUTH_PROVIDER_DISPLAY_NAMES,
+  OAuthProviderType,
+  stopServer,
+} from "./oauth";
 
 const menuCommands = [
   "addTests",
@@ -31,6 +46,10 @@ const menuCommands = [
 ];
 
 export async function activate(context: vscode.ExtensionContext) {
+  // Initialize OAuth storage
+  initializeTokenStorage(context);
+  initializeModelCache(context);
+
   let adhocCommandPrefix: string =
     context.globalState.get("chatgpt-adhoc-prompt") || "";
 
@@ -377,6 +396,135 @@ export async function activate(context: vscode.ExtensionContext) {
     },
   );
 
+  // OAuth Commands
+  const createOAuthLoginCommand = (providerType: OAuthProviderType) => {
+    return vscode.commands.registerCommand(
+      `chatgpt-copilot.oauth.login.${providerType}`,
+      async () => {
+        try {
+          const oauthProvider = getOAuthProvider(providerType);
+          const challenge = generatePKCEChallenge(providerType);
+          const authUrl = oauthProvider.generateAuthUrl(challenge);
+
+          // Claude OAuth uses manual code entry (no localhost callback)
+          if (usesManualCodeEntry(providerType)) {
+            vscode.window.showInformationMessage(
+              `Opening browser to authenticate with ${OAUTH_PROVIDER_DISPLAY_NAMES[providerType]}...\n\n` +
+                `After authorizing, you will see a page with an authorization code.\n` +
+                `Copy the ENTIRE code (format: code#state) and paste it when prompted.`,
+            );
+
+            await vscode.env.openExternal(vscode.Uri.parse(authUrl));
+
+            // Prompt user to paste the authorization code
+            const code = await vscode.window.showInputBox({
+              title: `${OAUTH_PROVIDER_DISPLAY_NAMES[providerType]} Authorization Code`,
+              prompt:
+                "Paste the authorization code from the browser (format: code#state)",
+              placeHolder: "Paste your authorization code here...",
+              ignoreFocusOut: true,
+              validateInput: (value) => {
+                if (!value || value.trim().length === 0) {
+                  return "Authorization code is required";
+                }
+                return null;
+              },
+            });
+
+            if (!code) {
+              throw new Error("Authentication cancelled - no code provided");
+            }
+
+            const token = await oauthProvider.exchangeCode(
+              code.trim(),
+              challenge.verifier,
+            );
+            await setToken(token);
+          } else {
+            // Other providers use localhost callback
+            vscode.window.showInformationMessage(
+              `Opening browser to authenticate with ${OAUTH_PROVIDER_DISPLAY_NAMES[providerType]}...`,
+            );
+
+            await vscode.env.openExternal(vscode.Uri.parse(authUrl));
+
+            const result = await waitForCallback(providerType, challenge.state);
+
+            if (!result.success) {
+              throw new Error(result.error || "Authentication failed");
+            }
+
+            const token = await oauthProvider.exchangeCode(
+              result.code!,
+              challenge.verifier,
+            );
+            await setToken(token);
+          }
+
+          const models = await getModels(providerType);
+          const modelList = models
+            .slice(0, 5)
+            .map((m) => m.id)
+            .join(", ");
+
+          vscode.window.showInformationMessage(
+            `Successfully logged in to ${OAUTH_PROVIDER_DISPLAY_NAMES[providerType]}!\n\nAvailable models: ${modelList}`,
+          );
+        } catch (error: any) {
+          vscode.window.showErrorMessage(
+            `OAuth login failed: ${error.message}`,
+          );
+        }
+      },
+    );
+  };
+
+  const createOAuthLogoutCommand = (providerType: OAuthProviderType) => {
+    return vscode.commands.registerCommand(
+      `chatgpt-copilot.oauth.logout.${providerType}`,
+      async () => {
+        await deleteToken(providerType);
+        vscode.window.showInformationMessage(
+          `Logged out from ${OAUTH_PROVIDER_DISPLAY_NAMES[providerType]}`,
+        );
+      },
+    );
+  };
+
+  const oauthProviders: OAuthProviderType[] = [
+    "gemini",
+    "claude",
+    "chatgpt",
+    "antigravity",
+  ];
+
+  const oauthLoginCommands = oauthProviders.map(createOAuthLoginCommand);
+  const oauthLogoutCommands = oauthProviders.map(createOAuthLogoutCommand);
+
+  const oauthStatus = vscode.commands.registerCommand(
+    "chatgpt-copilot.oauth.status",
+    async () => {
+      const tokens = await getAllTokens();
+      if (tokens.length === 0) {
+        vscode.window.showInformationMessage(
+          "No OAuth providers are currently authenticated.",
+        );
+        return;
+      }
+
+      const statusLines = tokens.map((t) => {
+        const displayName = OAUTH_PROVIDER_DISPLAY_NAMES[t.provider];
+        const expiry = new Date(t.expiresAt).toLocaleString();
+        const email = t.email ? ` (${t.email})` : "";
+        return `${displayName}${email}: expires ${expiry}`;
+      });
+
+      vscode.window.showInformationMessage(
+        `OAuth Status:\n${statusLines.join("\n")}`,
+      );
+    },
+  );
+
   context.subscriptions.push(
     view,
     freeText,
@@ -396,6 +544,9 @@ export async function activate(context: vscode.ExtensionContext) {
     openMCPServers,
     openSettings,
     focusInputBox,
+    ...oauthLoginCommands,
+    ...oauthLogoutCommands,
+    oauthStatus,
   );
 
   const setContext = () => {
@@ -430,4 +581,6 @@ export async function activate(context: vscode.ExtensionContext) {
   setContext();
 }
 
-export function deactivate() {}
+export function deactivate() {
+  stopServer();
+}

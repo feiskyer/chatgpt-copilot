@@ -38,6 +38,10 @@ import {
   initPerplexityModel,
   initReplicateModel,
   initTogetherModel,
+  initGeminiOAuthModel,
+  initClaudeOAuthModel,
+  initChatGPTOAuthModel,
+  initAntigravityOAuthModel,
   initXAIModel,
 } from "./llms";
 import { logger } from "./logger";
@@ -962,6 +966,22 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
 
             case "Replicate":
               await initReplicateModel(this, modelConfig);
+              break;
+
+            case "Gemini":
+              await initGeminiOAuthModel(this, modelConfig);
+              break;
+
+            case "Claude":
+              await initClaudeOAuthModel(this, modelConfig);
+              break;
+
+            case "ChatGPT":
+              await initChatGPTOAuthModel(this, modelConfig);
+              break;
+
+            case "Antigravity":
+              await initAntigravityOAuthModel(this, modelConfig);
               break;
 
             default:

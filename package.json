@@ -4,7 +4,7 @@
   "displayName": "ChatGPT Copilot",
   "icon": "images/ai-logo.png",
   "description": "An VS Code ChatGPT Copilot Extension",
-  "version": "4.10.3",
+  "version": "4.10.4",
   "aiKey": "",
   "repository": {
     "url": "https://github.com/feiskyer/chatgpt-copilot"
@@ -273,6 +273,42 @@
         "icon": "$(list-unordered)"
       },
       {
+        "command": "chatgpt-copilot.oauth.login.gemini",
+        "title": "ChatGPT: Login to Gemini OAuth"
+      },
+      {
+        "command": "chatgpt-copilot.oauth.logout.gemini",
+        "title": "ChatGPT: Logout from Gemini OAuth"
+      },
+      {
+        "command": "chatgpt-copilot.oauth.login.claude",
+        "title": "ChatGPT: Login to Claude OAuth"
+      },
+      {
+        "command": "chatgpt-copilot.oauth.logout.claude",
+        "title": "ChatGPT: Logout from Claude OAuth"
+      },
+      {
+        "command": "chatgpt-copilot.oauth.login.chatgpt",
+        "title": "ChatGPT: Login to ChatGPT OAuth"
+      },
+      {
+        "command": "chatgpt-copilot.oauth.logout.chatgpt",
+        "title": "ChatGPT: Logout from ChatGPT OAuth"
+      },
+      {
+        "command": "chatgpt-copilot.oauth.login.antigravity",
+        "title": "ChatGPT: Login to Antigravity OAuth"
+      },
+      {
+        "command": "chatgpt-copilot.oauth.logout.antigravity",
+        "title": "ChatGPT: Logout from Antigravity OAuth"
+      },
+      {
+        "command": "chatgpt-copilot.oauth.status",
+        "title": "ChatGPT: OAuth Status"
+      },
+      {
         "command": "chatgpt-copilot.addCurrentFile",
         "title": "Add Current File to Chat Context",
         "category": "ChatGPT"
@@ -337,7 +373,11 @@
             "Perplexity",
             "OpenRouter",
             "ClaudeCode",
-            "GeminiCLI"
+            "GeminiCLI",
+            "Gemini",
+            "Claude",
+            "ChatGPT",
+            "Antigravity"
           ],
           "markdownEnumDescriptions": [
             "Auto - Infer provider from model",
@@ -356,7 +396,11 @@
             "Perplexity",
             "OpenRouter",
             "ClaudeCode",
-            "GeminiCLI - Google Gemini via CLI"
+            "GeminiCLI - Google Gemini via CLI",
+            "Gemini - Gemini via Google OAuth (subscription)",
+            "Claude - Claude via Anthropic OAuth (Pro/Max subscription)",
+            "ChatGPT - ChatGPT via OpenAI OAuth (Plus/Pro subscription)",
+            "Antigravity - Both Gemini and Claude via Google OAuth"
           ],
           "default": "Auto",
           "order": 0
@@ -704,47 +748,47 @@
     "@types/glob": "^9.0.0",
     "@types/isomorphic-fetch": "^0.0.39",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^25.0.2",
+    "@types/node": "^25.0.3",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/uuid": "^11.0.0",
     "@types/vscode": "1.94.0",
     "@types/vscode-webview": "^1.57.5",
-    "@typescript-eslint/eslint-plugin": "^8.50.0",
-    "@typescript-eslint/parser": "^8.50.0",
+    "@typescript-eslint/eslint-plugin": "^8.51.0",
+    "@typescript-eslint/parser": "^8.51.0",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/vsce": "^3.7.1",
-    "esbuild": "^0.27.1",
+    "esbuild": "^0.27.2",
     "eslint": "^9.39.2",
     "glob": "^13.0.0",
     "mocha": "^11.7.5",
-    "npm-check-updates": "^19.2.0",
+    "npm-check-updates": "^19.2.1",
     "prettier": "^3.7.4",
     "rimraf": "^6.1.2",
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.15",
-    "webpack": "^5.104.0"
+    "vitest": "^4.0.16",
+    "webpack": "^5.104.1"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^2.0.56",
-    "@ai-sdk/azure": "^2.0.89",
-    "@ai-sdk/deepseek": "^1.0.32",
-    "@ai-sdk/google": "^2.0.47",
-    "@ai-sdk/groq": "^2.0.33",
-    "@ai-sdk/mistral": "^2.0.26",
-    "@ai-sdk/openai": "^2.0.87",
-    "@ai-sdk/perplexity": "^2.0.22",
-    "@ai-sdk/provider": "^2.0.0",
-    "@ai-sdk/replicate": "^1.0.20",
-    "@ai-sdk/togetherai": "^1.0.30",
-    "@ai-sdk/xai": "^2.0.41",
-    "@anthropic-ai/claude-agent-sdk": "^0.1.70",
-    "@modelcontextprotocol/sdk": "^1.25.0",
+    "@ai-sdk/anthropic": "^3.0.2",
+    "@ai-sdk/azure": "^3.0.2",
+    "@ai-sdk/deepseek": "^2.0.2",
+    "@ai-sdk/google": "^3.0.2",
+    "@ai-sdk/groq": "^3.0.2",
+    "@ai-sdk/mistral": "^3.0.2",
+    "@ai-sdk/openai": "^3.0.2",
+    "@ai-sdk/perplexity": "^3.0.2",
+    "@ai-sdk/provider": "^3.0.1",
+    "@ai-sdk/replicate": "^2.0.2",
+    "@ai-sdk/togetherai": "^2.0.2",
+    "@ai-sdk/xai": "^3.0.3",
+    "@anthropic-ai/claude-agent-sdk": "^0.1.76",
+    "@modelcontextprotocol/sdk": "^1.25.1",
     "@openrouter/ai-sdk-provider": "^1.5.4",
     "@quail-ai/azure-ai-provider": "^2.0.0",
-    "ai": "^5.0.114",
-    "ai-sdk-provider-gemini-cli": "^1.5.0",
+    "ai": "^6.0.6",
+    "ai-sdk-provider-gemini-cli": "^2.0.1",
     "ajv": "^8.17.1",
     "axios": "^1.13.2",
     "cheerio": "^1.1.2",
@@ -754,11 +798,11 @@
     "isomorphic-fetch": "^3.0.0",
     "keyv": "^5.5.5",
     "minimatch": "^10.1.1",
-    "ollama-ai-provider-v2": "^1.5.5",
-    "openai": "^6.14.0",
+    "ollama-ai-provider-v2": "^2.0.0",
+    "openai": "^6.15.0",
     "p-timeout": "^7.0.1",
     "punycode": "^2.3.1",
-    "puppeteer": "^24.33.0",
+    "puppeteer": "^24.34.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "puppeteer-extra-plugin-user-data-dir": "^2.4.1",
@@ -770,7 +814,7 @@
     "strip-markdown": "^6.0.0",
     "uri-js": "^4.4.1",
     "uuid": "^13.0.0",
-    "zod": "^4.2.1"
+    "zod": "^4.3.4"
   },
   "resolutions": {
     "punycode": "2.3.1",

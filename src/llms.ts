@@ -23,6 +23,7 @@ import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { createAzure } from "@quail-ai/azure-ai-provider";
 import { extractReasoningMiddleware, wrapLanguageModel } from "ai";
 import { createOllama } from "ollama-ai-provider-v2";
+import * as vscode from "vscode";
 import ChatGptViewProvider from "./chatgpt-view-provider";
 import { logger } from "./logger";
 import { ModelConfig } from "./model-config";
@@ -484,4 +485,170 @@ export async function initReplicateModel(
       viewProvider.apiChat = ai.languageModel(model) as any;
     }
   }
+}
+
+// OAuth Provider Init Functions
+
+export async function initGeminiOAuthModel(
+  viewProvider: ChatGptViewProvider,
+  config: ModelConfig,
+) {
+  const { createGeminiOAuthProvider, hasValidToken, getModels } =
+    await import("./oauth");
+
+  let hasToken = await hasValidToken("gemini");
+  if (!hasToken) {
+    logger.appendLine("Gemini OAuth not authenticated. Triggering login...");
+    await vscode.commands.executeCommand("chatgpt-copilot.oauth.login.gemini");
+    hasToken = await hasValidToken("gemini");
+    if (!hasToken) {
+      throw new Error("Gemini OAuth authentication was cancelled or failed.");
+    }
+  }
+
+  const oauthProvider = createGeminiOAuthProvider({
+    sessionId: `gemini-${Date.now()}`,
+  });
+
+  if (config.isReasoning) {
+    const model = viewProvider.reasoningModel || "gemini-2.5-pro";
+    viewProvider.apiReasoning = wrapLanguageModel({
+      model: await oauthProvider.getModel(model),
+      middleware: extractReasoningMiddleware({ tagName: "think" }),
+    });
+  } else {
+    const model = viewProvider.model || "gemini-2.5-pro";
+    viewProvider.apiChat = await oauthProvider.getModel(model);
+  }
+
+  const models = await getModels("gemini");
+  logger.appendLine(`Gemini OAuth model initialized: ${viewProvider.model}`);
+  logger.appendLine(
+    `Supported Gemini models: ${models.map((m) => m.id).join(", ")}`,
+  );
+}
+
+export async function initClaudeOAuthModel(
+  viewProvider: ChatGptViewProvider,
+  config: ModelConfig,
+) {
+  const { createClaudeOAuthProvider, hasValidToken, getModels } =
+    await import("./oauth");
+
+  let hasToken = await hasValidToken("claude");
+  if (!hasToken) {
+    logger.appendLine("Claude OAuth not authenticated. Triggering login...");
+    await vscode.commands.executeCommand("chatgpt-copilot.oauth.login.claude");
+    hasToken = await hasValidToken("claude");
+    if (!hasToken) {
+      throw new Error("Claude OAuth authentication was cancelled or failed.");
+    }
+  }
+
+  const oauthProvider = createClaudeOAuthProvider({
+    sessionId: `claude-${Date.now()}`,
+  });
+
+  if (config.isReasoning) {
+    const model = viewProvider.reasoningModel || "claude-sonnet-4-20250514";
+    viewProvider.apiReasoning = wrapLanguageModel({
+      model: await oauthProvider.getModel(model),
+      middleware: extractReasoningMiddleware({ tagName: "think" }),
+    });
+  } else {
+    const model = viewProvider.model || "claude-sonnet-4-20250514";
+    viewProvider.apiChat = await oauthProvider.getModel(model);
+  }
+
+  const models = await getModels("claude");
+  logger.appendLine(`Claude OAuth model initialized: ${viewProvider.model}`);
+  logger.appendLine(
+    `Supported Claude models: ${models.map((m) => m.id).join(", ")}`,
+  );
+}
+
+export async function initChatGPTOAuthModel(
+  viewProvider: ChatGptViewProvider,
+  config: ModelConfig,
+) {
+  const { createChatGPTOAuthProvider, hasValidToken, getModels } =
+    await import("./oauth");
+
+  let hasToken = await hasValidToken("chatgpt");
+  if (!hasToken) {
+    logger.appendLine("ChatGPT OAuth not authenticated. Triggering login...");
+    await vscode.commands.executeCommand("chatgpt-copilot.oauth.login.chatgpt");
+    hasToken = await hasValidToken("chatgpt");
+    if (!hasToken) {
+      throw new Error("ChatGPT OAuth authentication was cancelled or failed.");
+    }
+  }
+
+  const oauthProvider = createChatGPTOAuthProvider({
+    sessionId: `chatgpt-${Date.now()}`,
+  });
+
+  if (config.isReasoning) {
+    const model = viewProvider.reasoningModel || "gpt-5.2-codex";
+    viewProvider.apiReasoning = wrapLanguageModel({
+      model: await oauthProvider.getModel(model),
+      middleware: extractReasoningMiddleware({ tagName: "think" }),
+    });
+  } else {
+    const model = viewProvider.model || "gpt-5.2-codex";
+    viewProvider.apiChat = await oauthProvider.getModel(model);
+  }
+
+  const models = await getModels("chatgpt");
+  logger.appendLine(`ChatGPT OAuth model initialized: ${viewProvider.model}`);
+  logger.appendLine(
+    `Supported ChatGPT models: ${models.map((m) => m.id).join(", ")}`,
+  );
+}
+
+export async function initAntigravityOAuthModel(
+  viewProvider: ChatGptViewProvider,
+  config: ModelConfig,
+) {
+  const { createAntigravityOAuthProvider, hasValidToken, getModels } =
+    await import("./oauth");
+
+  let hasToken = await hasValidToken("antigravity");
+  if (!hasToken) {
+    logger.appendLine(
+      "Antigravity OAuth not authenticated. Triggering login...",
+    );
+    await vscode.commands.executeCommand(
+      "chatgpt-copilot.oauth.login.antigravity",
+    );
+    hasToken = await hasValidToken("antigravity");
+    if (!hasToken) {
+      throw new Error(
+        "Antigravity OAuth authentication was cancelled or failed.",
+      );
+    }
+  }
+
+  const oauthProvider = createAntigravityOAuthProvider({
+    sessionId: `antigravity-${Date.now()}`,
+  });
+
+  if (config.isReasoning) {
+    const model = viewProvider.reasoningModel || "gemini-3-pro-low";
+    viewProvider.apiReasoning = wrapLanguageModel({
+      model: await oauthProvider.getModel(model),
+      middleware: extractReasoningMiddleware({ tagName: "think" }),
+    });
+  } else {
+    const model = viewProvider.model || "gemini-3-pro-low";
+    viewProvider.apiChat = await oauthProvider.getModel(model);
+  }
+
+  const models = await getModels("antigravity");
+  logger.appendLine(
+    `Antigravity OAuth model initialized: ${viewProvider.model}`,
+  );
+  logger.appendLine(
+    `Supported Antigravity models: ${models.map((m) => m.id).join(", ")}`,
+  );
 }

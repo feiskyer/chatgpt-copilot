@@ -13,5 +13,9 @@ vsc-extension-quickstart.md
 images/**
 temp/**
 .vsix
+.kiro/**
+.codex/**
+.claude/**
+.yarn/**
 !images/*.png
 !images/*.svg

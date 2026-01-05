@@ -13,3 +13,6 @@ package-lock.json
 !.yarn/sdks
 !.yarn/versions
 .pnp.*
+
+# OAuth tokens are stored in ~/.chatgpt-copilot/ (user home directory)
+# No token files should be in the project directory

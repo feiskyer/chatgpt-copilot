@@ -160,6 +160,80 @@ Azure AI Foundry provider:
 
 </details>
 
+### OAuth Providers (Subscription-Based)
+
+In addition to API key providers, the extension supports OAuth authentication for subscription-based access:
+
+<details>
+<summary> Gemini (Google OAuth) </summary>
+
+Use your Google account with a Gemini subscription. No API key required.
+
+| Configuration | Example                                      |
+| ------------- | -------------------------------------------- |
+| Provider      | Gemini                                       |
+| Model         | gemini-2.5-pro, gemini-2.5-flash             |
+
+**Setup:**
+1. Run command: `ChatGPT: Login with Gemini OAuth`
+2. Complete Google authentication in browser
+3. Select `Gemini` as provider
+
+</details>
+
+<details>
+<summary> Claude (Anthropic OAuth) </summary>
+
+Use your Anthropic account with a Claude Pro/Max subscription. No API key required.
+
+| Configuration | Example                              |
+| ------------- | ------------------------------------ |
+| Provider      | Claude                               |
+| Model         | claude-sonnet-4, claude-opus-4       |
+
+**Setup:**
+1. Run command: `ChatGPT: Login with Claude OAuth`
+2. Complete Anthropic authentication in browser
+3. Select `Claude` as provider
+
+</details>
+
+<details>
+<summary> ChatGPT (OpenAI OAuth) </summary>
+
+Use your OpenAI account with a ChatGPT Plus/Pro subscription. No API key required.
+
+| Configuration | Example                          |
+| ------------- | -------------------------------- |
+| Provider      | ChatGPT                          |
+| Model         | gpt-5.2-codex, gpt-5.1-codex     |
+
+**Setup:**
+1. Run command: `ChatGPT: Login with ChatGPT OAuth`
+2. Complete OpenAI authentication in browser
+3. Select `ChatGPT` as provider
+
+</details>
+
+<details>
+<summary> Antigravity (Google OAuth - Dual Provider) </summary>
+
+Access both Gemini and Claude models via a single Google OAuth. Requires Antigravity access.
+
+| Configuration | Example                                        |
+| ------------- | ---------------------------------------------- |
+| Provider      | Antigravity                                    |
+| Model         | gemini-2.5-pro, claude-sonnet-4 (both work)    |
+
+**Setup:**
+1. Run command: `ChatGPT: Login with Antigravity OAuth`
+2. Complete Google authentication in browser
+3. Select `Antigravity` as provider
+
+</details>
+
+### API Key Providers
+
 <details>
 <summary> Anthropic Claude </summary>
 
