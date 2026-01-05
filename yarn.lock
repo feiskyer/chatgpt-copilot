@@ -27,10 +27,10 @@
     "@ai-sdk/provider" "3.0.1"
     "@ai-sdk/provider-utils" "4.0.2"
 
-"@ai-sdk/gateway@3.0.5":
-  version "3.0.5"
-  resolved "https://registry.yarnpkg.com/@ai-sdk/gateway/-/gateway-3.0.5.tgz#0341581544f3dd307197d6f507d0fff788afd01b"
-  integrity sha512-AtxA1wcoKTHr9uFoC5KZEXqJP4SMW4j3VbcliUECUYssbWbePJ9+b3AaCny1lxf1xhDK9EIyAgBOKhXoQSr9nA==
+"@ai-sdk/gateway@3.0.6":
+  version "3.0.6"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/gateway/-/gateway-3.0.6.tgz#89d8e3ae4b05e28c758b7273b2ac7bc21db1cbe8"
+  integrity sha512-oEpwjM0PIaSUErtZI8Ag+gQ+ZelysRWA96N5ahvOc5e9d7QkKJWF0POWx0nI1qBxvmUSw7ca0sLTVw+J5yn7Tg==
   dependencies:
     "@ai-sdk/provider" "3.0.1"
     "@ai-sdk/provider-utils" "4.0.2"
@@ -2578,12 +2578,12 @@ ai-sdk-provider-gemini-cli@^2.0.1:
     google-auth-library "^9.11.0"
     zod-to-json-schema "3.25.0"
 
-ai@^6.0.6:
-  version "6.0.6"
-  resolved "https://registry.yarnpkg.com/ai/-/ai-6.0.6.tgz#bdff9cd29a175cbc6eab38712cbd9fe1a82febfd"
-  integrity sha512-LM0eAMWVn3RTj+0X5O1m/8g+7QiTeWG5aN5FsDbdmCkAQHVg93XxLbljFOLzi0NMjuJgf7fKLKmWoPsrdMyqfw==
+ai@^6.0.7:
+  version "6.0.7"
+  resolved "https://registry.yarnpkg.com/ai/-/ai-6.0.7.tgz#94aee98235e1e5f23b4ef79fca167d66e761e2ca"
+  integrity sha512-kLzSXHdW6cAcb2mFSIfkbfzxYqqjrUnyhrB1sg855qlC+6XkLI8hmwFE8f/4SnjmtcTDOnkIaVjWoO5i5Ir0bw==
   dependencies:
-    "@ai-sdk/gateway" "3.0.5"
+    "@ai-sdk/gateway" "3.0.6"
     "@ai-sdk/provider" "3.0.1"
     "@ai-sdk/provider-utils" "4.0.2"
     "@opentelemetry/api" "1.9.0"
