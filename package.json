@@ -4,7 +4,7 @@
   "displayName": "ChatGPT Copilot",
   "icon": "images/ai-logo.png",
   "description": "An VS Code ChatGPT Copilot Extension",
-  "version": "4.10.4",
+  "version": "4.11.0",
   "aiKey": "",
   "repository": {
     "url": "https://github.com/feiskyer/chatgpt-copilot"
@@ -654,56 +654,6 @@
           "default": false,
           "description": "Automatically add current file to chat context when switching files",
           "order": 122
-        },
-        "chatgpt.gpt3.reasoning.provider": {
-          "type": "string",
-          "markdownDescription": "[Reasoning Model] AI Provider.",
-          "enum": [
-            "Auto",
-            "OpenAI",
-            "Ollama",
-            "Azure",
-            "AzureAI",
-            "Google",
-            "DeepSeek",
-            "Groq",
-            "OpenRouter"
-          ],
-          "markdownEnumDescriptions": [
-            "Auto - Infer provider from model",
-            "OpenAI - OpenAI and OpenAI-compatible providers",
-            "Ollama - Ollama local provider",
-            "Azure - Azure OpenAI AI",
-            "AzureAI - Azure AI (non-OpenAI models)",
-            "Google - Google Generative AI",
-            "DeepSeek",
-            "Groq",
-            "OpenRouter"
-          ],
-          "default": "Auto",
-          "order": 150
-        },
-        "chatgpt.gpt3.reasoning.apiKey": {
-          "type": "string",
-          "markdownDescription": "[Reasoning Model] API Key.",
-          "order": 151
-        },
-        "chatgpt.gpt3.reasoning.apiBaseUrl": {
-          "type": "string",
-          "default": "https://api.openai.com/v1",
-          "markdownDescription": "[Reasoning Model] API Base URL.",
-          "order": 152
-        },
-        "chatgpt.gpt3.reasoning.organization": {
-          "type": "string",
-          "markdownDescription": "[Reasoning Model] Organization (OpenAI only).",
-          "order": 153
-        },
-        "chatgpt.gpt3.reasoning.model": {
-          "type": "string",
-          "default": "",
-          "markdownDescription": "[Reasoning Model] Model to use for reasoning.",
-          "order": 154
         },
         "chatgpt.gpt3.maxSteps": {
           "type": "number",

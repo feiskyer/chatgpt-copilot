@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v4.11.0
+
+- Bump AI SDK to v6
+- Remove deepclaude mode
+
 ## v4.10.1
 
 - Add support for Gemini CLI

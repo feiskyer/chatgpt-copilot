@@ -19,7 +19,7 @@ ChatGPT Copilot is a powerful and telemetry-free extension for Visual Studio Cod
 ## Features
 
 - 🤖 Supports GPT-5, o1/o3, Claude, Gemini, Ollama, Claude Code, Github Copilot and other OpenAI-compatible local models with your API key from OpenAI, Azure OpenAI Service, Google, Anthropic or other providers.
-- 💥 Model Context Protocol (MCP) to bring your own tools and DeepClaude (DeepSeek R1 + Claude) mode for best AI responses.
+- 💥 Model Context Protocol (MCP) to bring your own tools for best AI responses.
 - 📂 Chat with your Files: Add multiple files and images to your chat using `@` for seamless collaboration.
 - 📃 Streaming Answers: Receive real-time responses to your prompts in the sidebar conversation window.
 - 📖 Prompt Manager: Chat with your own prompts (use # to search).
@@ -37,7 +37,7 @@ ChatGPT Copilot is a powerful and telemetry-free extension for Visual Studio Cod
 - **v4.9**: Add prompt based tool calls for models that don't support native tool calling.
 - **v4.8**: New LOGO and new models.
 - **v4.7**: Added Model Context Protocol (MCP) integration.
-- **v4.6**: Added prompt manager, DeepClaude mode (DeepSeek + Claude) mode, Github Copilot provider and chat with files.
+- **v4.6**: Added prompt manager, Github Copilot provider and chat with files.
 
 ## Installation
 
@@ -51,7 +51,7 @@ ChatGPT Copilot is a powerful and telemetry-free extension for Visual Studio Cod
 The extension supports major AI providers with hundreds of models:
 
 | Provider           | Models                                            | Special Features                   |
-| ------------------ | ------------------------------------------------- | ---------------------------------- |
+|--------------------|---------------------------------------------------|------------------------------------|
 | **OpenAI**         | GPT-5, GPT-4o, GPT-4, o1, o3, o4-mini             | Reasoning models, function calling |
 | **Anthropic**      | Claude Sonnet 4, Claude 3.5 Sonnet, Claude Opus 4 | Advanced reasoning, large context  |
 | **Google**         | Gemini 2.5 Pro, Gemini 2.0 Flash, Gemini Pro      | Search grounding, multimodal       |
@@ -73,7 +73,7 @@ The extension supports major AI providers with hundreds of models:
 Configure the extension by setting your API keys and preferences in the settings.
 
 | Configuration | Description                                                                                                                                                                                                                                     |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|---------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | API Key       | Required, get from [OpenAI](https://platform.openai.com/account/api-keys), [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service), [Anthropic](https://console.anthropic.com/settings/keys) or other AI services |
 | API Base URL  | Optional, default to "<https://api.openai.com/v1>"                                                                                                                                                                                              |
 | Model         | Optional, default to "gpt-4o"                                                                                                                                                                                                                   |
@@ -88,7 +88,7 @@ Refer to the following sections for more details on configuring various AI servi
 > OpenAI API is billed separately from ChatGPT App. You need to add credits to your OpenAI for API usage [here](https://platform.openai.com/settings/organization/billing/overview). Once you add credits to your API, create a new api key and it should work.
 
 | Configuration | Example                                |
-| ------------- | -------------------------------------- |
+|---------------|----------------------------------------|
 | API Key       | your-api-key                           |
 | Model         | gpt-4o                                 |
 | API Base URL  | <https://api.openai.com/v1> (Optional) |
@@ -101,11 +101,14 @@ Refer to the following sections for more details on configuring various AI servi
 Pull your image first from Ollama [library](https://ollama.com/library) and then setup the base URL and custom model.
 
 | Configuration | Example                      |
-| ------------- | ---------------------------- |
+|---------------|------------------------------|
+| Provider      | Ollama                       |
 | API Key       | ollama (Optional)            |
 | Model         | custom                       |
 | Custom Model  | qwen2.5                      |
-| API Base URL  | <http://localhost:11434/v1/> |
+| API Base URL  | <http://localhost:11434/api> |
+
+> Note that <http://localhost:11434/v1/> should be used if you're using OpenAI provider or Auto provider (default is using OpenAI-compatible API).
 
 </details>
 
@@ -115,16 +118,19 @@ Pull your image first from Ollama [library](https://ollama.com/library) and then
 Ollama provider:
 
 | Configuration | Example                      |
-| ------------- | ---------------------------- |
+|---------------|------------------------------|
+| Provider      | Ollama                       |
 | API Key       | ollama (Optional)            |
 | Model         | custom                       |
 | Custom Model  | deepseek-r1                  |
-| API Base URL  | <http://localhost:11434/v1/> |
+| API Base URL  | <http://localhost:11434/api> |
+
+> Note that <http://localhost:11434/v1/> should be used if you're using OpenAI provider or Auto provider (default is using OpenAI-compatible API).
 
 DeepSeek provider:
 
 | Configuration | Example                    |
-| ------------- | -------------------------- |
+|---------------|----------------------------|
 | API Key       | your-deepseek-key          |
 | Model         | deepseek-reasoner          |
 | API Base URL  | <https://api.deepseek.com> |
@@ -132,7 +138,7 @@ DeepSeek provider:
 SiliconFlow (SiliconCloud) provider:
 
 | Configuration | Example                         |
-| ------------- | ------------------------------- |
+|---------------|---------------------------------|
 | API Key       | your-siliconflow-key            |
 | Model         | custom                          |
 | Custom Model  | deepseek-ai/DeepSeek-R1         |
@@ -141,7 +147,7 @@ SiliconFlow (SiliconCloud) provider:
 Azure AI Foundry provider:
 
 | Configuration | Example                                              |
-| ------------- | ---------------------------------------------------- |
+|---------------|------------------------------------------------------|
 | API Key       | your-azure-ai-key                                    |
 | Model         | DeepSeek-R1                                          |
 | API Base URL  | https://[endpoint-name].[region].models.ai.azure.com |
@@ -153,7 +159,7 @@ Azure AI Foundry provider:
 <summary> Claude Code </summary>
 
 | Configuration    | Example                  |
-| ---------------- | ------------------------ |
+|------------------|--------------------------|
 | Provider         | ClaudeCode.              |
 | Claude Code Path | /opt/homebrew/bin/claude |
 | Model            | claude-sonnet-4-20250514 |
@@ -169,12 +175,13 @@ In addition to API key providers, the extension supports OAuth authentication fo
 
 Use your Google account with a Gemini subscription. No API key required.
 
-| Configuration | Example                                      |
-| ------------- | -------------------------------------------- |
-| Provider      | Gemini                                       |
-| Model         | gemini-2.5-pro, gemini-2.5-flash             |
+| Configuration | Example                          |
+|---------------|----------------------------------|
+| Provider      | Gemini                           |
+| Model         | gemini-2.5-pro, gemini-2.5-flash |
 
 **Setup:**
+
 1. Run command: `ChatGPT: Login with Gemini OAuth`
 2. Complete Google authentication in browser
 3. Select `Gemini` as provider
@@ -186,12 +193,13 @@ Use your Google account with a Gemini subscription. No API key required.
 
 Use your Anthropic account with a Claude Pro/Max subscription. No API key required.
 
-| Configuration | Example                              |
-| ------------- | ------------------------------------ |
-| Provider      | Claude                               |
-| Model         | claude-sonnet-4, claude-opus-4       |
+| Configuration | Example                        |
+|---------------|--------------------------------|
+| Provider      | Claude                         |
+| Model         | claude-sonnet-4, claude-opus-4 |
 
 **Setup:**
+
 1. Run command: `ChatGPT: Login with Claude OAuth`
 2. Complete Anthropic authentication in browser
 3. Select `Claude` as provider
@@ -203,12 +211,13 @@ Use your Anthropic account with a Claude Pro/Max subscription. No API key requir
 
 Use your OpenAI account with a ChatGPT Plus/Pro subscription. No API key required.
 
-| Configuration | Example                          |
-| ------------- | -------------------------------- |
-| Provider      | ChatGPT                          |
-| Model         | gpt-5.2-codex, gpt-5.1-codex     |
+| Configuration | Example                      |
+|---------------|------------------------------|
+| Provider      | ChatGPT                      |
+| Model         | gpt-5.2-codex, gpt-5.1-codex |
 
 **Setup:**
+
 1. Run command: `ChatGPT: Login with ChatGPT OAuth`
 2. Complete OpenAI authentication in browser
 3. Select `ChatGPT` as provider
@@ -220,12 +229,13 @@ Use your OpenAI account with a ChatGPT Plus/Pro subscription. No API key require
 
 Access both Gemini and Claude models via a single Google OAuth. Requires Antigravity access.
 
-| Configuration | Example                                        |
-| ------------- | ---------------------------------------------- |
-| Provider      | Antigravity                                    |
-| Model         | gemini-2.5-pro, claude-sonnet-4 (both work)    |
+| Configuration | Example                                     |
+|---------------|---------------------------------------------|
+| Provider      | Antigravity                                 |
+| Model         | gemini-2.5-pro, claude-sonnet-4 (both work) |
 
 **Setup:**
+
 1. Run command: `ChatGPT: Login with Antigravity OAuth`
 2. Complete Google authentication in browser
 3. Select `Antigravity` as provider
@@ -238,7 +248,7 @@ Access both Gemini and Claude models via a single Google OAuth. Requires Antigra
 <summary> Anthropic Claude </summary>
 
 | Configuration | Example                                   |
-| ------------- | ----------------------------------------- |
+|---------------|-------------------------------------------|
 | API Key       | your-api-key                              |
 | Model         | claude-3-sonnet-20240229                  |
 | API Base URL  | <https://api.anthropic.com/v1> (Optional) |
@@ -249,7 +259,7 @@ Access both Gemini and Claude models via a single Google OAuth. Requires Antigra
 <summary> Google Gemini </summary>
 
 | Configuration | Example                                                       |
-| ------------- | ------------------------------------------------------------- |
+|---------------|---------------------------------------------------------------|
 | API Key       | your-api-key                                                  |
 | Model         | gemini-2.0-flash-thinking-exp-1219                            |
 | API Base URL  | <https://generativelanguage.googleapis.com/v1beta> (Optional) |
@@ -259,13 +269,25 @@ Access both Gemini and Claude models via a single Google OAuth. Requires Antigra
 <details>
 <summary> Azure OpenAI </summary>
 
-For Azure OpenAI Service, apiBaseUrl should be set to format `https://[YOUR-ENDPOINT-NAME].openai.azure.com/openai/deployments/[YOUR-DEPLOYMENT-NAME]`.
+Azure OpenAI Service supports two formats.
+
+Azure provider (deployment-based endpoint):
 
 | Configuration | Example                                                                     |
-| ------------- | --------------------------------------------------------------------------- |
+|---------------|-----------------------------------------------------------------------------|
+| Provider      | Azure                                                                       |
 | API Key       | your-api-key                                                                |
-| Model         | gpt-4o                                                                      |
+| Model         | deployment-name                                                             |
 | API Base URL  | <https://endpoint-name.openai.azure.com/openai/deployments/deployment-name> |
+
+OpenAI-compatible endpoint (provider: OpenAI):
+
+| Configuration | Example                                            |
+|---------------|----------------------------------------------------|
+| Provider      | OpenAI                                             |
+| API Key       | your-api-key                                       |
+| Model         | deployment-name                                    |
+| API Base URL  | <https://endpoint-name.openai.azure.com/openai/v1> |
 
 </details>
 
@@ -282,7 +304,7 @@ For Azure OpenAI Service, apiBaseUrl should be set to format `https://[YOUR-ENDP
 - **Gemini Models**: `gemini-2.0-flash`, `gemini-2.5-pro`
 
 | Configuration | Example         |
-| ------------- | --------------- |
+|---------------|-----------------|
 | Provider      | GitHubCopilot   |
 | API Key       | github          |
 | Model         | custom          |
@@ -295,11 +317,13 @@ For Azure OpenAI Service, apiBaseUrl should be set to format `https://[YOUR-ENDP
 
 For [Github Models](https://github.com/marketplace/models), get your Github token from [here](https://github.com/settings/tokens).
 
-| Configuration | Example                                 |
-| ------------- | --------------------------------------- |
-| API Key       | your-github-token                       |
-| Model         | o1                                      |
-| API Base URL  | <https://models.inference.ai.azure.com> |
+| Configuration | Example                              |
+|---------------|--------------------------------------|
+| Provider      | OpenAI                               |
+| API Key       | your-github-token                    |
+| Model         | custom                               |
+| Custom Model  | openai/gpt-4.1                       |
+| API Base URL  | <https://models.github.ai/inference> |
 
 </details>
 
@@ -311,25 +335,11 @@ To use OpenAI compatible APIs, you need to set a custom model name: set model to
 Example for [groq](https://console.groq.com/):
 
 | Configuration | Example                          |
-| ------------- | -------------------------------- |
+|---------------|----------------------------------|
 | API Key       | your-groq-key                    |
 | Model         | custom                           |
 | Custom Model  | mixtral-8x7b-32768               |
 | API Base URL  | <https://api.groq.com/openai/v1> |
-
-</details>
-
-<details>
-<summary> DeepClaude (DeepSeek + Claude) </summary>
-
-| Configuration          | Example                                                       |
-| ---------------------- | ------------------------------------------------------------- |
-| API Key                | your-api-key                                                  |
-| Model                  | claude-3-sonnet-20240229                                      |
-| API Base URL           | <https://api.anthropic.com/v1> (Optional)                     |
-| Reasoning API Key      | your-deepseek-api-key                                         |
-| Reasoning Model        | deepseek-reasoner (or deepseek-r1 regarding to your provider) |
-| Reasoning API Base URL | <https://api.deepseek.com> (or your own base URL)             |
 
 </details>
 
@@ -344,7 +354,7 @@ The extension provides various commands accessible through the Command Palette (
 ### **Context Menu Commands** (Right-click on selected code)
 
 | Command             | Keyboard Shortcut                           | Description                                     |
-| ------------------- | ------------------------------------------- | ----------------------------------------------- |
+|---------------------|---------------------------------------------|-------------------------------------------------|
 | **Generate Code**   | `Ctrl+Shift+A` / `Cmd+Shift+A`              | Generate code based on comments or requirements |
 | **Add Tests**       | `Ctrl+K Ctrl+Shift+1` / `Cmd+K Cmd+Shift+1` | Generate unit tests for selected code           |
 | **Find Problems**   | `Ctrl+K Ctrl+Shift+2` / `Cmd+K Cmd+Shift+2` | Analyze code for bugs and issues                |
@@ -364,7 +374,7 @@ The extension provides various commands accessible through the Command Palette (
 ### **General Commands**
 
 | Command                            | Description                                 |
-| ---------------------------------- | ------------------------------------------- |
+|------------------------------------|---------------------------------------------|
 | `ChatGPT: Ask anything`            | Open input box to ask any question          |
 | `ChatGPT: Reset session`           | Clear current conversation and start fresh  |
 | `ChatGPT: Clear conversation`      | Clear the conversation history              |
@@ -410,7 +420,7 @@ MCP enables AI models to securely connect to external data sources and tools, pr
 The extension supports three types of MCP servers:
 
 | Type                | Description                         | Use Case                             |
-| ------------------- | ----------------------------------- | ------------------------------------ |
+|---------------------|-------------------------------------|--------------------------------------|
 | **stdio**           | Standard input/output communication | Local command-line tools and scripts |
 | **sse**             | Server-Sent Events over HTTP        | Web-based tools and APIs             |
 | **streamable-http** | HTTP streaming communication        | Real-time data sources               |
@@ -487,7 +497,7 @@ When MCP servers are enabled, the extension operates in **Agent Mode**:
 ### **Core Configuration**
 
 | Setting                     | Default                     | Description                                                                                                                                         |
-| --------------------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-----------------------------|-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
 | `chatgpt.gpt3.provider`     | `Auto`                      | AI Provider: Auto, OpenAI, Azure, AzureAI, Anthropic, GitHubCopilot, Google, Mistral, xAI, Together, DeepSeek, Groq, Perplexity, OpenRouter, Ollama |
 | `chatgpt.gpt3.apiKey`       |                             | API key for your chosen provider                                                                                                                    |
 | `chatgpt.gpt3.apiBaseUrl`   | `https://api.openai.com/v1` | API base URL for your provider                                                                                                                      |
@@ -498,32 +508,22 @@ When MCP servers are enabled, the extension operates in **Agent Mode**:
 ### **Model Parameters**
 
 | Setting                    | Default         | Description                                        |
-| -------------------------- | --------------- | -------------------------------------------------- |
+|----------------------------|-----------------|----------------------------------------------------|
 | `chatgpt.gpt3.maxTokens`   | `0` (unlimited) | Maximum tokens to generate in completion           |
 | `chatgpt.gpt3.temperature` | `1`             | Sampling temperature (0-2). Higher = more creative |
 | `chatgpt.gpt3.top_p`       | `1`             | Nucleus sampling parameter (0-1)                   |
 | `chatgpt.systemPrompt`     |                 | System prompt for the AI assistant                 |
 
-### **DeepClaude (Reasoning + Chat) Configuration**
-
-| Setting                               | Default                     | Description                                                                                             |
-| ------------------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `chatgpt.gpt3.reasoning.provider`     | `Auto`                      | Provider for reasoning model (Auto, OpenAI, Azure, AzureAI, Google, DeepSeek, Groq, OpenRouter, Ollama) |
-| `chatgpt.gpt3.reasoning.apiKey`       |                             | API key for reasoning model                                                                             |
-| `chatgpt.gpt3.reasoning.apiBaseUrl`   | `https://api.openai.com/v1` | API base URL for reasoning model                                                                        |
-| `chatgpt.gpt3.reasoning.model`        |                             | Model to use for reasoning (e.g., deepseek-reasoner, o1)                                                |
-| `chatgpt.gpt3.reasoning.organization` |                             | Organization ID for reasoning model (OpenAI only)                                                       |
-
 ### **Agent & MCP Configuration**
 
 | Setting                 | Default | Description                                         |
-| ----------------------- | ------- | --------------------------------------------------- |
+|-------------------------|---------|-----------------------------------------------------|
 | `chatgpt.gpt3.maxSteps` | `15`    | Maximum steps for agent mode when using MCP servers |
 
 ### **Feature Toggles**
 
 | Setting                                | Default | Description                                                               |
-| -------------------------------------- | ------- | ------------------------------------------------------------------------- |
+|----------------------------------------|---------|---------------------------------------------------------------------------|
 | `chatgpt.gpt3.generateCode-enabled`    | `true`  | Enable code generation context menu                                       |
 | `chatgpt.gpt3.searchGrounding.enabled` | `false` | Enable search grounding (Gemini models only)                              |
 | `chatgpt.gpt3.responsesAPI.enabled`    | `false` | Enable OpenAI Responses API. Only available for OpenAI/AzureOpenAI models |
@@ -531,7 +531,7 @@ When MCP servers are enabled, the extension operates in **Agent Mode**:
 ### **Prompt Prefixes & Context Menu**
 
 | Setting                                      | Default                                  | Description                                 |
-| -------------------------------------------- | ---------------------------------------- | ------------------------------------------- |
+|----------------------------------------------|------------------------------------------|---------------------------------------------|
 | `chatgpt.promptPrefix.addTests`              | `Implement tests for the following code` | Prompt for generating unit tests            |
 | `chatgpt.promptPrefix.addTests-enabled`      | `true`                                   | Enable "Add Tests" context menu item        |
 | `chatgpt.promptPrefix.findProblems`          | `Find problems with the following code`  | Prompt for finding bugs and issues          |
@@ -553,7 +553,7 @@ When MCP servers are enabled, the extension operates in **Agent Mode**:
 ### **User Interface**
 
 | Setting                             | Default | Description                                     |
-| ----------------------------------- | ------- | ----------------------------------------------- |
+|-------------------------------------|---------|-------------------------------------------------|
 | `chatgpt.response.showNotification` | `false` | Show notification when AI responds              |
 | `chatgpt.response.autoScroll`       | `true`  | Auto-scroll to bottom when new content is added |
 

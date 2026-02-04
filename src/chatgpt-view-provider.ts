@@ -17,7 +17,6 @@ import delay from "delay";
 import path from "path";
 import * as vscode from "vscode";
 import { chatClaudeCode } from "./claude-code";
-import { reasoningChat } from "./deepclaude";
 import { chatCopilot } from "./github-copilot";
 import {
   initAzureAIModel,
@@ -57,13 +56,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public maxSteps: number = 0;
   private apiBaseUrl?: string;
   public modelConfig!: ModelConfig;
-  public reasoningModel: string = "";
-  public reasoningAPIBaseUrl: string = "";
-  public reasoningProvider: string = "Auto";
-  public reasoningModelConfig!: ModelConfig;
   public systemPromptOverride: string = "";
   public apiChat?: LanguageModel;
-  public apiReasoning?: LanguageModel;
   public conversationId?: string;
   public questionCounter: number = 0;
   public inProgress: boolean = false;
@@ -127,15 +121,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.claudeCodePath = vscode.workspace
       .getConfiguration("chatgpt")
       .get("gpt3.claudeCodePath") as string;
-    this.reasoningModel = vscode.workspace
-      .getConfiguration("chatgpt")
-      .get("gpt3.reasoning.model") as string;
-    this.reasoningAPIBaseUrl = vscode.workspace
-      .getConfiguration("chatgpt")
-      .get("gpt3.reasoning.apiBaseUrl") as string;
-    this.reasoningProvider = vscode.workspace
-      .getConfiguration("chatgpt")
-      .get("gpt3.reasoning.provider") as string;
 
     // Azure model names can't contain dots.
     if (this.apiBaseUrl?.includes("azure")) {
@@ -230,7 +215,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           break;
         case "cleargpt3":
           this.apiChat = undefined;
-          this.apiReasoning = undefined;
           this.conversationContext = {
             files: {},
             filesSent: false,
@@ -425,7 +409,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public clearSession(): void {
     this.stopGenerating();
     this.apiChat = undefined;
-    this.apiReasoning = undefined;
     this.conversationId = undefined;
     this.claudeCodeSessionId = undefined;
     this.logEvent("cleared-session");
@@ -576,48 +559,13 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     return this.provider;
   }
 
-  private get reasoningModelProvider(): string {
-    if (this.reasoningProvider == "Auto") {
-      if (!!this.reasoningModel?.startsWith("claude-")) {
-        return "Anthropic";
-      }
-
-      if (!!this.reasoningModel?.startsWith("gemini-")) {
-        return "Google";
-      }
-
-      if (!!this.reasoningModel?.startsWith("grok-")) {
-        return "xAI";
-      }
-
-      if (!!this.reasoningAPIBaseUrl?.includes("openai.azure.com")) {
-        return "Azure";
-      }
-
-      if (!!this.reasoningAPIBaseUrl?.includes("services.ai.azure.com")) {
-        return "AzureAI";
-      }
-
-      return "OpenAI";
-    }
-
-    return this.reasoningProvider;
-  }
-
   public async prepareConversation(modelChanged = false): Promise<boolean> {
     this.conversationId = this.conversationId || this.getRandomId();
     const state = this.context.globalState;
     const configuration = vscode.workspace.getConfiguration("chatgpt");
     this.model = configuration.get("gpt3.model") as string;
-    this.reasoningModel = configuration.get("gpt3.reasoning.model") as string;
-    this.reasoningAPIBaseUrl = configuration.get(
-      "gpt3.reasoning.apiBaseUrl",
-    ) as string;
     this.provider = configuration.get("gpt3.provider") as string;
     this.claudeCodePath = configuration.get("gpt3.claudeCodePath") as string;
-    this.reasoningProvider = configuration.get(
-      "gpt3.reasoning.provider",
-    ) as string;
 
     const mcpStore = this.context.globalState.get<{ servers: MCPServer[] }>(
       "mcpServers",
@@ -730,7 +678,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       (this.isOpenAIModel && !this.apiChat) ||
       (this.isClaude && !this.apiChat) ||
       (this.isGemini && !this.apiChat) ||
-      (this.reasoningModel != "" && !this.apiReasoning) ||
       (!this.isOpenAIModel &&
         !this.isClaude &&
         !this.isGemini &&
@@ -838,134 +785,98 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         systemPrompt,
         searchGrounding,
         enableResponsesAPI,
-        isReasoning: false,
         claudeCodePath: this.claudeCodePath,
         enabledMCPServers: enabledServers,
       });
-      if (this.reasoningModel != "") {
-        const provider = this.reasoningModelProvider;
-        const organization = configuration.get(
-          "gpt3.reasoning.organization",
-        ) as string;
-        const apiBaseUrl = configuration.get(
-          "gpt3.reasoning.apiBaseUrl",
-        ) as string;
-        const apiKey = configuration.get("gpt3.reasoning.apiKey") as string;
-
-        this.reasoningModelConfig = new ModelConfig({
-          provider,
-          apiKey,
-          apiBaseUrl,
-          maxTokens,
-          temperature,
-          topP,
-          organization,
-          systemPrompt: "",
-          searchGrounding,
-          enableResponsesAPI,
-          isReasoning: true,
-          claudeCodePath: this.claudeCodePath,
-          enabledMCPServers: enabledServers,
-        });
-      }
-
-      let configList = [this.modelConfig];
-      if (this.reasoningModel != "") {
-        configList.push(this.reasoningModelConfig);
-      } else {
-        this.apiReasoning = undefined;
-      }
 
       try {
-        for (const modelConfig of configList) {
-          switch (modelConfig.provider) {
-            case "OpenAI":
-              await initGptModel(this, modelConfig);
-              break;
+        switch (this.modelConfig.provider) {
+          case "OpenAI":
+            await initGptModel(this, this.modelConfig);
+            break;
 
-            case "Azure":
-              await initGptModel(this, modelConfig);
-              break;
+          case "Azure":
+            await initGptModel(this, this.modelConfig);
+            break;
 
-            case "AzureAI":
-              await initAzureAIModel(this, modelConfig);
-              break;
+          case "AzureAI":
+            await initAzureAIModel(this, this.modelConfig);
+            break;
 
-            case "Anthropic":
-              await initClaudeModel(this, modelConfig);
-              break;
+          case "Anthropic":
+            await initClaudeModel(this, this.modelConfig);
+            break;
 
-            case "Google":
-              await initGeminiModel(this, modelConfig);
-              break;
+          case "Google":
+            await initGeminiModel(this, this.modelConfig);
+            break;
 
-            case "Ollama":
-              await initOllamaModel(this, modelConfig);
-              break;
+          case "Ollama":
+            await initOllamaModel(this, this.modelConfig);
+            break;
 
-            case "Mistral":
-              await initMistralModel(this, modelConfig);
-              break;
+          case "Mistral":
+            await initMistralModel(this, this.modelConfig);
+            break;
 
-            case "xAI":
-              await initXAIModel(this, modelConfig);
-              break;
+          case "xAI":
+            await initXAIModel(this, this.modelConfig);
+            break;
 
-            case "Together":
-              await initTogetherModel(this, modelConfig);
-              break;
+          case "Together":
+            await initTogetherModel(this, this.modelConfig);
+            break;
 
-            case "DeepSeek":
-              await initDeepSeekModel(this, modelConfig);
-              break;
+          case "DeepSeek":
+            await initDeepSeekModel(this, this.modelConfig);
+            break;
 
-            case "Groq":
-              await initGroqModel(this, modelConfig);
-              break;
+          case "Groq":
+            await initGroqModel(this, this.modelConfig);
+            break;
 
-            case "Perplexity":
-              await initPerplexityModel(this, modelConfig);
-              break;
+          case "Perplexity":
+            await initPerplexityModel(this, this.modelConfig);
+            break;
 
-            case "OpenRouter":
-              await initOpenRouterModel(this, modelConfig);
-              break;
+          case "OpenRouter":
+            await initOpenRouterModel(this, this.modelConfig);
+            break;
 
-            case "ClaudeCode":
-              await initClaudeCodeModel(this, modelConfig);
-              break;
+          case "ClaudeCode":
+            await initClaudeCodeModel(this, this.modelConfig);
+            break;
 
-            case "GeminiCLI":
-              await initGeminiCliModel(this, modelConfig);
-              break;
+          case "GeminiCLI":
+            await initGeminiCliModel(this, this.modelConfig);
+            break;
 
-            case "GitHubCopilot":
-              break;
+          case "GitHubCopilot":
+            break;
 
-            case "Replicate":
-              await initReplicateModel(this, modelConfig);
-              break;
+          case "Replicate":
+            await initReplicateModel(this, this.modelConfig);
+            break;
 
-            case "Gemini":
-              await initGeminiOAuthModel(this, modelConfig);
-              break;
+          case "Gemini":
+            await initGeminiOAuthModel(this, this.modelConfig);
+            break;
 
-            case "Claude":
-              await initClaudeOAuthModel(this, modelConfig);
-              break;
+          case "Claude":
+            await initClaudeOAuthModel(this, this.modelConfig);
+            break;
 
-            case "ChatGPT":
-              await initChatGPTOAuthModel(this, modelConfig);
-              break;
+          case "ChatGPT":
+            await initChatGPTOAuthModel(this, this.modelConfig);
+            break;
 
-            case "Antigravity":
-              await initAntigravityOAuthModel(this, modelConfig);
-              break;
+          case "Antigravity":
+            await initAntigravityOAuthModel(this, this.modelConfig);
+            break;
 
-            default:
-              await initGptModel(this, modelConfig);
-              break;
-          }
+          default:
+            await initGptModel(this, this.modelConfig);
+            break;
         }
       } catch (error) {
         this.logError(`"Unable to initialize model ${error}"`);
@@ -1134,15 +1045,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         );
       } else if (this.provider == "ClaudeCode") {
         await chatClaudeCode(
-          this,
-          question,
-          imageFiles,
-          startResponse,
-          updateResponse,
-          updateReasoning,
-        );
-      } else if (this.reasoningModel != "") {
-        await reasoningChat(
           this,
           question,
           imageFiles,
@@ -1437,7 +1339,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
                   <li class="features-li w-full border border-zinc-700 p-3 rounded-md">Manage prompts & search custom ones (# to search).</li>
                   <li class="features-li w-full border border-zinc-700 p-3 rounded-md">Enhance code: add tests, fix bugs, and optimize.</li>
                   <li class="features-li w-full border border-zinc-700 p-3 rounded-md">Auto-detect language with syntax highlighting.</li>
-                  <li class="features-li w-full border border-zinc-700 p-3 rounded-md">Model Context Protocol (MCP) and DeepClaude mode.</li>
+                  <li class="features-li w-full border border-zinc-700 p-3 rounded-md">Model Context Protocol (MCP) and tool integration.</li>
                   </ul>
 							</div>
 						</div>

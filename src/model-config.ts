@@ -24,7 +24,6 @@ export class ModelConfig {
   public systemPromptOverride: string;
   public searchGrounding: boolean;
   public enableResponsesAPI: boolean;
-  public isReasoning: boolean;
   public claudeCodePath: string;
   public enabledMCPServers: MCPServer[];
 
@@ -40,7 +39,6 @@ export class ModelConfig {
     systemPromptOverride,
     searchGrounding,
     enableResponsesAPI,
-    isReasoning,
     claudeCodePath,
     enabledMCPServers,
   }: {
@@ -55,7 +53,6 @@ export class ModelConfig {
     systemPromptOverride?: string;
     searchGrounding?: boolean;
     enableResponsesAPI?: boolean;
-    isReasoning?: boolean;
     claudeCodePath?: string;
     enabledMCPServers?: MCPServer[];
   }) {
@@ -70,7 +67,6 @@ export class ModelConfig {
     this.systemPromptOverride = systemPromptOverride ?? "";
     this.searchGrounding = searchGrounding ?? false;
     this.enableResponsesAPI = enableResponsesAPI ?? false;
-    this.isReasoning = isReasoning ?? false;
     this.claudeCodePath = claudeCodePath ?? "";
     this.enabledMCPServers = enabledMCPServers ?? [];
   }

@@ -83,7 +83,6 @@ describe("Provider initialization", () => {
       apiBaseUrl: "https://api.openai.com/v1",
       organization: "",
       enableResponsesAPI: false,
-      isReasoning: false,
     };
 
     await initGptModel(provider, config);
@@ -101,7 +100,6 @@ describe("Provider initialization", () => {
       apiBaseUrl: "https://api.openai.com/v1",
       organization: "",
       enableResponsesAPI: true,
-      isReasoning: false,
     };
 
     await initGptModel(provider, config);
@@ -111,14 +109,13 @@ describe("Provider initialization", () => {
   });
 
   it("wraps OpenAI reasoning models with middleware", async () => {
-    const provider: any = { reasoningModel: "o3-mini" };
+    const provider: any = { model: "o3-mini" };
     const config: any = {
       provider: "OpenAI",
       apiKey: "test-key",
       apiBaseUrl: "https://api.openai.com/v1",
       organization: "",
       enableResponsesAPI: true,
-      isReasoning: true,
     };
 
     await initGptModel(provider, config);
@@ -139,7 +136,6 @@ describe("Provider initialization", () => {
       apiBaseUrl: "https://my-resource.openai.azure.com/openai/deployments/foo",
       organization: "",
       enableResponsesAPI: false,
-      isReasoning: false,
     };
 
     await initGptModel(provider, config);
@@ -157,7 +153,6 @@ describe("Provider initialization", () => {
       apiBaseUrl: "https://my-resource.openai.azure.com/openai/deployments/foo",
       organization: "",
       enableResponsesAPI: true,
-      isReasoning: false,
     };
 
     await initGptModel(provider, config);
@@ -172,7 +167,6 @@ describe("Provider initialization", () => {
       provider: "Anthropic",
       apiKey: "test-key",
       apiBaseUrl: "",
-      isReasoning: false,
     };
 
     await initClaudeModel(provider, config);
@@ -190,7 +184,6 @@ describe("Provider initialization", () => {
       provider: "Google",
       apiKey: "test-key",
       apiBaseUrl: "",
-      isReasoning: false,
     };
 
     await initGeminiModel(provider, config);

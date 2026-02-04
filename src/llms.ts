@@ -86,18 +86,8 @@ export async function initGeminiCliModel(
     authType: "oauth-personal",
   });
 
-  if (config.isReasoning) {
-    const model = viewProvider.reasoningModel
-      ? viewProvider.reasoningModel
-      : "gemini-2.5-pro";
-    viewProvider.apiReasoning = wrapLanguageModel({
-      model: gemini(model),
-      middleware: extractReasoningMiddleware({ tagName: "think" }),
-    });
-  } else {
-    const model = viewProvider.model ? viewProvider.model : "gemini-2.5-pro";
-    viewProvider.apiChat = gemini(model);
-  }
+  const model = viewProvider.model ? viewProvider.model : "gemini-2.5-pro";
+  viewProvider.apiChat = gemini(model);
 }
 
 // initClaudeModel initializes the Claude model with the given parameters.
@@ -114,20 +104,9 @@ export async function initClaudeModel(
     baseURL: apiBaseUrl,
     apiKey: config.apiKey,
   });
-  if (config.isReasoning) {
-    viewProvider.apiReasoning = wrapLanguageModel({
-      model: ai.languageModel(
-        viewProvider.reasoningModel
-          ? viewProvider.reasoningModel
-          : "claude-3-5-sonnet-20240620",
-      ),
-      middleware: extractReasoningMiddleware({ tagName: "think" }),
-    });
-  } else {
-    viewProvider.apiChat = ai.languageModel(
-      viewProvider.model ? viewProvider.model : "claude-3-5-sonnet-20240620",
-    );
-  }
+  viewProvider.apiChat = ai.languageModel(
+    viewProvider.model ? viewProvider.model : "claude-3-5-sonnet-20240620",
+  );
 }
 
 // initGeminiModel initializes the Gemini model with the given parameters.
@@ -145,27 +124,10 @@ export async function initGeminiModel(
     apiKey: config.apiKey,
   });
 
-  if (config.isReasoning) {
-    const model = viewProvider.reasoningModel
-      ? viewProvider.reasoningModel
-      : "gemini-2.5-pro";
-    viewProvider.apiReasoning = wrapLanguageModel({
-      model: ai(model),
-      middleware: extractReasoningMiddleware({ tagName: "think" }),
-    });
-
-    if (config.searchGrounding) {
-      viewProvider.apiReasoning = wrapLanguageModel({
-        model: ai(model),
-        middleware: extractReasoningMiddleware({ tagName: "think" }),
-      });
-    }
-  } else {
-    const model = viewProvider.model ? viewProvider.model : "gemini-2.5-pro";
+  const model = viewProvider.model ? viewProvider.model : "gemini-2.5-pro";
+  viewProvider.apiChat = ai(model);
+  if (config.searchGrounding) {
     viewProvider.apiChat = ai(model);
-    if (config.searchGrounding) {
-      viewProvider.apiChat = ai(model);
-    }
   }
 }
 
@@ -182,24 +144,14 @@ export async function initOllamaModel(
     baseURL: apiBaseUrl,
   });
 
-  if (config.isReasoning) {
-    const model = viewProvider.reasoningModel
-      ? viewProvider.reasoningModel
-      : "deepseek-r1";
-    viewProvider.apiReasoning = wrapLanguageModel({
+  const model = viewProvider.model ? viewProvider.model : "deepseek-r1";
+  if (isReasoningModel(model)) {
+    viewProvider.apiChat = wrapLanguageModel({
       model: ai.languageModel(model),
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     });
   } else {
-    const model = viewProvider.model ? viewProvider.model : "deepseek-r1";
-    if (isReasoningModel(model)) {
-      viewProvider.apiChat = wrapLanguageModel({
-        model: ai.languageModel(model),
-        middleware: extractReasoningMiddleware({ tagName: "think" }),
-      });
-    } else {
-      viewProvider.apiChat = ai.languageModel(model);
-    }
+    viewProvider.apiChat = ai.languageModel(model);
   }
 }
 
@@ -217,20 +169,9 @@ export async function initMistralModel(
     apiKey: config.apiKey,
   });
 
-  if (config.isReasoning) {
-    viewProvider.apiReasoning = wrapLanguageModel({
-      model: ai.languageModel(
-        viewProvider.reasoningModel
-          ? viewProvider.reasoningModel
-          : "deepseek-r1",
-      ),
-      middleware: extractReasoningMiddleware({ tagName: "think" }),
-    });
-  } else {
-    viewProvider.apiChat = ai.languageModel(
-      viewProvider.model ? viewProvider.model : "deepseek-r1",
-    );
-  }
+  viewProvider.apiChat = ai.languageModel(
+    viewProvider.model ? viewProvider.model : "deepseek-r1",
+  );
 }
 
 export async function initXAIModel(
@@ -255,18 +196,9 @@ export async function initXAIModel(
     baseURL: apiBaseUrl,
     apiKey: config.apiKey,
   });
-  if (config.isReasoning) {
-    viewProvider.apiReasoning = wrapLanguageModel({
-      model: ai.languageModel(
-        viewProvider.reasoningModel ? viewProvider.reasoningModel : "grok-beta",
-      ),
-      middleware: extractReasoningMiddleware({ tagName: "think" }),
-    });
-  } else {
-    viewProvider.apiChat = ai.languageModel(
-      viewProvider.model ? viewProvider.model : "grok-beta",
-    );
-  }
+  viewProvider.apiChat = ai.languageModel(
+    viewProvider.model ? viewProvider.model : "grok-beta",
+  );
 }
 
 export async function initTogetherModel(
@@ -283,28 +215,17 @@ export async function initTogetherModel(
     baseURL: apiBaseUrl,
   });
 
-  if (config.isReasoning) {
-    const model = viewProvider.reasoningModel
-      ? viewProvider.reasoningModel
-      : "deepseek-ai/DeepSeek-R1";
+  const model = viewProvider.model
+    ? viewProvider.model
+    : "deepseek-ai/DeepSeek-R1";
 
-    viewProvider.apiReasoning = wrapLanguageModel({
+  if (isReasoningModel(model)) {
+    viewProvider.apiChat = wrapLanguageModel({
       model: ai.languageModel(model),
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     });
   } else {
-    const model = viewProvider.model
-      ? viewProvider.model
-      : "deepseek-ai/DeepSeek-R1";
-
-    if (isReasoningModel(model)) {
-      viewProvider.apiChat = wrapLanguageModel({
-        model: ai.languageModel(model),
-        middleware: extractReasoningMiddleware({ tagName: "think" }),
-      });
-    } else {
-      viewProvider.apiChat = ai.languageModel(model);
-    }
+    viewProvider.apiChat = ai.languageModel(model);
   }
 }
 
@@ -322,26 +243,15 @@ export async function initDeepSeekModel(
     baseURL: apiBaseUrl,
   });
 
-  if (config.isReasoning) {
-    const model = viewProvider.reasoningModel
-      ? viewProvider.reasoningModel
-      : "deepseek-chat";
+  const model = viewProvider.model ? viewProvider.model : "deepseek-chat";
 
-    viewProvider.apiReasoning = wrapLanguageModel({
+  if (isReasoningModel(model)) {
+    viewProvider.apiChat = wrapLanguageModel({
       model: ai.languageModel(model),
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     });
   } else {
-    const model = viewProvider.model ? viewProvider.model : "deepseek-chat";
-
-    if (isReasoningModel(model)) {
-      viewProvider.apiChat = wrapLanguageModel({
-        model: ai.languageModel(model),
-        middleware: extractReasoningMiddleware({ tagName: "think" }),
-      });
-    } else {
-      viewProvider.apiChat = ai.languageModel(model);
-    }
+    viewProvider.apiChat = ai.languageModel(model);
   }
 }
 
@@ -359,25 +269,14 @@ export async function initGroqModel(
     baseURL: apiBaseUrl,
   });
 
-  if (config.isReasoning) {
-    const model = viewProvider.reasoningModel
-      ? viewProvider.reasoningModel
-      : "gemma2-9b-it";
-
-    viewProvider.apiReasoning = wrapLanguageModel({
+  const model = viewProvider.model ? viewProvider.model : "gemma2-9b-it";
+  if (isReasoningModel(model)) {
+    viewProvider.apiChat = wrapLanguageModel({
       model: ai.languageModel(model),
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     });
   } else {
-    const model = viewProvider.model ? viewProvider.model : "gemma2-9b-it";
-    if (isReasoningModel(model)) {
-      viewProvider.apiChat = wrapLanguageModel({
-        model: ai.languageModel(model),
-        middleware: extractReasoningMiddleware({ tagName: "think" }),
-      });
-    } else {
-      viewProvider.apiChat = ai.languageModel(model);
-    }
+    viewProvider.apiChat = ai.languageModel(model);
   }
 }
 
@@ -408,28 +307,17 @@ export async function initOpenRouterModel(
     apiKey: config.apiKey,
   });
 
-  if (config.isReasoning) {
-    const model = viewProvider.reasoningModel
-      ? viewProvider.reasoningModel
-      : "anthropic/claude-3.5-sonnet";
+  const model = viewProvider.model
+    ? viewProvider.model
+    : "anthropic/claude-3.5-sonnet";
 
-    viewProvider.apiReasoning = wrapLanguageModel({
+  if (isReasoningModel(model)) {
+    viewProvider.apiChat = wrapLanguageModel({
       model: ai.languageModel(model),
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     });
   } else {
-    const model = viewProvider.model
-      ? viewProvider.model
-      : "anthropic/claude-3.5-sonnet";
-
-    if (isReasoningModel(model)) {
-      viewProvider.apiChat = wrapLanguageModel({
-        model: ai.languageModel(model),
-        middleware: extractReasoningMiddleware({ tagName: "think" }),
-      });
-    } else {
-      viewProvider.apiChat = ai.languageModel(model);
-    }
+    viewProvider.apiChat = ai.languageModel(model);
   }
 }
 
@@ -446,19 +334,11 @@ export async function initAzureAIModel(
     // apiVersion: azureAPIVersion,
   });
 
-  if (config.isReasoning) {
-    const model = viewProvider.reasoningModel
-      ? viewProvider.reasoningModel
-      : "DeepSeek-R1";
-
-    viewProvider.apiReasoning = wrapReasoningModelIfV3(ai.languageModel(model));
+  const model = viewProvider.model ? viewProvider.model : "DeepSeek-R1";
+  if (isReasoningModel(model)) {
+    viewProvider.apiChat = wrapReasoningModelIfV3(ai.languageModel(model));
   } else {
-    const model = viewProvider.model ? viewProvider.model : "DeepSeek-R1";
-    if (isReasoningModel(model)) {
-      viewProvider.apiChat = wrapReasoningModelIfV3(ai.languageModel(model));
-    } else {
-      viewProvider.apiChat = ai.languageModel(model);
-    }
+    viewProvider.apiChat = ai.languageModel(model);
   }
 }
 
@@ -477,27 +357,16 @@ export async function initReplicateModel(
     baseURL: apiBaseUrl,
   });
 
-  if (config.isReasoning) {
-    const model = viewProvider.reasoningModel
-      ? viewProvider.reasoningModel
-      : "deepseek-ai/deepseek-r1";
-
-    viewProvider.apiReasoning = wrapLanguageModel({
+  const model = viewProvider.model
+    ? viewProvider.model
+    : "deepseek-ai/deepseek-r1";
+  if (isReasoningModel(model)) {
+    viewProvider.apiChat = wrapLanguageModel({
       model: ai.languageModel(model),
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     });
   } else {
-    const model = viewProvider.model
-      ? viewProvider.model
-      : "deepseek-ai/deepseek-r1";
-    if (isReasoningModel(model)) {
-      viewProvider.apiChat = wrapLanguageModel({
-        model: ai.languageModel(model),
-        middleware: extractReasoningMiddleware({ tagName: "think" }),
-      });
-    } else {
-      viewProvider.apiChat = ai.languageModel(model);
-    }
+    viewProvider.apiChat = ai.languageModel(model);
   }
 }
 
@@ -524,16 +393,8 @@ export async function initGeminiOAuthModel(
     sessionId: `gemini-${Date.now()}`,
   });
 
-  if (config.isReasoning) {
-    const model = viewProvider.reasoningModel || "gemini-2.5-pro";
-    viewProvider.apiReasoning = wrapLanguageModel({
-      model: await oauthProvider.getModel(model),
-      middleware: extractReasoningMiddleware({ tagName: "think" }),
-    });
-  } else {
-    const model = viewProvider.model || "gemini-2.5-pro";
-    viewProvider.apiChat = await oauthProvider.getModel(model);
-  }
+  const model = viewProvider.model || "gemini-2.5-pro";
+  viewProvider.apiChat = await oauthProvider.getModel(model);
 
   const models = await getModels("gemini");
   logger.appendLine(`Gemini OAuth model initialized: ${viewProvider.model}`);
@@ -563,16 +424,8 @@ export async function initClaudeOAuthModel(
     sessionId: `claude-${Date.now()}`,
   });
 
-  if (config.isReasoning) {
-    const model = viewProvider.reasoningModel || "claude-sonnet-4-20250514";
-    viewProvider.apiReasoning = wrapLanguageModel({
-      model: await oauthProvider.getModel(model),
-      middleware: extractReasoningMiddleware({ tagName: "think" }),
-    });
-  } else {
-    const model = viewProvider.model || "claude-sonnet-4-20250514";
-    viewProvider.apiChat = await oauthProvider.getModel(model);
-  }
+  const model = viewProvider.model || "claude-sonnet-4-20250514";
+  viewProvider.apiChat = await oauthProvider.getModel(model);
 
   const models = await getModels("claude");
   logger.appendLine(`Claude OAuth model initialized: ${viewProvider.model}`);
@@ -602,16 +455,8 @@ export async function initChatGPTOAuthModel(
     sessionId: `chatgpt-${Date.now()}`,
   });
 
-  if (config.isReasoning) {
-    const model = viewProvider.reasoningModel || "gpt-5.2-codex";
-    viewProvider.apiReasoning = wrapLanguageModel({
-      model: await oauthProvider.getModel(model),
-      middleware: extractReasoningMiddleware({ tagName: "think" }),
-    });
-  } else {
-    const model = viewProvider.model || "gpt-5.2-codex";
-    viewProvider.apiChat = await oauthProvider.getModel(model);
-  }
+  const model = viewProvider.model || "gpt-5.2-codex";
+  viewProvider.apiChat = await oauthProvider.getModel(model);
 
   const models = await getModels("chatgpt");
   logger.appendLine(`ChatGPT OAuth model initialized: ${viewProvider.model}`);
@@ -647,16 +492,8 @@ export async function initAntigravityOAuthModel(
     sessionId: `antigravity-${Date.now()}`,
   });
 
-  if (config.isReasoning) {
-    const model = viewProvider.reasoningModel || "gemini-3-pro-low";
-    viewProvider.apiReasoning = wrapLanguageModel({
-      model: await oauthProvider.getModel(model),
-      middleware: extractReasoningMiddleware({ tagName: "think" }),
-    });
-  } else {
-    const model = viewProvider.model || "gemini-3-pro-low";
-    viewProvider.apiChat = await oauthProvider.getModel(model);
-  }
+  const model = viewProvider.model || "gemini-3-pro-low";
+  viewProvider.apiChat = await oauthProvider.getModel(model);
 
   const models = await getModels("antigravity");
   logger.appendLine(
