@@ -16,10 +16,11 @@
  */
 
 import * as assert from "assert";
+import { vi } from "vitest";
+
+vi.setConfig({ testTimeout: 300000 });
 
 describe("Antigravity OAuth Integration (@manual)", function () {
-  this.timeout(300000);
-
   describe("OAuth Flow", () => {
     it.skip("should complete full OAuth flow", async () => {
       // Manual test: Execute via VS Code command

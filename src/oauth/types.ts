@@ -1,4 +1,13 @@
+import * as crypto from "crypto";
+
 export type OAuthProviderType = "gemini" | "claude" | "chatgpt" | "antigravity";
+
+export const ALL_OAUTH_PROVIDERS: readonly OAuthProviderType[] = [
+  "gemini",
+  "claude",
+  "chatgpt",
+  "antigravity",
+] as const;
 
 export interface OAuthToken {
   provider: OAuthProviderType;
@@ -103,3 +112,21 @@ export const OAUTH_MODEL_PREFIXES: Record<OAuthProviderType, string> = {
   chatgpt: "chatgpt/",
   antigravity: "antigravity/",
 };
+
+/**
+ * Generate PKCE challenge for OAuth flows.
+ * @param useVerifierAsState - If true, uses verifier as state (Claude-specific behavior)
+ */
+export function generatePKCEChallenge(
+  useVerifierAsState = false,
+): PKCEChallenge {
+  const verifier = crypto.randomBytes(32).toString("base64url");
+  const challenge = crypto
+    .createHash("sha256")
+    .update(verifier)
+    .digest("base64url");
+  const state = useVerifierAsState
+    ? verifier
+    : crypto.randomBytes(16).toString("hex");
+  return { verifier, challenge, state };
+}

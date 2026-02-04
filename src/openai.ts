@@ -44,24 +44,23 @@ export async function initGptModel(
       // apiVersion: azureAPIVersion,
       // fetch: fetchOpenAI, // workaround for https://github.com/vercel/ai/issues/4662
     });
-    let azureModel = azure.languageModel(deployName);
-    if (config.enableResponsesAPI) {
-      azureModel = azure.responses(deployName);
-    }
+    const azureModel = config.enableResponsesAPI
+      ? azure.responses(deployName)
+      : azure.chat(deployName);
 
     if (config.isReasoning) {
       viewProvider.apiReasoning = wrapLanguageModel({
-        model: azureModel as any,
+        model: azureModel,
         middleware: extractReasoningMiddleware({ tagName: "think" }),
       });
     } else {
       if (isReasoningModel(deployName)) {
         viewProvider.apiChat = wrapLanguageModel({
-          model: azureModel as any,
+          model: azureModel,
           middleware: extractReasoningMiddleware({ tagName: "think" }),
         });
       } else {
-        viewProvider.apiChat = azureModel as any;
+        viewProvider.apiChat = azureModel;
       }
     }
   } else {
@@ -79,8 +78,8 @@ export async function initGptModel(
         : "o3-mini";
       viewProvider.apiReasoning = wrapLanguageModel({
         model: config.enableResponsesAPI
-          ? (openai.responses(model) as any)
-          : (openai.languageModel(model) as any),
+          ? openai.responses(model)
+          : openai.chat(model),
         middleware: extractReasoningMiddleware({ tagName: "think" }),
       });
     } else {
@@ -88,12 +87,14 @@ export async function initGptModel(
       if (isReasoningModel(model)) {
         viewProvider.apiChat = wrapLanguageModel({
           model: config.enableResponsesAPI
-            ? (openai.responses(model) as any)
-            : (openai.languageModel(model) as any),
+            ? openai.responses(model)
+            : openai.chat(model),
           middleware: extractReasoningMiddleware({ tagName: "think" }),
         });
       } else {
-        viewProvider.apiChat = openai.languageModel(model) as any;
+        viewProvider.apiChat = config.enableResponsesAPI
+          ? openai.responses(model)
+          : openai.chat(model);
       }
     }
   }

@@ -143,37 +143,40 @@ export function hasToolUse(contents: unknown[]): boolean {
     return false;
   }
 
-  for (const content of contents) {
+  return contents.some((content) => {
     if (typeof content !== "object" || content === null) {
-      continue;
+      return false;
     }
 
-    const contentObj = content as Record<string, unknown>;
+    const msg = content as Record<string, unknown>;
+    if (msg.role !== "assistant") {
+      return false;
+    }
 
-    if (contentObj.role === "assistant" && Array.isArray(contentObj.parts)) {
-      for (const part of contentObj.parts) {
-        if (
-          typeof part === "object" &&
-          part !== null &&
-          "functionCall" in part
-        ) {
-          return true;
-        }
+    // Check Gemini format (functionCall in parts)
+    if (Array.isArray(msg.parts)) {
+      const hasFunctionCall = msg.parts.some(
+        (part) =>
+          typeof part === "object" && part !== null && "functionCall" in part,
+      );
+      if (hasFunctionCall) {
+        return true;
       }
     }
 
-    if (contentObj.role === "assistant" && Array.isArray(contentObj.content)) {
-      for (const block of contentObj.content) {
-        if (
+    // Check Claude format (tool_use in content)
+    if (Array.isArray(msg.content)) {
+      const hasToolUseBlock = msg.content.some(
+        (block) =>
           typeof block === "object" &&
           block !== null &&
-          (block as Record<string, unknown>).type === "tool_use"
-        ) {
-          return true;
-        }
+          (block as Record<string, unknown>).type === "tool_use",
+      );
+      if (hasToolUseBlock) {
+        return true;
       }
     }
-  }
 
-  return false;
+    return false;
+  });
 }

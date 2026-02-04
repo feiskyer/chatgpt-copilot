@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
-import { OAuthProviderType, OAuthToken } from "./types";
+import { ALL_OAUTH_PROVIDERS, OAuthProviderType, OAuthToken } from "./types";
 
 const TOKEN_KEY_PREFIX = "oauth-token-";
 const TOKEN_REFRESH_THRESHOLD_MS = 60 * 1000;
@@ -120,21 +120,13 @@ export async function deleteToken(provider: OAuthProviderType): Promise<void> {
 }
 
 export async function getAllTokens(): Promise<OAuthToken[]> {
-  const providers: OAuthProviderType[] = [
-    "gemini",
-    "claude",
-    "chatgpt",
-    "antigravity",
-  ];
   const tokens: OAuthToken[] = [];
-
-  for (const provider of providers) {
+  for (const provider of ALL_OAUTH_PROVIDERS) {
     const token = await getToken(provider);
     if (token) {
       tokens.push(token);
     }
   }
-
   return tokens;
 }
 
@@ -198,13 +190,7 @@ export async function hasValidToken(
 }
 
 export async function clearAllTokens(): Promise<void> {
-  const providers: OAuthProviderType[] = [
-    "gemini",
-    "claude",
-    "chatgpt",
-    "antigravity",
-  ];
-  for (const provider of providers) {
+  for (const provider of ALL_OAUTH_PROVIDERS) {
     await deleteToken(provider);
   }
 }

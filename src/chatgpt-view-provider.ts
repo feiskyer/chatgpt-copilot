@@ -12,12 +12,7 @@
  * copies or substantial portions of the Software.
  */
 
-// @ts-ignore
-import {
-  OpenAIChatLanguageModel,
-  OpenAICompletionLanguageModel,
-} from "@ai-sdk/openai/internal";
-import { LanguageModel as LanguageModelV2, ModelMessage } from "ai";
+import { LanguageModel, ModelMessage } from "ai";
 import delay from "delay";
 import path from "path";
 import * as vscode from "vscode";
@@ -49,19 +44,7 @@ import { ToolSet, createToolSet } from "./mcp";
 import { MCPServer } from "./mcp-server-provider";
 import { ModelConfig } from "./model-config";
 import { chatGpt, initGptModel } from "./openai";
-import { chatCompletion, initGptLegacyModel } from "./openai-legacy";
 import { PromptStore } from "./types";
-
-// Temporary compatibility type to handle LanguageModelV1 and LanguageModelV2
-type CompatibleLanguageModel =
-  | LanguageModelV2
-  | {
-      specificationVersion: "v1";
-      provider: string;
-      modelId: string;
-      doGenerate: any;
-      doStream: any;
-    };
 
 export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   private webView?: vscode.WebviewView;
@@ -79,11 +62,8 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
   public reasoningProvider: string = "Auto";
   public reasoningModelConfig!: ModelConfig;
   public systemPromptOverride: string = "";
-  public apiCompletion?:
-    | OpenAICompletionLanguageModel
-    | CompatibleLanguageModel;
-  public apiChat?: OpenAIChatLanguageModel | CompatibleLanguageModel;
-  public apiReasoning?: OpenAIChatLanguageModel | CompatibleLanguageModel;
+  public apiChat?: LanguageModel;
+  public apiReasoning?: LanguageModel;
   public conversationId?: string;
   public questionCounter: number = 0;
   public inProgress: boolean = false;
@@ -249,7 +229,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
           this.logEvent("browser-cleared");
           break;
         case "cleargpt3":
-          this.apiCompletion = undefined;
           this.apiChat = undefined;
           this.apiReasoning = undefined;
           this.conversationContext = {
@@ -447,7 +426,6 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
     this.stopGenerating();
     this.apiChat = undefined;
     this.apiReasoning = undefined;
-    this.apiCompletion = undefined;
     this.conversationId = undefined;
     this.claudeCodeSessionId = undefined;
     this.logEvent("cleared-session");
@@ -592,7 +570,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         return "AzureAI";
       }
 
-      return "OpenAILegacy";
+      return "OpenAI";
     }
 
     return this.provider;
@@ -756,7 +734,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
       (!this.isOpenAIModel &&
         !this.isClaude &&
         !this.isGemini &&
-        !this.apiCompletion) ||
+        !this.apiChat) ||
       modelChanged
     ) {
       let apiKey =
@@ -985,7 +963,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
               break;
 
             default:
-              initGptLegacyModel(this, modelConfig);
+              await initGptModel(this, modelConfig);
               break;
           }
         }
@@ -1145,15 +1123,7 @@ export default class ChatGptViewProvider implements vscode.WebviewViewProvider {
         this.conversationContext.filesSent = true;
       }
 
-      if (this.provider == "OpenAILegacy") {
-        await chatCompletion(
-          this,
-          question,
-          imageFiles,
-          startResponse,
-          updateResponse,
-        );
-      } else if (this.provider == "GitHubCopilot") {
+      if (this.provider == "GitHubCopilot") {
         await chatCopilot(
           this,
           question,

@@ -148,19 +148,7 @@ export function needsThinkingWarmup(
   hasSignedThinking: boolean,
   hasCachedThinking: boolean,
 ): boolean {
-  if (!hasToolUse) {
-    return false;
-  }
-
-  if (hasSignedThinking) {
-    return false;
-  }
-
-  if (hasCachedThinking) {
-    return false;
-  }
-
-  return true;
+  return hasToolUse && !hasSignedThinking && !hasCachedThinking;
 }
 
 export function handleThinkingRecovery(

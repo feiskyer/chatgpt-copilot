@@ -16,10 +16,12 @@
  */
 
 import * as assert from "assert";
+import { vi } from "vitest";
+
+vi.setConfig({ testTimeout: 300000 });
 
 describe("Gemini OAuth Integration (@manual)", function () {
   // Increase timeout for manual tests
-  this.timeout(300000); // 5 minutes
 
   describe("OAuth Flow", () => {
     it.skip("should complete full OAuth flow", async () => {

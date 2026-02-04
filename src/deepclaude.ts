@@ -61,7 +61,7 @@ export async function reasoningChat(
       let hasReasoning = false;
       let reasoningDone = false;
       const result = streamText({
-        model: provider.apiReasoning as any,
+        model: provider.apiReasoning,
         messages: provider.chatHistory,
 
         abortSignal: provider.abortController?.signal,
@@ -179,7 +179,7 @@ export async function reasoningChat(
     let toolCallCounter = 0;
     const result = streamText({
       system: provider.modelConfig.systemPrompt,
-      model: provider.apiChat as any,
+      model: provider.apiChat,
       messages: provider.chatHistory,
       abortSignal: provider.abortController?.signal,
       tools: getToolsWithWebSearch(provider) || undefined,

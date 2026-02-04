@@ -34,34 +34,29 @@ function isObject(value: unknown): value is SchemaObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+const CONSTRAINT_FORMATTERS: Array<{
+  key: string;
+  type: "string" | "number";
+  format: (value: string | number) => string;
+}> = [
+  { key: "minLength", type: "number", format: (v) => `minLength: ${v}` },
+  { key: "maxLength", type: "number", format: (v) => `maxLength: ${v}` },
+  { key: "pattern", type: "string", format: (v) => `pattern: ${v}` },
+  { key: "format", type: "string", format: (v) => `format: ${v}` },
+  { key: "minItems", type: "number", format: (v) => `minItems: ${v}` },
+  { key: "maxItems", type: "number", format: (v) => `maxItems: ${v}` },
+  { key: "exclusiveMinimum", type: "number", format: (v) => `> ${v}` },
+  { key: "exclusiveMaximum", type: "number", format: (v) => `< ${v}` },
+];
+
 function collectConstraintHints(schema: SchemaObject): string[] {
   const hints: string[] = [];
-
-  if (typeof schema.minLength === "number") {
-    hints.push(`minLength: ${schema.minLength}`);
+  for (const { key, type, format } of CONSTRAINT_FORMATTERS) {
+    const value = schema[key];
+    if (typeof value === type) {
+      hints.push(format(value as string | number));
+    }
   }
-  if (typeof schema.maxLength === "number") {
-    hints.push(`maxLength: ${schema.maxLength}`);
-  }
-  if (typeof schema.pattern === "string") {
-    hints.push(`pattern: ${schema.pattern}`);
-  }
-  if (typeof schema.format === "string") {
-    hints.push(`format: ${schema.format}`);
-  }
-  if (typeof schema.minItems === "number") {
-    hints.push(`minItems: ${schema.minItems}`);
-  }
-  if (typeof schema.maxItems === "number") {
-    hints.push(`maxItems: ${schema.maxItems}`);
-  }
-  if (typeof schema.exclusiveMinimum === "number") {
-    hints.push(`> ${schema.exclusiveMinimum}`);
-  }
-  if (typeof schema.exclusiveMaximum === "number") {
-    hints.push(`< ${schema.exclusiveMaximum}`);
-  }
-
   return hints;
 }
 

@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import {
+  ALL_OAUTH_PROVIDERS,
   OAuthModelInfo,
   OAuthProviderType,
   OAUTH_MODEL_PREFIXES,
@@ -69,13 +70,7 @@ export async function clearModelCache(
   if (provider) {
     await state.update(getCacheKey(provider), undefined);
   } else {
-    const providers: OAuthProviderType[] = [
-      "gemini",
-      "claude",
-      "chatgpt",
-      "antigravity",
-    ];
-    for (const p of providers) {
+    for (const p of ALL_OAUTH_PROVIDERS) {
       await state.update(getCacheKey(p), undefined);
     }
   }
