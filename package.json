@@ -748,7 +748,7 @@
     "gpt3-tokenizer": "^1.1.5",
     "isomorphic-fetch": "^3.0.0",
     "keyv": "^5.6.0",
-    "minimatch": "^10.1.2",
+    "minimatch": "^10.2.1",
     "ollama-ai-provider-v2": "^3.0.3",
     "openai": "^6.17.0",
     "p-timeout": "^7.0.1",
