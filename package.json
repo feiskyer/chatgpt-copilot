@@ -728,7 +728,7 @@
     "@ai-sdk/google": "^3.0.20",
     "@ai-sdk/groq": "^3.0.21",
     "@ai-sdk/mistral": "^3.0.18",
-    "@ai-sdk/openai": "^3.0.25",
+    "@ai-sdk/openai": "^3.0.52",
     "@ai-sdk/perplexity": "^3.0.17",
     "@ai-sdk/provider": "^3.0.7",
     "@ai-sdk/replicate": "^2.0.17",
