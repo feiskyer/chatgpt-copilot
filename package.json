@@ -733,7 +733,7 @@
     "@ai-sdk/provider": "^3.0.7",
     "@ai-sdk/replicate": "^2.0.17",
     "@ai-sdk/togetherai": "^2.0.29",
-    "@ai-sdk/xai": "^3.0.46",
+    "@ai-sdk/xai": "^3.0.82",
     "@anthropic-ai/claude-agent-sdk": "^0.2.31",
     "@modelcontextprotocol/sdk": "^1.26.0",
     "@openrouter/ai-sdk-provider": "^2.1.1",
