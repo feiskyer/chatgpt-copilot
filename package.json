@@ -716,7 +716,7 @@
     "npm-check-updates": "^19.3.2",
     "prettier": "^3.8.1",
     "rimraf": "^6.1.2",
-    "ts-loader": "^9.5.4",
+    "ts-loader": "^9.5.7",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18",
     "webpack": "^5.105.0"
