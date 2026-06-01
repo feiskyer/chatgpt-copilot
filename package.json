@@ -718,7 +718,7 @@
     "rimraf": "^6.1.2",
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.18",
+    "vitest": "^4.1.0",
     "webpack": "^5.105.0"
   },
   "dependencies": {
